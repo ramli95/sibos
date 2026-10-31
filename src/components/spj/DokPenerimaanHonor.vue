@@ -35,7 +35,7 @@ const kode = computed(() => props.b.item?.[0] || props.b.uraian_honor || {})
       <tr v-for="(x, i) in p" :key="i">
         <td class="tengah">{{ i + 1 }}</td><td>{{ x.nama }}<div v-if="x.nip" class="kecil">NIP {{ formatNip(x.nip) }}</div></td><td class="tengah">{{ x.golongan || '-' }}</td>
         <td>{{ [x.jabatan, x.instansi].filter(Boolean).join(', ') }}</td><td class="kanan">{{ r(x.besaran) }}</td><td class="tengah">{{ x.volume }} {{ x.satuan }}</td>
-        <td class="kanan">{{ r(x.bruto) }}</td><td v-if="adaPph" class="kanan">{{ r(x.pph21) }}<div class="kecil">{{ String(x.tarif_pph21).replace('.', ',') }}%</div></td><td class="kanan">{{ r(x.diterima) }}</td>
+        <td class="kanan">{{ r(x.bruto) }}</td><td v-if="adaPph" class="kanan">{{ r(x.pph21) }}<div class="kecil">{{ String(x.tarif_efektif ?? x.tarif_pph21).replace('.', ',') }}%</div></td><td class="kanan">{{ r(x.diterima) }}</td>
         <td class="ttd-sel"><span :class="i % 2 ? 'ttd-kanan' : 'ttd-kiri'">{{ i + 1 }}.</span></td>
       </tr>
       <tr class="tebal"><td colspan="6" class="kanan">JUMLAH</td><td class="kanan">{{ r(j('bruto')) }}</td><td v-if="adaPph" class="kanan">{{ r(j('pph21')) }}</td><td class="kanan">{{ r(j('diterima')) }}</td><td></td></tr>

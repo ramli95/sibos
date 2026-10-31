@@ -33,6 +33,8 @@ export const JENIS_HONOR = {
   narasumber: { label: 'Narasumber', ikon: 'Briefcase', ket: 'Honor narasumber/pembahas/moderator', dokumen: ['penerimaan_honor', 'daftar_hadir', 'foto'] },
   transpor: { label: 'Transpor', ikon: 'Bus', ket: 'Uang transpor peserta/pendamping', dokumen: ['tanda_terima_transpor', 'daftar_hadir'] },
   insentif: { label: 'Insentif/Lainnya', ikon: 'HeartHandshake', ket: 'Pembayaran lain kepada perorangan', dokumen: ['penerimaan_honor'] },
+  upah: { label: 'Upah harian', ikon: 'Hammer', ket: 'Upah tukang/tenaga harian/borongan (TER harian)', dokumen: ['penerimaan_honor', 'daftar_hadir'] },
+  uang_saku: { label: 'Uang saku/hadiah', ikon: 'Sparkles', ket: 'Uang saku, uang rapat, hadiah lomba peserta (PPh 21 peserta kegiatan)', dokumen: ['penerimaan_honor', 'daftar_hadir'] },
 }
 
 // Semua dokumen yang dapat dibuat SIBOS. urutan = urutan di Paket SPJ.

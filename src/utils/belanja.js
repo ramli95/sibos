@@ -127,12 +127,16 @@ export function rapikanPenerima(p, jenis) {
   const volume = Number(p.volume) || 0
   const bruto = Math.round(besaran * volume)
   const otomatis = pph21Penerima({ ...p, sumber: p.sumber || 'pegawai' }, jenis, bruto)
-  const tarif = p.tarif_pph21 === '' || p.tarif_pph21 == null ? otomatis.tarif : Number(p.tarif_pph21) || 0
-  const pph21 = Math.round(bruto * tarif / 100)
+  // Tarif manual hanya bila ditandai (pph21_manual); data lama tanpa tanda dihitung ulang menurut aturan
+  const manual = !!p.pph21_manual && !(p.tarif_pph21 === '' || p.tarif_pph21 == null)
+  const tarif = manual ? Number(p.tarif_pph21) || 0 : otomatis.tarif
+  const pph21 = manual ? Math.round(bruto * tarif / 100) : otomatis.nilai
   return {
     sumber: p.sumber || 'pegawai', id: p.id || null, nama: String(p.nama || '').trim(), nip: p.nip || '', golongan: p.golongan || '',
     jabatan: p.jabatan || '', status_kepegawaian: p.status_kepegawaian || '', npwp: p.npwp || '', instansi: p.instansi || '',
-    besaran, volume, satuan: p.satuan || '', hari: Number(p.hari) || 1, bruto, tarif_pph21: tarif, alasan_pph21: p.tarif_pph21 === '' || p.tarif_pph21 == null ? otomatis.alasan : 'Diisi manual', pph21, diterima: bruto - pph21,
+    besaran, volume, satuan: p.satuan || '', hari: Number(p.hari) || 1, bruto,
+    kategori_pph21: p.kategori_pph21 || '', kategori_pph21_hasil: otomatis.kategori, ptkp: p.ptkp || '', gaji_bruto: Math.round(Number(p.gaji_bruto) || 0),
+    tarif_pph21: manual ? tarif : '', pph21_manual: manual, tarif_efektif: tarif, alasan_pph21: manual ? 'Diisi manual' : otomatis.alasan, pph21, diterima: bruto - pph21,
   }
 }
 

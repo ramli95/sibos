@@ -6,7 +6,7 @@ import { useBelanja } from '@/stores/belanja'
 import { useAuth } from '@/stores/auth'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { simpanSetoran, hapusSetoran } from '@/services/kas'
-import { hitungPajak } from '@/utils/pajak'
+import { hitungPajak, jatuhTempo } from '@/utils/pajak'
 import { WARNA_PAJAK, CARA_PAJAK } from '@/config/pajak'
 import { rupiah, rupiahRingkas, tanggalPendek, NAMA_BULAN, keIso, dariIso } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
@@ -25,11 +25,12 @@ const bulan = ref('')
 const cari = ref('')
 const hasil = computed(() => {
   const q = cari.value.trim().toLowerCase()
-  return kas.kewajiban.filter((p) => (status.value === 'semua' || (status.value === 'mitra' ? p.cara === 'mitra' : p.status === status.value && (status.value !== 'disetor' || p.cara !== 'mitra')))
+  return kas.kewajiban.filter((p) => (status.value === 'semua' || (status.value === 'mitra' ? p.cara === 'mitra' || p.cara === 'luar' : p.status === status.value && (status.value !== 'disetor' || p.cara !== 'mitra')))
     && (!jenis.value || p.jenis === jenis.value) && (bulan.value === '' || dariIso(p.tgl_pungut)?.getMonth() === Number(bulan.value))
     && (!q || [p.uraian, p.pihak, p.ntpn, p.kode_billing].some((v) => String(v || '').toLowerCase().includes(q))))
 })
 const jml = (a) => a.reduce((s, p) => s + p.nilai, 0)
+const hariIni = keIso()
 
 // Belanja lunas yang pajaknya berbeda dari aturan aktif (bukan manual/migrasi)
 const perluPeriksa = computed(() => belanja.daftar.filter((b) => b.status === 'lunas' && !b.pajak_manual && b.sumber !== 'migrasi' && b.jenis !== 'honor'
@@ -39,11 +40,11 @@ const tampilPeriksa = ref(false)
 const statistik = computed(() => {
   const k = kas.kewajiban
   const disetor = k.filter((p) => p.status === 'disetor' && p.cara !== 'mitra')
-  const mitra = k.filter((p) => p.cara === 'mitra')
+  const mitra = k.filter((p) => p.cara === 'mitra' || p.cara === 'luar')
   return [
     { judul: 'Belum disetor', nilai: rupiahRingkas(kas.totalTerutang), ikon: 'TriangleAlert', nada: kas.terutang.length ? 'peringatan' : 'sukses', sub: `${kas.terutang.length} kewajiban`, ringkas: true, kunci: 'terutang' },
     { judul: 'Sudah disetor', nilai: rupiahRingkas(jml(disetor)), ikon: 'BadgeCheck', nada: 'primer', sub: `${kas.setoran.length} kode billing`, ringkas: true, kunci: 'disetor' },
-    { judul: 'Dipungut mitra SIPLah', nilai: rupiahRingkas(jml(mitra)), ikon: 'ShoppingBag', nada: 'primer', sub: `${mitra.length} kewajiban terima-setor`, ringkas: true, kunci: 'mitra' },
+    { judul: 'Mitra SIPLah / luar BOSP', nilai: rupiahRingkas(jml(mitra)), ikon: 'ShoppingBag', nada: 'primer', sub: `${mitra.length} kewajiban terima-setor`, ringkas: true, kunci: 'mitra' },
     { judul: 'Perlu diperiksa', nilai: perluPeriksa.value.length, ikon: 'Calculator', nada: perluPeriksa.value.length ? 'bahaya' : 'primer', sub: 'Pajak berbeda dari aturan', kunci: 'periksa' },
   ]
 })
@@ -94,7 +95,9 @@ async function hapus() {
 
 const asisten = ref(null)
 const buka = (p) => { asisten.value = belanja.daftar.find((b) => b.id === p.id_belanja) || null }
+const semuaSetoran = ref(false)
 const setoranUrut = computed(() => [...kas.setoran].sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal))))
+const setoranTampil = computed(() => (semuaSetoran.value ? setoranUrut.value : setoranUrut.value.slice(0, 9)))
 </script>
 
 <template>
@@ -111,7 +114,7 @@ const setoranUrut = computed(() => [...kas.setoran].sort((a, b) => String(b.tang
 
     <div class="kartu flex flex-wrap items-center gap-2 p-3">
       <div class="relative min-w-[12rem] flex-1"><Ikon nama="Search" :ukuran="17" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input v-model="cari" class="masukan pl-9" placeholder="Cari uraian, penyedia, NTPN…" /></div>
-      <select v-model="status" class="masukan w-auto py-2.5" aria-label="Status"><option value="terutang">Terutang</option><option value="disetor">Sudah disetor</option><option value="mitra">Mitra SIPLah</option><option value="semua">Semua</option></select>
+      <select v-model="status" class="masukan w-auto py-2.5" aria-label="Status"><option value="terutang">Terutang</option><option value="disetor">Sudah disetor</option><option value="mitra">Mitra SIPLah / luar BOSP</option><option value="semua">Semua</option></select>
       <select v-model="jenis" class="masukan w-auto py-2.5" aria-label="Jenis pajak"><option value="">Semua jenis</option><option v-for="j in ['PPN', 'PPh 21', 'PPh 22', 'PPh 23', 'PPh 4(2)']" :key="j">{{ j }}</option></select>
       <select v-model="bulan" class="masukan w-auto py-2.5" aria-label="Bulan"><option value="">Semua bulan</option><option v-for="(n, i) in NAMA_BULAN" :key="n" :value="i">{{ n }}</option></select>
       <button v-if="auth.isAdmin && status === 'terutang' && hasil.some(bisaPilih)" class="tombol-garis" @click="pilihSemua"><Ikon nama="CopyCheck" :ukuran="17" class="text-biru" /> <span class="hidden sm:inline">Pilih semua</span></button>
@@ -136,6 +139,7 @@ const setoranUrut = computed(() => [...kas.setoran].sort((a, b) => String(b.tang
           <p class="mt-0.5 line-clamp-2 text-sm font-semibold">{{ p.uraian }}</p>
           <p class="truncate text-xs text-slate-500">{{ tanggalPendek(p.tgl_pungut) }}<template v-if="p.pihak"> · {{ p.pihak }}</template>
             <template v-if="p.status === 'disetor' && p.cara !== 'mitra'"> · disetor {{ tanggalPendek(p.tgl_setor) }}<template v-if="p.ntpn"> · NTPN {{ p.ntpn }}</template></template></p>
+          <p v-if="p.status === 'terutang'" :class="['text-xs font-semibold', jatuhTempo(p) < hariIni ? 'text-rose-600' : 'text-amber-600']"><Ikon nama="Clock" :ukuran="12" class="inline" /> Jatuh tempo {{ tanggalPendek(jatuhTempo(p)) }}{{ jatuhTempo(p) < hariIni ? ' — terlambat' : '' }}</p>
         </button>
         <div class="shrink-0 text-right">
           <p class="angka font-bold">{{ rupiah(p.nilai) }}</p>
@@ -157,13 +161,14 @@ const setoranUrut = computed(() => [...kas.setoran].sort((a, b) => String(b.tang
       <h2 class="mb-3 flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="Landmark" :ukuran="17" /></span> Riwayat setoran (kode billing & NTPN)</h2>
       <p v-if="!setoranUrut.length" class="text-sm text-slate-500">Belum ada setoran. Centang kewajiban terutang lalu “Catat setoran”.</p>
       <div v-else class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-        <button v-for="s in setoranUrut" :key="s.id" type="button" class="rounded-xl border border-slate-200 p-3 text-left transition hover:border-biru/40 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/40" @click="auth.isAdmin && ubahSetoran(s)">
+        <button v-for="s in setoranTampil" :key="s.id" type="button" class="rounded-xl border border-slate-200 p-3 text-left transition hover:border-biru/40 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800/40" @click="auth.isAdmin && ubahSetoran(s)">
           <div class="flex items-center justify-between gap-2"><span class="text-xs text-slate-500">{{ tanggalPendek(s.tanggal) }} · masa {{ s.masa }}</span><b class="angka text-sm">{{ rupiah(s.total) }}</b></div>
           <p class="kode mt-1 truncate text-sm font-bold">{{ s.ntpn || 'NTPN belum diisi' }}</p>
           <p class="kode truncate text-xs text-slate-500">Billing {{ s.kode_billing || '-' }}<template v-if="s.bnu"> · {{ s.bnu }}</template></p>
           <p class="mt-1 flex flex-wrap gap-1"><span v-for="j in [...new Set((s.butir || []).map((x) => x.jenis))]" :key="j" :class="['lencana', WARNA_PAJAK[j]]">{{ j }}</span><span class="text-xs text-slate-500">{{ (s.butir || []).length }} kewajiban</span></p>
         </button>
       </div>
+      <button v-if="setoranUrut.length > 9" class="tombol-garis mt-3" @click="semuaSetoran = !semuaSetoran"><Ikon :nama="semuaSetoran ? 'ChevronsDownUp' : 'ChevronsUpDown'" :ukuran="16" class="text-biru" /> {{ semuaSetoran ? 'Ringkas' : `Tampilkan semua (${setoranUrut.length})` }}</button>
     </section>
 
     <Laci v-if="form" :judul="form.id ? 'Ubah setoran pajak' : 'Catat setoran pajak'" :subjudul="`${form.butir.length} kewajiban · ${rupiah(totalForm)}`" ikon="Landmark" @tutup="form = null">
@@ -175,7 +180,7 @@ const setoranUrut = computed(() => [...kas.setoran].sort((a, b) => String(b.tang
           <div><label class="label" for="st-ntpn">NTPN (16 karakter)</label><input id="st-ntpn" v-model="form.ntpn" class="masukan kode uppercase" /></div>
           <div><label class="label" for="st-bnu">BNU ARKAS setor pajak</label><input id="st-bnu" v-model="form.bnu" class="masukan kode" placeholder="BNU …" />
             <p v-if="jenisForm.length > 1" class="mt-1 text-xs text-slate-500">Beberapa jenis pajak: BNU per jenis bisa diisi di bawah.</p></div>
-          <div><label class="label" for="st-dari">Dibayar dari</label><select id="st-dari" v-model="form.dari" class="masukan"><option value="bank">Rekening bank BOSP</option><option value="tunai">Kas tunai</option></select></div>
+          <div><label class="label" for="st-dari">Dibayar dari</label><select id="st-dari" v-model="form.dari" class="masukan"><option value="bank">Rekening bank BOSP</option><option value="tunai">Kas tunai</option><option value="luar">Di luar rekening BOSP (ditanggung sekolah)</option></select></div>
         </div>
         <div v-if="jenisForm.length > 1" class="grid gap-2 sm:grid-cols-2">
           <label v-for="j in jenisForm" :key="j" class="text-xs text-slate-500">BNU {{ j }}<input :value="form.bnu_jenis?.[j] || ''" class="masukan kode py-1.5" @input="form.bnu_jenis = { ...(form.bnu_jenis || {}), [j]: $event.target.value }" /></label>

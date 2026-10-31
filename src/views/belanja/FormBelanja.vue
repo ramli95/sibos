@@ -1,4 +1,6 @@
 <script setup>
+import { peringatanPajak } from '@/utils/pajak'
+import { WARNA_PAJAK } from '@/config/pajak'
 // Formulir belanja barang/jasa (Non-SIPLah & SIPLah). Satu formulir, boleh disimpan sebagian:
 // status Draf → Dipesan → Diterima → Lunas ditentukan otomatis dari tanggal yang terisi.
 import { reactive, ref, shallowRef, computed, onMounted, watch } from 'vue'
@@ -135,6 +137,7 @@ const ganda = computed(() => nomorGanda(belanja.daftar, { ...f, id: idUbah.value
 const spk = computed(() => total.value > BATAS.spk)
 
 const pajak = computed(() => perkiraanPajak({ ...f, item: items.value }))
+const catatanPajak = computed(() => peringatanPajak({ ...f, item: items.value }))
 
 /* ---------- Pemeriksa & pelaksana ---------- */
 function pilihPemeriksa(id) {
@@ -158,7 +161,6 @@ const galat = computed(() => {
 })
 const peringatan = computed(() => {
   const w = []
-  if (f.rekanan && !f.rekanan.status_pkp && total.value > BATAS.non_pkp && !siplah.value) w.push({ nada: 'peringatan', ikon: 'ReceiptText', teks: `Penyedia non-PKP untuk belanja di atas ${rupiah(BATAS.non_pkp)}. Pastikan tidak ada PPN di nota dan pajak dihitung benar.` })
   if (milikPegawai.value.length) w.push({ nada: 'info', ikon: 'Info', teks: `Usaha ini milik pegawai sekolah (${milikPegawai.value.map((p) => p.nama).join(', ')}). Tetap boleh; pastikan harga wajar dan dokumen lengkap.` })
   if (lewatPagu.value.some((x) => x.lewat)) w.push({ nada: 'bahaya', ikon: 'TriangleAlert', teks: 'Ada item yang melebihi sisa pagu uraian RKAS. Lakukan pergeseran di ARKAS sebelum dibayar.' })
   if (lewatPagu.value.some((x) => x.tidakAda) && rkas.uraian.length) w.push({ nada: 'peringatan', ikon: 'SearchX', teks: 'Ada item yang uraiannya tidak ditemukan di RKAS versi berlaku.' })
@@ -377,14 +379,15 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
 
       <!-- 7. Pajak -->
       <section class="kartu space-y-3 p-4 sm:p-5">
-        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="Percent" :ukuran="17" /></span> Perkiraan pajak</h2>
+        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="Percent" :ukuran="17" /></span> Pajak menurut aturan tarif</h2>
         <div v-if="!pajak.length" class="text-sm text-slate-500">Tidak ada pajak yang dipungut/dipotong.</div>
         <div v-for="p in pajak" :key="p.jenis" class="flex items-center gap-3 rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800/50">
-          <span class="lencana bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300">{{ p.jenis }}</span>
-          <span class="min-w-0 flex-1 text-xs text-slate-500">{{ p.tarif }}% × {{ rupiah(p.dasar) }} — {{ p.ket }}</span>
+          <span :class="['lencana shrink-0', WARNA_PAJAK[p.jenis]]">{{ p.jenis }}</span>
+          <span class="min-w-0 flex-1 text-xs text-slate-500"><template v-if="p.tarif != null">{{ p.tarif }}% × </template>{{ rupiah(p.dasar) }} — {{ p.ket }}<span v-if="p.dasar_hukum" class="block text-[11px] italic">{{ p.dasar_hukum }}</span></span>
           <b class="angka">{{ rupiah(p.nilai) }}</b>
         </div>
-        <p class="text-xs text-slate-500">Hitungan sementara untuk daftar & kwitansi. Billing, NTPN dan setoran diatur di Fase 4 (Pajak).</p>
+        <p v-for="w in catatanPajak" :key="w" class="flex gap-1.5 text-xs text-amber-700 dark:text-amber-300"><Ikon nama="Info" :ukuran="13" class="mt-0.5 shrink-0" /> {{ w }}</p>
+        <p class="text-xs text-slate-500">Kode billing, NTPN dan setoran dicatat di menu Pajak → Pajak Terutang setelah transaksi lunas.</p>
       </section>
 
       <!-- Peringatan & simpan -->

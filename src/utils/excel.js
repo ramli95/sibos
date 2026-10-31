@@ -161,13 +161,13 @@ function uraiCsv(teks) {
 }
 
 /** Mengembalikan [{ nama, baris: [[sel...]] }] */
-export async function bacaBerkas(file) {
+export async function bacaBerkas(file, { tersembunyi = false } = {}) {
   if (/\.csv$/i.test(file.name)) return [{ nama: file.name, baris: uraiCsv(await file.text()) }]
   if (!/\.xlsx$/i.test(file.name)) throw new Error('Gunakan berkas .xlsx atau .csv. Berkas .xls lama: buka di Excel lalu Simpan Sebagai .xlsx.')
   const ExcelJS = await muatExcel()
   const wb = new ExcelJS.Workbook()
   await wb.xlsx.load(await file.arrayBuffer())
-  return wb.worksheets.filter((ws) => ws.state !== 'hidden' && ws.rowCount > 0).map((ws) => {
+  return wb.worksheets.filter((ws) => (tersembunyi || ws.state !== 'hidden') && ws.rowCount > 0).map((ws) => {
     const baris = []
     ws.eachRow({ includeEmpty: true }, (row) => {
       const isi = []

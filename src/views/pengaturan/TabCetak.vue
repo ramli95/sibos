@@ -69,6 +69,16 @@ function kembalikan() { c.value = structuredClone(CETAK_AWAL) }
         <p class="mt-2 text-xs text-slate-500">Tetap bisa dipilih ulang setiap kali mencetak.</p>
       </section>
 
+      <section class="kartu p-5">
+        <h3 class="mb-3 flex items-center gap-2 font-bold"><Ikon nama="Hash" :ukuran="18" class="text-[#22A08D]" /> Nomor Kode Rekening pada sampul kwitansi</h3>
+        <div class="grid gap-2 sm:grid-cols-2">
+          <label v-for="[v, l, ket] in [['rekening', 'Kode rekening belanja RKAS', 'mis. 5.1.02.03.02.0121'], ['kegiatan_rekening', 'Kode kegiatan / rekening', 'mis. 05.08.03 / 5.1.02.03.02.0121'], ['kegiatan', 'Kode program.komponen.kegiatan', 'mis. 05.08.03'], ['snp', 'Format SNP Jurnal lama', 'mis. 1.5 (1 tetap, 5 = urutan SNP)']]" :key="v"
+                 :class="['cursor-pointer rounded-xl border p-3', (c.kode_sampul || 'rekening') === v ? 'border-biru bg-biru/5 dark:bg-blue-950/30' : 'border-slate-300 dark:border-slate-600']">
+            <input v-model="c.kode_sampul" type="radio" :value="v" class="sr-only" /><b class="block text-sm">{{ l }}</b><span class="text-xs text-slate-500">{{ ket }}</span>
+          </label>
+        </div>
+      </section>
+
       <div class="flex flex-wrap gap-2">
         <button class="tombol-utama" :disabled="menyimpan" @click="simpan"><Ikon :nama="menyimpan ? 'RefreshCw' : 'Save'" :ukuran="17" :class="menyimpan && 'animate-spin'" /> Simpan</button>
         <button class="tombol-garis" @click="kembalikan"><Ikon nama="RefreshCw" :ukuran="17" /> Kembalikan bawaan</button>

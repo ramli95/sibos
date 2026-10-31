@@ -34,7 +34,7 @@ export function konteks(b, bahan) {
   }
   const pemeriksa = b.pemeriksa ? { jabatan: b.pemeriksa.jabatan || 'Pemeriksa Barang', nama: namaOrang(b.pemeriksa), nip: b.pemeriksa.nip || '' } : null
   return {
-    sekolah, penyedia, pemeriksa, pakaiGambar,
+    sekolah, penyedia, pemeriksa, pakaiGambar, kodeSampul: bahan.cetak?.kode_sampul || 'rekening',
     ks: (t) => pj('kepala_sekolah', t),
     bendahara: (t) => pj('bendahara_bosp', t),
     komite: (t) => pj('ketua_komite', t),

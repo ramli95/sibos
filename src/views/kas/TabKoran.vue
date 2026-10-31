@@ -7,7 +7,7 @@ import { useAuth } from '@/stores/auth'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { simpanKoran, hapusKoran, simpanKas } from '@/services/kas'
 import { calonBank, cocokkanKoran, tebakJenisMutasi, saldoSampai } from '@/utils/bku'
-import { uraiKoran, bacaBerkasKoran } from '@/utils/koran'
+import { uraiKoran, bacaBerkasKoran, pecahPerBulan } from '@/utils/koran'
 import { JENIS_KAS } from '@/config/pajak'
 import { rupiah, tanggalPendek, NAMA_BULAN, keIso } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
@@ -55,15 +55,20 @@ async function pilihBerkas(e) {
 }
 async function simpanImpor() {
   const p = pratinjau.value
-  const idb = `${kas.tahun}-${String(p.bulan + 1).padStart(2, '0')}`
-  if (kas.koran.some((k) => k.id === idb) && !confirm(`Rekening koran ${NAMA_BULAN[p.bulan]} sudah ada. Ganti?`)) return
+  // Rekening koran beberapa bulan sekaligus → disimpan per bulan
+  const bagian = pecahPerBulan({ ...p, mutasi: p.mutasi }).filter((x) => x.bulan.startsWith(String(kas.tahun)))
+  if (!bagian.length) { notif.kabari(`Tidak ada mutasi tahun ${kas.tahun}.`, 'galat'); return }
+  const ada = bagian.filter((x) => kas.koran.some((k) => k.id === x.bulan))
+  if (ada.length && !confirm(`Rekening koran ${ada.map((x) => NAMA_BULAN[Number(x.bulan.slice(5, 7)) - 1]).join(', ')} sudah ada. Ganti?`)) return
   try {
-    await simpanKoran(idb, { nama_berkas: p.nama_berkas, saldo_awal: Number(p.saldo_awal) || 0, saldo_akhir: Number(p.saldo_akhir) || 0, mutasi: p.mutasi.map((m, i) => ({ ...m, no: i + 1 })) },
-      `Impor rekening koran ${NAMA_BULAN[p.bulan]} ${kas.tahun}: ${p.mutasi.length} mutasi`)
-    bulan.value = p.bulan
+    for (const x of bagian) {
+      await simpanKoran(x.bulan, { nama_berkas: p.nama_berkas, saldo_awal: x.saldo_awal, saldo_akhir: x.saldo_akhir, mutasi: x.mutasi },
+        `Impor rekening koran ${NAMA_BULAN[Number(x.bulan.slice(5, 7)) - 1]} ${kas.tahun}: ${x.mutasi.length} mutasi`)
+    }
+    bulan.value = Number(bagian.at(-1).bulan.slice(5, 7)) - 1
     pratinjau.value = null
     await kas.segarkan()
-    notif.kabari('Rekening koran tersimpan dan dicocokkan.')
+    notif.kabari(`Rekening koran tersimpan untuk ${bagian.length} bulan dan dicocokkan.`)
   } catch (e) { notif.kabari(e.message, 'galat') }
 }
 async function hapus() {
@@ -132,7 +137,7 @@ async function lepas() {
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-semibold">{{ m.uraian }}</p>
             <p class="truncate text-xs text-slate-500">{{ tanggalPendek(m.tanggal) }} · saldo {{ rupiah(m.saldo) }}</p>
-            <p v-if="m.pasangan" class="truncate text-xs text-emerald-700 dark:text-emerald-300">↔ {{ m.pasangan.uraian }}<template v-if="m.pasangan.bnu"> · {{ m.pasangan.bnu }}</template><template v-if="m.cara === 'manual'"> (manual)</template></p>
+            <p v-if="m.pasangan" class="truncate text-xs text-emerald-700 dark:text-emerald-300">↔ {{ m.pasangan.uraian }}<template v-if="m.pasangan.bnu"> · {{ m.pasangan.bnu }}</template><template v-if="m.cara === 'manual'"> (manual)</template><template v-if="m.cara === 'gabungan'"> (bagian dari {{ rupiah(Math.abs(m.pasangan.bank)) }})</template></p>
             <p v-else-if="m.cara === 'abaikan'" class="text-xs text-slate-500">Diabaikan: {{ m.alasan_abaikan }}</p>
             <p v-else class="text-xs font-semibold text-amber-600">Belum ada pasangan — ketuk untuk menindaklanjuti</p>
           </div>
@@ -148,10 +153,14 @@ async function lepas() {
 
     <Laci v-if="pratinjau" judul="Pratinjau rekening koran" :subjudul="`${pratinjau.nama_berkas} · ${pratinjau.mutasi.length} mutasi`" ikon="FileSearch" lebar="max-w-3xl" @tutup="pratinjau = null">
       <div class="space-y-4 p-5">
-        <div class="grid gap-3 sm:grid-cols-3">
-          <div><label class="label" for="pk-bln">Bulan</label><select id="pk-bln" v-model.number="pratinjau.bulan" class="masukan"><option v-for="(n, i) in NAMA_BULAN" :key="n" :value="i">{{ n }} {{ kas.tahun }}</option></select></div>
-          <div><label class="label" for="pk-awal">Saldo awal</label><input id="pk-awal" v-model.number="pratinjau.saldo_awal" type="number" class="masukan angka" /></div>
-          <div><label class="label" for="pk-akhir">Saldo akhir</label><input id="pk-akhir" v-model.number="pratinjau.saldo_akhir" type="number" class="masukan angka" /></div>
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/50"><p class="text-[11px] text-slate-500">Saldo awal</p><p class="angka text-sm font-bold">{{ rupiah(pratinjau.saldo_awal) }}</p></div>
+          <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/50"><p class="text-[11px] text-slate-500">Saldo akhir</p><p class="angka text-sm font-bold">{{ rupiah(pratinjau.saldo_akhir) }}</p></div>
+          <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/50"><p class="text-[11px] text-slate-500">Kredit</p><p class="angka text-sm font-bold">{{ rupiah(pratinjau.mutasi.reduce((t, m) => t + m.kredit, 0)) }}</p></div>
+          <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/50"><p class="text-[11px] text-slate-500">Debet</p><p class="angka text-sm font-bold">{{ rupiah(pratinjau.mutasi.reduce((t, m) => t + m.debit, 0)) }}</p></div>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <span v-for="x in pecahPerBulan(pratinjau)" :key="x.bulan" class="lencana bg-[#22A08D]/12 text-[#167A6C] dark:text-[#5FD3C0]">{{ NAMA_BULAN[Number(x.bulan.slice(5, 7)) - 1] }} · {{ x.mutasi.length }} mutasi · akhir {{ rupiah(x.saldo_akhir) }}</span>
         </div>
         <div v-for="w in pratinjau.peringatan.slice(0, 6)" :key="w" class="flex items-start gap-2 rounded-xl bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"><Ikon nama="TriangleAlert" :ukuran="15" class="shrink-0" /> {{ w }}</div>
         <div class="max-h-[50vh] divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200 dark:divide-slate-800 dark:border-slate-700">

@@ -16,10 +16,10 @@ export const KOLOM_PEGAWAI_RAHASIA = [
 ]
 export const KOLOM_REKANAN = [
   'nama_usaha', 'pemilik', 'jabatan_pemilik', 'alamat', 'telepon', 'no_wa', 'npwp', 'status_pkp',
-  'bentuk_usaha', 'bank', 'no_rekening', 'atas_nama_rekening', 'aktif',
+  'bentuk_usaha', 'bank', 'no_rekening', 'atas_nama_rekening', 'aktif', 'suket_umkm', 'jenis_usaha',
 ]
 
-const ambil = (obj, kolom) => Object.fromEntries(kolom.map((k) => [k, obj[k] ?? (k === 'aktif' ? true : k === 'terima_tpg' || k === 'status_pkp' ? false : '')]))
+const ambil = (obj, kolom) => Object.fromEntries(kolom.map((k) => [k, obj[k] ?? (k === 'aktif' ? true : k === 'terima_tpg' || k === 'status_pkp' || k === 'suket_umkm' ? false : '')]))
 const beda = (a = {}, b = {}, kolom) => kolom.filter((k) => JSON.stringify(a[k] ?? '') !== JSON.stringify(b[k] ?? ''))
 const perangkat = () => navigator.userAgent.slice(0, 160)
 

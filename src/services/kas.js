@@ -39,7 +39,7 @@ export async function muatAturanPajak() {
 }
 
 export async function simpanAturanPajak(a, ringkas) {
-  const data = bersih({ versi: (Number(a.versi) || 1) + 1, batas: a.batas, tarif: a.tarif })
+  const data = bersih({ versi: (Number(a.versi) || 1) + 1, batas: a.batas, tarif: a.tarif, ter_bulanan: a.ter_bulanan, pasal17: a.pasal17 })
   pasangAturan(data)
   if (modePratinjau) { (await dataContoh()).aturan.isi = data; return }
   const b = writeBatch(db)
@@ -222,7 +222,10 @@ export async function simpanMigrasi(paket, { kemajuan } = {}) {
 export async function hapusMigrasi(tahun) {
   if (modePratinjau) {
     const c = await dataContoh(); const cb = await import('./contohBelanja')
-    for (const arr of [cb.daftar, c.kas, c.setoran]) for (let i = arr.length - 1; i >= 0; i--) if (arr[i].sumber === 'migrasi' && arr[i].tahun === Number(tahun)) arr.splice(i, 1)
+    // Mode Pratinjau: data contoh Fase 4 ikut dibersihkan agar migrasi data asli bisa diuji tanpa campuran
+    const hapus = (x) => x.tahun === Number(tahun) && (x.sumber === 'migrasi' || x.sumber === 'contoh' || /^(k-|s-contoh)/.test(x.id))
+    for (const arr of [cb.daftar, c.kas, c.setoran]) for (let i = arr.length - 1; i >= 0; i--) if (hapus(arr[i])) arr.splice(i, 1)
+    c.tutup.splice(0, c.tutup.length); c.koran.splice(0, c.koran.length)
     return 0
   }
   let n = 0

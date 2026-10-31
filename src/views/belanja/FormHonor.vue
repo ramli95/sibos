@@ -10,7 +10,9 @@ import { muatBahan, namaGelar } from '@/services/bahanBelanja'
 import { muatBelanja, simpanBelanja, simpanOrangLuar, rapikanBelanja } from '@/services/belanja'
 import { NAMA_REKENING } from '@/services/rkas'
 import { JENIS_HONOR, DOKUMEN, STATUS } from '@/config/belanja'
-import { salin, rapikanPenerima, syaratHonor, uraianHonorBulanan, kunciUraian, tarifPph21, periksaUrutanTanggal } from '@/utils/belanja'
+import { salin, rapikanPenerima, syaratHonor, uraianHonorBulanan, kunciUraian, periksaUrutanTanggal } from '@/utils/belanja'
+import { ptkpDari } from '@/utils/pajak'
+import { KATEGORI_PPH21, PTKP } from '@/config/pajak'
 import { rupiah, keIso, dariIso, terbilang } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
 import Laci from '@/components/Laci.vue'
@@ -49,11 +51,11 @@ onMounted(async () => {
 function gantiJenis(j) {
   f.jenis_honor = j
   f.dokumen = { ...Object.fromEntries(JENIS_HONOR[j].dokumen.map((k) => [k, true])) }
-  f.penerima.forEach((p) => { p.tarif_pph21 = '' })
+  f.penerima.forEach((p) => { p.tarif_pph21 = ''; p.pph21_manual = false; p.kategori_pph21 = '' })
 }
 
 /* ---------- Uraian RKAS & besaran ---------- */
-const POLA = { honor: /honor|tenaga|insentif/i, narasumber: /narasumber|honorarium/i, transpor: /transport|transpor|perjalanan/i, insentif: /./ }
+const POLA = { honor: /honor|tenaga|insentif/i, narasumber: /narasumber|honorarium/i, transpor: /transport|transpor|perjalanan/i, insentif: /./, upah: /upah|tukang|harian/i, uang_saku: /saku|hadiah|lomba|rapat/i }
 const cariUraian = ref('')
 const daftarUraian = computed(() => {
   const q = cariUraian.value.trim().toLowerCase()
@@ -88,7 +90,7 @@ function tambahPegawai() {
   terpilih.value.forEach((id) => {
     if (sudahAda(id)) return
     const p = bahan.value.pegawai.find((x) => x.id === id)
-    f.penerima.push({ sumber: 'pegawai', id: p.id, nama: namaGelar(p), nip: p.nip || '', golongan: p.golongan || '', jabatan: p.jabatan || '', status_kepegawaian: p.status_kepegawaian || '', npwp: p.npwp || '', besaran: besaranAwal(), volume: 1, satuan: satuanAwal(), tarif_pph21: '' })
+    f.penerima.push({ sumber: 'pegawai', id: p.id, nama: namaGelar(p), nip: p.nip || '', golongan: p.golongan || '', jabatan: p.jabatan || '', status_kepegawaian: p.status_kepegawaian || '', npwp: p.npwp || '', ptkp: ptkpDari(p), besaran: besaranAwal(), volume: 1, satuan: satuanAwal(), tarif_pph21: '' })
   })
   terpilih.value = []
   pilihPegawai.value = false
@@ -238,12 +240,24 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
             <label class="text-[11px] text-slate-500">Besaran<input v-model.number="p.besaran" type="number" class="masukan angka py-1.5" /></label>
             <label class="text-[11px] text-slate-500">Volume<input v-model.number="p.volume" type="number" step="any" class="masukan angka py-1.5" /></label>
             <label class="text-[11px] text-slate-500">Satuan<input v-model="p.satuan" class="masukan py-1.5" /></label>
-            <label class="text-[11px] text-slate-500">PPh 21 (%)<input v-model="p.tarif_pph21" type="number" step="any" class="masukan angka py-1.5" :placeholder="String(tarifPph21(p, f.jenis_honor))" /></label>
+            <label class="text-[11px] text-slate-500">PPh 21 manual (%)<input v-model="p.tarif_pph21" type="number" step="any" class="masukan angka py-1.5" :placeholder="String(penerima[i].tarif_efektif)" @input="p.pph21_manual = $event.target.value !== ''" /></label>
             <div class="col-span-2 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs sm:col-span-1 dark:bg-slate-800/50">
               <p class="flex justify-between"><span class="text-slate-500">Bruto</span><b class="angka">{{ rupiah(penerima[i].bruto) }}</b></p>
               <p class="flex justify-between"><span class="text-slate-500">PPh 21</span><span class="angka">{{ rupiah(penerima[i].pph21) }}</span></p>
               <p class="flex justify-between"><span class="text-slate-500">Diterima</span><b class="angka text-emerald-600 dark:text-emerald-400">{{ rupiah(penerima[i].diterima) }}</b></p>
             </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 rounded-lg bg-[#22A08D]/6 p-2 sm:grid-cols-4 dark:bg-[#22A08D]/10">
+            <label class="col-span-2 text-[11px] text-slate-500">Perlakuan PPh 21
+              <select v-model="p.kategori_pph21" class="masukan py-1.5 text-xs"><option value="">Otomatis — {{ KATEGORI_PPH21[penerima[i].kategori_pph21_hasil]?.label }}</option>
+                <option v-for="(k, kunci) in KATEGORI_PPH21" :key="kunci" :value="kunci">{{ k.label }}</option></select></label>
+            <label v-if="['pegawai_tetap', 'tidak_tetap_bulanan'].includes(penerima[i].kategori_pph21_hasil)" class="text-[11px] text-slate-500">Status PTKP
+              <select v-model="p.ptkp" class="masukan py-1.5 text-xs"><option value="">TK/0</option><option v-for="x in PTKP" :key="x">{{ x }}</option></select></label>
+            <label v-if="penerima[i].kategori_pph21_hasil === 'pegawai_tetap'" class="text-[11px] text-slate-500">Gaji bruto bulan ini
+              <input v-model.number="p.gaji_bruto" type="number" class="masukan angka py-1.5" placeholder="opsional" /></label>
+            <label v-if="penerima[i].kategori_pph21_hasil === 'tidak_tetap_harian'" class="text-[11px] text-slate-500">Jumlah hari kerja
+              <input v-model.number="p.hari" type="number" min="1" class="masukan angka py-1.5" placeholder="1" /></label>
+            <p class="col-span-2 self-center text-[11px] text-slate-600 sm:col-span-4 dark:text-slate-300"><Ikon nama="Calculator" :ukuran="12" class="inline text-[#22A08D]" /> {{ penerima[i].alasan_pph21 }}</p>
           </div>
           <div v-if="cekSyarat[i]?.length" class="flex flex-wrap gap-1.5">
             <span v-for="s in cekSyarat[i]" :key="s.syarat" :class="['lencana', s.ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300']">
@@ -256,7 +270,7 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
           <div><p class="text-[11px] text-blue-200">Diterima</p><p class="angka font-bold">{{ rupiah(jumlahBruto - jumlahPph) }}</p></div>
         </div>
         <p v-if="penerima.length" class="text-xs italic text-slate-500">Terbilang: {{ terbilang(jumlahBruto) }}</p>
-        <p class="text-xs text-slate-500">PPh 21 perkiraan: ASN gol. III 5%, IV 15%, I–II 0%; bukan pegawai 50% × 5% (tanpa NPWP 3%); transpor 0%. Rincian lengkap di Fase 4.</p>
+        <p class="text-xs text-slate-500">PPh 21 mengikuti Pajak → Aturan Tarif: PNS final PP 80/2010 (0/5/15%); pegawai tetap & honorer bulanan TER (PP 58/2023); harian/per kegiatan TER harian; bukan pegawai 50% × Pasal 17; peserta kegiatan 100% × Pasal 17; penggantian transport bukan objek (PMK 168/2023).</p>
       </section>
 
       <section class="kartu space-y-3 p-4 sm:p-5">

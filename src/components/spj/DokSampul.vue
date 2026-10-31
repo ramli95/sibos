@@ -13,7 +13,18 @@ const props = defineProps({
   namaKeg: { type: Function, default: () => '' },
 })
 const total = computed(() => props.grup.baris.reduce((s, x) => s + x.jumlah, 0))
-const kode = computed(() => [...new Set(props.grup.baris.map((x) => `${x.kode_kegiatan} / ${x.kode_rekening}`))].join('; '))
+// Nomor Kode Rekening (Pengaturan → Cetak): kode rekening belanja RKAS (bawaan), kegiatan / rekening, kode kegiatan (program.komponen.kegiatan),
+// atau format SNP Jurnal lama "1.<nomor SNP>" (mis. 1.5 = Sarana dan Prasarana)
+const kodeSatu = (x) => {
+  const snpNo = Number(String(x.kode_kegiatan || '').split('.')[0]) || ''
+  switch (props.k.kodeSampul) {
+    case 'kegiatan_rekening': return `${x.kode_kegiatan} / ${x.kode_rekening}`
+    case 'kegiatan': return x.kode_kegiatan
+    case 'snp': return snpNo ? `1.${snpNo}` : (props.b.kode_asli || '')
+    default: return x.kode_rekening || props.b.kode_asli || ''
+  }
+}
+const kode = computed(() => [...new Set(props.grup.baris.map(kodeSatu).filter(Boolean))].join('; '))
 const tglLunas = computed(() => props.b.tgl_lunas || props.b.tgl_kwitansi)
 const tglNota = computed(() => props.b.tgl_invoice || props.b.tgl_terima || props.b.tgl_kegiatan || props.b.tgl_kwitansi || props.b.tgl_lunas)
 const snp = computed(() => {

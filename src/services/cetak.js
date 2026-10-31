@@ -12,6 +12,7 @@ export const CETAK_AWAL = {
   ukuran_huruf: 12,
   spasi: 1.15,
   tanda_tangan: 'basah', // basah | gambar
+  kode_sampul: 'rekening', // Nomor Kode Rekening pada sampul: rekening | kegiatan_rekening | kegiatan | snp
 }
 
 export async function muatCetak() {

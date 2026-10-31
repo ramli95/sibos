@@ -36,7 +36,10 @@ function tanggalDari(baris, tahun) {
   return null
 }
 
-const RE_ABAIKAN = /^(halaman|page|tanggal\s+(transaksi|valuta)|tgl\b|no\.?\s*rek|nomor rekening|periode|mata uang|cabang|alamat|keterangan|uraian\s+transaksi|dicetak|printed)/i
+const RE_ABAIKAN = /^(halaman|page|tanggal\s+(transaksi|valuta)|tgl\b|no\.?\s*rek|nomor rekening|nama\s*:|periode|mata uang|cabang|alamat|keterangan|uraian\s+transaksi|dicetak|printed|no\s+tanggal|rekening koran)/i
+// Awal blok uraian (Bank Sulselbar/CMS: "000004.1302.2288.0126|NAMA|...", "VA@...", "SPAN ...", "Payment MPN@...")
+const RE_AWAL_BLOK = /^(\d{6}\.\d{4}\.\d{4}\.\d{4}\||VA@|SPAN\b|Payment\b|PEMBAYARAN\b|TRF\b|TRANSFER\b|SETOR\b|SETORAN\b|BUNGA\b|PAJAK\b|BIAYA ADM|ADM\b|INTEREST\b|TAX\b|KREDIT BUNGA|TARIK\b|PB\b|RTGS\b|SKN\b|BI-?FAST\b)/i
+const RE_JAM = /^\s*\d{1,2}[.:]\d{2}(?:[.:]\d{2})?\b/
 
 /**
  * baris: array teks per baris (gabungan semua halaman). tahun: bawaan bila tanggal tanpa tahun.
@@ -45,63 +48,96 @@ const RE_ABAIKAN = /^(halaman|page|tanggal\s+(transaksi|valuta)|tgl\b|no\.?\s*re
 export function uraiKoran(baris, tahun) {
   const mutasi = []
   const peringatan = []
-  let saldoAwal = null
+  let saldoAwalTertulis = null
   let saldoAkhir = null
   let prev = null
+  const potongan = [] // urutan teks uraian: { teks } atau { baris: indeks mutasi, teks }
   for (const mentah of baris) {
     const s = String(mentah || '').replace(/\s+/g, ' ').trim()
     if (!s) continue
     const uang = (s.match(RE_UANG) || []).map(uangKeAngka)
-    if (/saldo\s*(awal|sebelumnya)|opening|beginning|saldo\s*lalu/i.test(s) && uang.length) { if (saldoAwal == null) { saldoAwal = uang.at(-1); prev = saldoAwal } continue }
-    if (/saldo\s*akhir|closing|ending|saldo\s*penutup/i.test(s) && uang.length) { saldoAkhir = uang.at(-1); continue }
+    if (/saldo\s*(awal|sebelumnya)|opening|beginning|saldo\s*lalu/i.test(s) && uang.length && !tanggalDari(s, tahun)) { if (saldoAwalTertulis == null) saldoAwalTertulis = uang.at(-1); continue }
+    if (/saldo\s*akhir|closing|ending|saldo\s*penutup/i.test(s) && uang.length && !tanggalDari(s, tahun)) { saldoAkhir = uang.at(-1); continue }
     const tgl = tanggalDari(s, tahun)
     if (!tgl || !uang.length) {
-      // lanjutan uraian baris sebelumnya
-      if (mutasi.length && !uang.length && !RE_ABAIKAN.test(s) && s.length < 90) mutasi.at(-1).uraian = `${mutasi.at(-1).uraian} ${s}`.trim()
+      if (!uang.length && !RE_ABAIKAN.test(s) && s.length < 120 && !/^[A-Z]+ \d{4}$/.test(s) === false) potongan.push({ teks: s })
+      else if (!uang.length && !RE_ABAIKAN.test(s) && s.length < 120) potongan.push({ teks: s })
       continue
     }
-    const sisa = s.slice(tgl.panjang)
+    let sisa = s.slice(tgl.panjang).replace(RE_JAM, '')
     const posUang = sisa.search(RE_UANG)
-    let uraian = (posUang >= 0 ? sisa.slice(0, posUang) : sisa).replace(RE_TGL, '').trim()
+    let uraian = (posUang >= 0 ? sisa.slice(0, posUang) : sisa).trim()
     const arahM = sisa.match(RE_ARAH)
     const arah = arahM ? (/^(DB|DR|D|DEBET|DEBIT)$/i.test(arahM[1]) ? 'D' : 'K') : null
     uraian = uraian.replace(/\s+(DB|CR|D|K)$/i, '').trim()
+    // angka sesudah uraian saja (bukan angka di dalam uraian)
+    const angka = ((posUang >= 0 ? sisa.slice(posUang) : '').match(RE_UANG) || []).map(uangKeAngka)
+    const u = angka.length ? angka : uang
     let debit = 0, kredit = 0, saldo = null
-    if (uang.length >= 2) {
-      saldo = uang.at(-1)
-      // tiga angka: debit kredit saldo (salah satu 0) — atau mutasi saldo
-      const kandidat = uang.slice(0, -1).filter((x) => x !== 0)
-      const nilai = Math.abs(kandidat.at(-1) ?? 0)
+    if (u.length >= 3 && (u.at(-3) === 0) !== (u.at(-2) === 0)) {
+      // kolom Debet | Kredit | Saldo (salah satu nol) — paling andal
+      debit = Math.abs(u.at(-3)); kredit = Math.abs(u.at(-2)); saldo = u.at(-1)
+      if (prev != null && prev + kredit - debit !== saldo) peringatan.push(`${tgl.iso}: saldo tertulis ${saldo.toLocaleString('id-ID')} tidak sama dengan saldo sebelumnya ± mutasi.`)
+    } else if (u.length >= 2) {
+      saldo = u.at(-1)
+      const nilai = Math.abs(u.slice(0, -1).filter((x) => x !== 0).at(-1) ?? 0)
       if (prev != null && Math.abs(saldo - prev) === nilai) { if (saldo < prev) debit = nilai; else kredit = nilai }
-      else if (prev != null && kandidat.length >= 1 && Math.abs(saldo - prev) !== nilai) {
+      else if (arah) { if (arah === 'D') debit = nilai; else kredit = nilai }
+      else if (prev != null) {
         const d = saldo - prev
         if (d < 0) debit = -d; else kredit = d
         peringatan.push(`${tgl.iso}: nilai mutasi tidak sama dengan perubahan saldo — diambil dari perubahan saldo (${Math.abs(d).toLocaleString('id-ID')}).`)
-      } else if (arah) { if (arah === 'D') debit = nilai; else kredit = nilai }
-      else if (uang.length >= 3 && uang.at(-3) && !uang.at(-2)) debit = Math.abs(uang.at(-3))
-      else if (uang.length >= 3 && !uang.at(-3) && uang.at(-2)) kredit = Math.abs(uang.at(-2))
-      else { kredit = nilai; peringatan.push(`${tgl.iso}: arah mutasi tidak terbaca, dianggap kredit — periksa.`) }
-      if (saldoAwal == null && mutasi.length === 0) saldoAwal = saldo - kredit + debit
+      } else { kredit = nilai; peringatan.push(`${tgl.iso}: arah mutasi tidak terbaca, dianggap kredit — periksa.`) }
     } else {
-      const nilai = Math.abs(uang[0])
-      if (arah === 'D' || uang[0] < 0) debit = nilai; else kredit = nilai
+      const nilai = Math.abs(u[0])
+      if (arah === 'D' || u[0] < 0) debit = nilai; else kredit = nilai
       if (!arah) peringatan.push(`${tgl.iso}: tanpa kolom saldo & penanda D/K — periksa arah mutasi.`)
       saldo = prev != null ? prev + kredit - debit : null
     }
     prev = saldo
-    mutasi.push({ no: mutasi.length + 1, tanggal: tgl.iso, uraian: uraian || '(tanpa uraian)', debit, kredit, saldo })
+    potongan.push({ baris: mutasi.length, teks: uraian })
+    mutasi.push({ no: mutasi.length + 1, tanggal: tgl.iso, uraian, debit, kredit, saldo })
   }
+
+  // Uraian: bila awal setiap uraian dikenali (pola bank), bagi teks menjadi blok berurutan → satu blok per mutasi.
+  const blok = []
+  potongan.forEach((x) => {
+    if (!x.teks) return
+    if (!blok.length || RE_AWAL_BLOK.test(x.teks)) blok.push([x.teks]); else blok.at(-1).push(x.teks)
+  })
+  if (blok.length === mutasi.length && mutasi.length) blok.forEach((b, i) => { mutasi[i].uraian = b.join(' ').replace(/\s+/g, ' ').trim() })
+  else {
+    // cadangan: uraian baris tanggal + baris lanjutan sesudahnya
+    let aktif = -1
+    potongan.forEach((x) => { if (x.baris != null) aktif = x.baris; else if (aktif >= 0) mutasi[aktif].uraian = `${mutasi[aktif].uraian} ${x.teks}`.trim() })
+  }
+  mutasi.forEach((m) => { if (!m.uraian) m.uraian = '(tanpa uraian)' })
+
+  // Saldo awal: dihitung dari mutasi pertama; header dipakai hanya bila cocok
+  const turunan = mutasi.length && mutasi[0].saldo != null ? mutasi[0].saldo - mutasi[0].kredit + mutasi[0].debit : null
+  let saldoAwal = turunan ?? saldoAwalTertulis ?? 0
+  if (saldoAwalTertulis != null && turunan != null && saldoAwalTertulis !== turunan) peringatan.push(`Saldo awal tertulis ${saldoAwalTertulis.toLocaleString('id-ID')}, tetapi dari mutasi pertama ${turunan.toLocaleString('id-ID')} — dipakai yang dari mutasi.`)
   if (saldoAkhir == null) saldoAkhir = mutasi.at(-1)?.saldo ?? saldoAwal
-  // bulan terbanyak
   const hitung = {}
   mutasi.forEach((m) => { const k = m.tanggal.slice(0, 7); hitung[k] = (hitung[k] || 0) + 1 })
   const bulan = Object.entries(hitung).sort((a, b) => b[1] - a[1])[0]?.[0] || null
-  // pemeriksaan rantai saldo
-  if (saldoAwal != null && saldoAkhir != null) {
-    const hitungAkhir = mutasi.reduce((s, m) => s + m.kredit - m.debit, saldoAwal)
-    if (hitungAkhir !== saldoAkhir) peringatan.push(`Saldo awal + mutasi = ${hitungAkhir.toLocaleString('id-ID')}, tetapi saldo akhir tertulis ${saldoAkhir.toLocaleString('id-ID')}.`)
-  }
-  return { mutasi, saldo_awal: saldoAwal ?? 0, saldo_akhir: saldoAkhir ?? 0, bulan, peringatan }
+  const hitungAkhir = mutasi.reduce((t, m) => t + m.kredit - m.debit, saldoAwal)
+  if (hitungAkhir !== saldoAkhir) peringatan.push(`Saldo awal + mutasi = ${hitungAkhir.toLocaleString('id-ID')}, tetapi saldo akhir tertulis ${saldoAkhir.toLocaleString('id-ID')}.`)
+  return { mutasi, saldo_awal: saldoAwal, saldo_akhir: saldoAkhir, bulan, peringatan }
+}
+
+/** Pecah hasil impor per bulan (rekening koran beberapa bulan sekaligus) */
+export function pecahPerBulan(hasil) {
+  const per = new Map()
+  let saldo = hasil.saldo_awal
+  hasil.mutasi.forEach((m) => {
+    const k = m.tanggal.slice(0, 7)
+    if (!per.has(k)) per.set(k, { bulan: k, saldo_awal: saldo, mutasi: [] })
+    per.get(k).mutasi.push({ ...m, no: per.get(k).mutasi.length + 1 })
+    saldo = m.saldo ?? saldo + m.kredit - m.debit
+    per.get(k).saldo_akhir = saldo
+  })
+  return [...per.values()]
 }
 
 /** Berkas → array baris teks */

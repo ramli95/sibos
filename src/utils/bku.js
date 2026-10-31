@@ -29,7 +29,7 @@ export function susunBaris({ belanja = [], kewajiban = [], setoran = [], kas = [
     })
   })
   kewajiban.forEach((p) => {
-    if (p.cara === 'mitra') return
+    if (p.cara === 'mitra' || p.cara === 'luar') return // tidak lewat rekening BOSP
     const s = bayar.get(p.id_belanja) || 'bank'
     baris.push({
       id: `pj|${p.id}`, tanggal: p.tgl_pungut, jenis: 'terima_pajak', bnu: p.bnu_terima || '', kode_kegiatan: '', kode_rekening: '',
@@ -37,6 +37,7 @@ export function susunBaris({ belanja = [], kewajiban = [], setoran = [], kas = [
     })
   })
   setoran.forEach((st) => {
+    if (st.dari === 'luar') return // setoran dari luar rekening BOSP (pajak ditanggung sekolah)
     const per = new Map()
     ;(st.butir || []).forEach((x) => per.set(x.jenis, (per.get(x.jenis) || 0) + (Number(x.nilai) || 0)))
     ;[...per.entries()].forEach(([jenis, nilai], i) => {
@@ -109,9 +110,9 @@ export const saldoSampai = (baris, iso, kolom = 'bank') => baris.filter((r) => r
 export function bukuPajak(kewajiban, { termasukMitra = true } = {}) {
   const r = []
   kewajiban.forEach((p) => {
-    if (p.cara === 'mitra' && !termasukMitra) return
+    if ((p.cara === 'mitra' || p.cara === 'luar') && !termasukMitra) return
     const kol = (v) => Object.fromEntries(JENIS_KOLOM_PAJAK.map((j) => [j, j === p.jenis ? v : 0]))
-    r.push({ id: `${p.id}|t`, tanggal: p.tgl_pungut, bnu: p.bnu_terima || p.bnu || '', uraian: `${p.cara === 'mitra' ? 'Dipungut mitra SIPLah — ' : p.cara === 'pungut' ? 'Pungut ' : 'Potong '}${p.jenis} ${p.uraian}`, ...kol(p.nilai), terima: p.nilai, setor: 0, p, arah: 'terima' })
+    r.push({ id: `${p.id}|t`, tanggal: p.tgl_pungut, bnu: p.bnu_terima || p.bnu || '', uraian: `${p.cara === 'mitra' ? 'Dipungut mitra SIPLah — ' : p.cara === 'luar' ? 'Ditanggung sekolah (di luar rekening BOSP) — ' : p.cara === 'pungut' ? 'Pungut ' : 'Potong '}${p.jenis} ${p.uraian}`, ...kol(p.nilai), terima: p.nilai, setor: 0, p, arah: 'terima' })
     if (p.status === 'disetor' && p.tgl_setor) {
       r.push({ id: `${p.id}|s`, tanggal: p.tgl_setor, bnu: p.bnu_setor || '', uraian: `${p.cara === 'mitra' ? 'Disetor mitra SIPLah — ' : 'Setor '}${p.jenis} ${p.uraian}${p.ntpn ? ` · NTPN ${p.ntpn}` : ''}`, ...kol(p.nilai), terima: 0, setor: p.nilai, p, arah: 'setor' })
     }
@@ -137,7 +138,7 @@ export function rekapPenerima(belanja, tahun) {
       x.diterima += p.diterima ?? p.bruto - (p.pph21 || 0)
       x.kali++
       if (m != null) x.bulan[m] += p.bruto
-      x.rincian.push({ id_belanja: b.id, tanggal: b.tgl_lunas, kegiatan: b.nama_pekerjaan, jenis: b.jenis_honor, bruto: p.bruto, pph21: p.pph21 || 0, tarif: p.tarif_pph21, alasan: p.alasan_pph21 || '' })
+      x.rincian.push({ id_belanja: b.id, tanggal: b.tgl_lunas, kegiatan: b.nama_pekerjaan, jenis: b.jenis_honor, bruto: p.bruto, pph21: p.pph21 || 0, tarif: p.tarif_efektif ?? p.tarif_pph21, alasan: p.alasan_pph21 || '' })
     })
   })
   return [...peta.values()].sort((a, b) => b.honor + b.transpor - (a.honor + a.transpor))
@@ -182,7 +183,7 @@ export function calonBank(baris) {
   grup.forEach((rows, k) => {
     const utama = rows.find((r) => r.jenis !== 'terima_pajak') || rows[0]
     hasil.push({ id: k, tanggal: rows.map((r) => r.tanggal).sort()[0], bank: rows.reduce((s, r) => s + r.bank, 0), uraian: utama.uraian, bnu: rows.map((r) => r.bnu).filter(Boolean).join(', '), baris: rows.map((r) => r.id) })
-    if (rows.length > 1) rows.filter((r) => r.jenis === 'belanja').forEach((r) => hasil.push({ id: `r:${r.id}`, tanggal: r.tanggal, bank: r.bank, uraian: r.uraian, bnu: r.bnu, baris: [r.id], cadangan: true }))
+    if (rows.length > 1) rows.filter((r) => r.jenis === 'belanja' || r.jenis === 'setor_pajak').forEach((r) => hasil.push({ id: `r:${r.id}`, tanggal: r.tanggal, bank: r.bank, uraian: r.uraian, bnu: r.bnu, baris: [r.id], cadangan: true }))
   })
   return hasil
 }
@@ -196,15 +197,36 @@ export function cocokkanKoran(mutasi, calon) {
   const barisTerpakai = new Set()
   calon.filter((c) => terpakai.has(c.id)).forEach((c) => c.baris.forEach((x) => barisTerpakai.add(x)))
   const hari = (a, b) => Math.abs((dariIso(a) - dariIso(b)) / 86400000)
-  return mutasi.map((m) => {
+  const bebas = (c) => !terpakai.has(c.id) && !c.baris.some((x) => barisTerpakai.has(x))
+  const pakai = (c) => { terpakai.add(c.id); c.baris.forEach((x) => barisTerpakai.add(x)) }
+  // 1) satu mutasi ↔ satu transaksi (nilai sama, tanggal terdekat ±7 hari)
+  const hasil = mutasi.map((m) => {
     if (m.id_bku) return { ...m, pasangan: calon.find((c) => c.id === m.id_bku) || null, cara: 'manual' }
     if (m.abaikan) return { ...m, pasangan: null, cara: 'abaikan' }
     const nilai = m.kredit ? m.kredit : -m.debit
-    const p = calon.filter((c) => !terpakai.has(c.id) && !c.baris.some((x) => barisTerpakai.has(x)) && c.bank === nilai && hari(c.tanggal, m.tanggal) <= 7)
+    const p = calon.filter((c) => bebas(c) && c.bank === nilai && hari(c.tanggal, m.tanggal) <= 7)
       .sort((a, b) => (a.cadangan ? 1 : 0) - (b.cadangan ? 1 : 0) || hari(a.tanggal, m.tanggal) - hari(b.tanggal, m.tanggal))[0] || null
-    if (p) { terpakai.add(p.id); p.baris.forEach((x) => barisTerpakai.add(x)) }
+    if (p) pakai(p)
     return { ...m, pasangan: p, cara: p ? 'otomatis' : '' }
   })
+  // 2) beberapa mutasi berurutan ↔ satu transaksi (mis. honor/transpor ditransfer per orang)
+  calon.filter((c) => !c.cadangan && bebas(c)).sort((a, b) => Math.abs(b.bank) - Math.abs(a.bank)).forEach((c) => {
+    const lepas = hasil.filter((m) => !m.pasangan && m.cara !== 'abaikan' && (c.bank < 0 ? m.debit : m.kredit) && hari(c.tanggal, m.tanggal) <= 7)
+    for (let i = 0; i < lepas.length; i++) {
+      let jml = 0
+      for (let j = i; j < Math.min(lepas.length, i + 60); j++) {
+        jml += lepas[j].kredit - lepas[j].debit
+        if (jml === c.bank && j > i) {
+          if (!bebas(c)) return
+          pakai(c)
+          for (let k = i; k <= j; k++) { lepas[k].pasangan = c; lepas[k].cara = 'gabungan' }
+          return
+        }
+        if (Math.abs(jml) > Math.abs(c.bank)) break
+      }
+    }
+  })
+  return hasil
 }
 
 /** Tebak jenis mutasi koran tanpa pasangan (bunga, pajak bunga, biaya admin) */

@@ -1,4 +1,5 @@
 <script setup>
+import { JENIS_USAHA } from '@/config/pajak'
 import { reactive, computed } from 'vue'
 import { periksaNpwp, formatNpwp, normalWa, hanyaAngka } from '@/utils/validasi'
 import { KOLOM_REKANAN } from '@/services/master'
@@ -8,7 +9,7 @@ import Laci from '@/components/Laci.vue'
 const props = defineProps({ rekanan: Object, bolehUbah: Boolean, menyimpan: Boolean, pegawai: { type: Array, default: () => [] }, semuaRekanan: { type: Array, default: () => [] } })
 const emit = defineEmits(['tutup', 'simpan', 'hapus'])
 
-const f = reactive({ ...Object.fromEntries(KOLOM_REKANAN.map((k) => [k, ''])), aktif: true, status_pkp: false, bentuk_usaha: 'orang_pribadi', ...(props.rekanan || {}) })
+const f = reactive({ ...Object.fromEntries(KOLOM_REKANAN.map((k) => [k, ''])), aktif: true, status_pkp: false, suket_umkm: false, jenis_usaha: 'umum', bentuk_usaha: 'orang_pribadi', ...(props.rekanan || {}) })
 const galatNpwp = computed(() => periksaNpwp(f.npwp))
 const normNama = (s) => String(s || '').toLowerCase().replace(/\b(drs|dra|ir|h|hj|s\.?\w+|m\.?\w+)\b\.?/g, '').replace(/[^a-z]/g, '')
 
@@ -54,6 +55,14 @@ function simpan() {
           <label class="flex cursor-pointer items-center gap-3 self-end rounded-xl border border-slate-200 p-2.5 dark:border-slate-700">
             <input v-model="f.status_pkp" type="checkbox" class="h-5 w-5 accent-biru" />
             <span><b class="block text-sm">Pengusaha Kena Pajak (PKP)</b><span class="text-xs text-slate-500">Memungut PPN</span></span>
+          </label>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div><label class="label" for="ju">Jenis usaha (perlakuan pajak konsumsi)</label>
+            <select id="ju" v-model="f.jenis_usaha" class="masukan"><option v-for="(l, k) in JENIS_USAHA" :key="k" :value="k">{{ l }}</option></select></div>
+          <label class="flex cursor-pointer items-center gap-3 self-end rounded-xl border border-slate-200 p-2.5 dark:border-slate-700">
+            <input v-model="f.suket_umkm" type="checkbox" class="h-5 w-5 accent-biru" />
+            <span><b class="block text-sm">Punya Suket PP 55/2022 (UMKM)</b><span class="text-xs text-slate-500">PPh final 0,5% menggantikan PPh 21/23 — simpan salinan suketnya</span></span>
           </label>
         </div>
         <p v-if="peringatanPajak" class="flex gap-2 rounded-xl bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-900/30 dark:text-amber-200"><Ikon nama="Info" :ukuran="14" />{{ peringatanPajak }}</p>
