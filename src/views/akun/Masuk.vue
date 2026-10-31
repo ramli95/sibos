@@ -51,7 +51,7 @@ async function masuk() {
           <RouterLink to="/lupa-password" class="mb-1.5 text-xs font-semibold text-biru hover:underline dark:text-blue-300">Lupa password?</RouterLink>
         </div>
         <div class="group relative">
-          <span class="pointer-events-none absolute left-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-violet-50 text-violet-600 transition group-focus-within:bg-violet-600 group-focus-within:text-white dark:bg-violet-950/50 dark:text-violet-300">
+          <span class="pointer-events-none absolute left-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-biru/10 text-biru transition group-focus-within:bg-biru group-focus-within:text-white dark:bg-blue-400/15 dark:text-blue-300">
             <Ikon nama="Lock" :ukuran="17" />
           </span>
           <input id="password" v-model="password" :type="lihat ? 'text' : 'password'" class="masukan h-12 rounded-2xl pl-12 pr-12 text-base sm:text-sm" autocomplete="current-password" required placeholder="••••••••" />
@@ -67,7 +67,7 @@ async function masuk() {
       </p>
 
       <button type="submit" :disabled="memuat"
-              class="tombol mt-2 h-12 w-full rounded-2xl bg-gradient-to-r from-biru via-blue-600 to-indigo-600 text-base text-white shadow-lg shadow-biru/30 transition hover:brightness-110 active:scale-[0.99]">
+              class="tombol mt-2 h-12 w-full rounded-2xl bg-gradient-to-r from-biru to-blue-700 text-base text-white shadow-lg shadow-biru/30 transition hover:brightness-110 active:scale-[0.99]">
         <Ikon :nama="memuat ? 'RefreshCw' : 'LogOut'" :ukuran="19" :class="memuat ? 'animate-spin' : 'rotate-180'" />
         {{ memuat ? 'Memeriksa…' : 'Masuk' }}
       </button>

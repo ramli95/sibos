@@ -43,7 +43,7 @@ const grupAktif = (m) => m.anak?.some((a) => aktif(a.ke))
           <RouterLink v-if="m.ke" :to="m.ke" @click="emit('pilih')" :title="props.ringkas ? m.judul : null"
                       :class="['group flex items-center gap-3 rounded-xl py-2.5 text-sm font-medium transition', props.ringkas ? 'justify-center px-0' : 'px-3',
                                aktif(m.ke) ? 'bg-biru text-white shadow-lg shadow-black/20' : 'text-blue-50/85 hover:bg-white/10 hover:text-white']">
-            <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg', aktif(m.ke) ? 'bg-white/20 text-white' : 'bg-white/5 ' + m.warna]">
+            <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg', aktif(m.ke) ? 'bg-white/20 text-white' : 'bg-white/5 text-blue-200']">
               <Ikon :nama="m.ikon" :ukuran="17" />
             </span>
             <span v-if="!props.ringkas" class="truncate">{{ m.judul }}</span>
@@ -54,7 +54,7 @@ const grupAktif = (m) => m.anak?.some((a) => aktif(a.ke))
             <button type="button" @click="terbuka[m.judul] = !terbuka[m.judul]" :aria-expanded="!!terbuka[m.judul]" :title="props.ringkas ? m.judul : null"
                     :class="['flex w-full items-center gap-3 rounded-xl py-2.5 text-sm font-medium transition hover:bg-white/10 hover:text-white', props.ringkas ? 'justify-center px-0' : 'px-3',
                              grupAktif(m) && props.ringkas ? 'bg-biru/60 text-white' : 'text-blue-50/85']">
-              <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5', m.warna]"><Ikon :nama="m.ikon" :ukuran="17" /></span>
+              <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5 text-blue-200']"><Ikon :nama="m.ikon" :ukuran="17" /></span>
               <template v-if="!props.ringkas">
                 <span class="flex-1 text-left">{{ m.judul }}</span>
                 <Ikon nama="ChevronDown" :ukuran="16" :class="['transition', terbuka[m.judul] ? 'rotate-180' : '']" />
@@ -77,7 +77,7 @@ const grupAktif = (m) => m.anak?.some((a) => aktif(a.ke))
 
           <!-- Menu fase berikutnya -->
           <div v-else :class="['flex items-center gap-3 rounded-xl py-2 text-sm text-blue-50/40', props.ringkas ? 'justify-center' : 'px-3']" :title="`${m.judul} — tersedia di Fase ${m.fase}`">
-            <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5 opacity-60', m.warna]"><Ikon :nama="m.ikon" :ukuran="17" /></span>
+            <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/5 opacity-60']"><Ikon :nama="m.ikon" :ukuran="17" /></span>
             <template v-if="!props.ringkas">
               <span class="flex-1">{{ m.judul }}</span>
               <span class="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold">Fase {{ m.fase }}</span>

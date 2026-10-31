@@ -22,13 +22,13 @@ onMounted(async () => {
 })
 
 const kelompok = [
-  { judul: 'Identitas', ikon: 'School', warna: 'bg-blue-100 text-biru dark:bg-blue-900/40 dark:text-blue-300', isian: [
+  { judul: 'Identitas', ikon: 'School', warna: 'ikon-chip', isian: [
     ['nama_arkas', 'Nama versi ARKAS'], ['nama_pemda', 'Nama versi Pemda'], ['npsn', 'NPSN', true], ['status', 'Status'],
   ] },
-  { judul: 'Keuangan & Pajak', ikon: 'ReceiptText', warna: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300', isian: [
+  { judul: 'Keuangan & Pajak', ikon: 'ReceiptText', warna: 'ikon-chip', isian: [
     ['kode_sekolah_pemda', 'Kode sekolah Pemda (SIMAKDA)', true], ['npwp', 'NPWP satuan pendidikan', true], ['id_subunit', 'ID Subunit e-Bupot', true],
   ] },
-  { judul: 'Kontak', ikon: 'Mail', warna: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', isian: [
+  { judul: 'Kontak', ikon: 'Mail', warna: 'ikon-chip', isian: [
     ['alamat', 'Alamat'], ['telepon', 'Telepon'], ['email', 'Email'],
   ] },
 ]

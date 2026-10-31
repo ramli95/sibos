@@ -20,7 +20,7 @@ async function kirim() {
     <RouterLink to="/masuk" class="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-biru">
       <Ikon nama="ArrowLeft" :ukuran="16" /> Kembali ke Masuk
     </RouterLink>
-    <span class="grid h-12 w-12 place-items-center rounded-2xl bg-kuning/15 text-amber-600"><Ikon nama="KeyRound" :ukuran="24" /></span>
+    <span class="grid h-12 w-12 place-items-center rounded-2xl ikon-chip"><Ikon nama="KeyRound" :ukuran="24" /></span>
     <h1 class="mt-4 text-2xl font-extrabold">Lupa password</h1>
     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Bila akun Anda memiliki email, tautan untuk membuat password baru akan dikirim ke email tersebut.</p>
 

@@ -15,10 +15,10 @@ const labelTema = computed(() => ({ terang: 'Terang', gelap: 'Gelap', sistem: 'I
 const gantiTema = () => { tema.pilihan = urutan[(urutan.indexOf(tema.pilihan) + 1) % urutan.length] }
 
 const fitur = [
-  { ikon: 'FileSignature', teks: 'Dokumen SPJ standar SIPLah', warna: 'bg-kuning/20 text-kuning' },
-  { ikon: 'ArrowRightLeft', teks: 'Panduan input ARKAS & SIMAKDA', warna: 'bg-merah/20 text-rose-300' },
-  { ikon: 'ReceiptText', teks: 'Pajak, BKU & laporan otomatis', warna: 'bg-tosca/20 text-teal-300' },
-  { ikon: 'CloudUpload', teks: 'Arsip & cadangan di Google Drive', warna: 'bg-langit/20 text-blue-300' },
+  { ikon: 'FileSignature', teks: 'Dokumen SPJ standar SIPLah', warna: 'bg-white/10 text-blue-100' },
+  { ikon: 'ArrowRightLeft', teks: 'Panduan input ARKAS & SIMAKDA', warna: 'bg-white/10 text-blue-100' },
+  { ikon: 'ReceiptText', teks: 'Pajak, BKU & laporan otomatis', warna: 'bg-white/10 text-blue-100' },
+  { ikon: 'CloudUpload', teks: 'Arsip & cadangan di Google Drive', warna: 'bg-white/10 text-blue-100' },
 ]
 </script>
 
@@ -28,8 +28,8 @@ const fitur = [
     <section class="relative overflow-hidden bg-gradient-to-br from-navy via-[#1B3FA0] to-biru px-6 pb-14 pt-[max(1.25rem,env(safe-area-inset-top))] text-white lg:flex lg:flex-col lg:bg-none lg:bg-navy lg:p-12 dark:from-[#0F1E4D] dark:via-[#132B6B] dark:to-[#1A3E9E] lg:dark:bg-[#0F1E4D]">
       <!-- hiasan batang tumbuh -->
       <div class="pointer-events-none absolute -right-4 bottom-0 flex items-end gap-2.5 opacity-[0.16] lg:gap-4 lg:opacity-[0.12]" aria-hidden="true">
-        <div class="h-16 w-7 rounded-t-full bg-kuning lg:h-40 lg:w-14 lg:rounded-full" /><div class="h-28 w-7 rounded-t-full bg-merah lg:h-64 lg:w-14 lg:rounded-full" />
-        <div class="h-40 w-7 rounded-t-full bg-tosca lg:h-96 lg:w-14 lg:rounded-full" /><div class="h-52 w-7 rounded-t-full bg-langit lg:h-[34rem] lg:w-14 lg:rounded-full" />
+        <div class="h-16 w-7 rounded-t-full bg-white lg:h-40 lg:w-14 lg:rounded-full" /><div class="h-28 w-7 rounded-t-full bg-white lg:h-64 lg:w-14 lg:rounded-full" />
+        <div class="h-40 w-7 rounded-t-full bg-white lg:h-96 lg:w-14 lg:rounded-full" /><div class="h-52 w-7 rounded-t-full bg-white lg:h-[34rem] lg:w-14 lg:rounded-full" />
       </div>
       <span class="pointer-events-none absolute -left-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
 

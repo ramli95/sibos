@@ -16,11 +16,11 @@ const memuat = ref(false)
 const galat = ref('')
 
 const akanDibuat = [
-  { ikon: 'ShieldCheck', teks: 'Akun Bendahara (Admin) pertama', warna: 'bg-blue-100 text-biru dark:bg-blue-900/40 dark:text-blue-300' },
-  { ikon: 'School', teks: `Profil sekolah ${SEKOLAH_AWAL.nama_arkas}`, warna: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300' },
-  { ikon: 'UserCheck', teks: 'Pejabat per periode (KS lama & baru, Bendahara)', warna: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300' },
-  { ikon: 'HardDrive', teks: 'Folder Google Drive SIBOS', warna: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
-  { ikon: 'History', teks: 'Catatan pertama di log aktivitas', warna: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
+  { ikon: 'ShieldCheck', teks: 'Akun Bendahara (Admin) pertama', warna: 'ikon-chip' },
+  { ikon: 'School', teks: `Profil sekolah ${SEKOLAH_AWAL.nama_arkas}`, warna: 'ikon-chip' },
+  { ikon: 'UserCheck', teks: 'Pejabat per periode (KS lama & baru, Bendahara)', warna: 'ikon-chip' },
+  { ikon: 'HardDrive', teks: 'Folder Google Drive SIBOS', warna: 'ikon-chip' },
+  { ikon: 'History', teks: 'Catatan pertama di log aktivitas', warna: 'ikon-chip' },
 ]
 
 async function siapkan() {
@@ -41,7 +41,7 @@ async function siapkan() {
 
 <template>
   <TataLetakAkun>
-    <span class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-kuning to-merah text-white shadow"><Ikon nama="Sparkles" :ukuran="24" /></span>
+    <span class="grid h-12 w-12 place-items-center rounded-2xl ikon-chip"><Ikon nama="Sparkles" :ukuran="24" /></span>
     <h1 class="mt-4 text-2xl font-extrabold">Penyiapan Awal SIBOS</h1>
     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
       Masuk sebagai <b>{{ auth.akunFirebase?.email }}</b>. Langkah ini hanya dijalankan sekali dan akan membuat:

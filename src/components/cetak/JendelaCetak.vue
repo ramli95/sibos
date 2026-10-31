@@ -83,7 +83,7 @@ async function unduhPdf() {
         <button class="tombol bg-biru px-3 text-white hover:bg-blue-700" :disabled="!!sibuk" @click="unduhPdf">
           <Ikon :nama="sibuk === 'pdf' ? 'RefreshCw' : 'FileDown'" :ukuran="17" :class="sibuk === 'pdf' && 'animate-spin'" /> <span class="hidden sm:inline">Unduh PDF</span>
         </button>
-        <button class="tombol rounded-2xl bg-merah px-5 py-3 text-base text-white shadow-lg shadow-merah/30 hover:brightness-95" @click="cetakSekarang"><Ikon nama="Printer" :ukuran="20" /> Cetak</button>
+        <button class="tombol rounded-2xl bg-biru px-5 py-3 text-base text-white shadow-lg shadow-biru/30 hover:bg-blue-700" @click="cetakSekarang"><Ikon nama="Printer" :ukuran="20" /> Cetak</button>
         <button class="grid h-10 w-10 place-items-center rounded-xl text-white/80 hover:bg-white/10 hover:text-white" aria-label="Tutup" @click="emit('tutup')"><Ikon nama="X" :ukuran="24" /></button>
       </header>
 

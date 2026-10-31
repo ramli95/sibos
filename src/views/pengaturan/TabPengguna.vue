@@ -69,14 +69,14 @@ const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('
 <template>
   <div class="space-y-5">
     <!-- Kartu peralihan bendahara -->
-    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-biru to-tosca p-5 text-white shadow">
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-navy to-biru p-5 text-white shadow">
       <div class="flex flex-wrap items-center gap-4">
         <span class="grid h-12 w-12 place-items-center rounded-2xl bg-white/20"><Ikon nama="Repeat" :ukuran="24" /></span>
         <div class="min-w-0 flex-1">
           <h3 class="text-lg font-bold">Serah Terima Bendahara</h3>
           <p class="text-sm text-white/85">Alihkan peran Admin ke bendahara baru: akun, periode pejabat, dan pemilik sistem berpindah sekaligus, tercatat di log.</p>
         </div>
-        <RouterLink to="/serah-terima" class="tombol bg-white text-violet-700 hover:bg-violet-50"><Ikon nama="ArrowRightLeft" :ukuran="17" /> Mulai serah terima</RouterLink>
+        <RouterLink to="/serah-terima" class="tombol bg-white text-navy hover:bg-blue-50"><Ikon nama="ArrowRightLeft" :ukuran="17" /> Mulai serah terima</RouterLink>
       </div>
     </section>
 
@@ -96,7 +96,7 @@ const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('
     <section class="kartu overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-5 dark:border-slate-700">
         <h3 class="flex items-center gap-2.5 font-bold">
-          <span class="grid h-8 w-8 place-items-center rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"><Ikon nama="UsersRound" :ukuran="17" /></span>
+          <span class="grid h-8 w-8 place-items-center rounded-lg bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300"><Ikon nama="UsersRound" :ukuran="17" /></span>
           Pengguna & Peran
         </h3>
         <button class="tombol-utama" @click="formTerbuka = !formTerbuka"><Ikon nama="UserPlus" :ukuran="17" /> Tambah pengguna</button>
@@ -126,7 +126,7 @@ const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('
       <div v-if="memuat" class="p-8 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="inline animate-spin" /> Memuat…</div>
       <ul v-else class="divide-y divide-slate-200 dark:divide-slate-700">
         <li v-for="p in daftar" :key="p.uid" :class="['flex flex-wrap items-center gap-3 p-4', p.aktif === false && 'opacity-55']">
-          <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-biru to-tosca text-sm font-bold text-white">{{ p.nama?.[0] }}</span>
+          <span class="grid h-10 w-10 place-items-center rounded-xl bg-biru text-sm font-bold text-white">{{ p.nama?.[0] }}</span>
           <div class="min-w-[12rem] flex-1">
             <p class="font-semibold">{{ p.nama }}</p>
             <p class="text-xs text-slate-500">@{{ p.username }}<template v-if="p.email"> · {{ p.email }}</template>

@@ -31,7 +31,7 @@ const jenis = [
   <div class="grid gap-5 lg:grid-cols-2">
     <section class="kartu space-y-4 p-5">
       <h3 class="flex items-center gap-2.5 font-bold">
-        <span class="grid h-8 w-8 place-items-center rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"><Ikon nama="KeyRound" :ukuran="17" /></span>
+        <span class="grid h-8 w-8 place-items-center rounded-lg bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300"><Ikon nama="KeyRound" :ukuran="17" /></span>
         Kunci notifikasi push (VAPID)
       </h3>
       <ol class="list-decimal space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
@@ -47,7 +47,7 @@ const jenis = [
     <section class="kartu space-y-3 p-5">
       <h3 class="flex items-center gap-2 font-bold"><Ikon nama="Bell" :ukuran="18" class="text-biru" /> Jenis notifikasi</h3>
       <div v-for="j in jenis" :key="j.judul" class="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
-        <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-white', j.warna]"><Ikon :nama="j.ikon" :ukuran="17" /></span>
+        <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-lg ikon-chip']"><Ikon :nama="j.ikon" :ukuran="17" /></span>
         <div class="min-w-0 flex-1"><p class="text-sm font-semibold">{{ j.judul }}</p><p class="text-xs text-slate-500">{{ j.ket }}</p></div>
         <span :class="['lencana', j.fase === 1 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800']">{{ j.fase === 1 ? 'Aktif' : `Fase ${j.fase}` }}</span>
       </div>

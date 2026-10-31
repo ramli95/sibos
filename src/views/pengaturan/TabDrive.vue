@@ -61,8 +61,8 @@ async function cadangkanSekarang() {
 }
 
 const susunan = [
-  ['SIBOS/2026/10 Oktober/SPJ', 'text-merah'], ['SIBOS/2026/10 Oktober/Laporan', 'text-kuning'],
-  ['SIBOS/2026/Pajak', 'text-tosca'], ['SIBOS/Kepegawaian', 'text-langit'], ['SIBOS/Cadangan', 'text-ungu'],
+  ['SIBOS/2026/10 Oktober/SPJ', 'text-biru'], ['SIBOS/2026/10 Oktober/Laporan', 'text-biru'],
+  ['SIBOS/2026/Pajak', 'text-biru'], ['SIBOS/Kepegawaian', 'text-biru'], ['SIBOS/Cadangan', 'text-biru'],
 ]
 </script>
 
@@ -104,14 +104,14 @@ const susunan = [
     </section>
 
     <section class="kartu h-fit space-y-3 p-5">
-      <h3 class="flex items-center gap-2 font-bold"><Ikon nama="CloudUpload" :ukuran="18" class="text-tosca" /> Cadangan otomatis</h3>
+      <h3 class="flex items-center gap-2 font-bold"><Ikon nama="CloudUpload" :ukuran="18" class="text-biru" /> Cadangan otomatis</h3>
 
       <div v-if="cadangan?.status === 'gagal'" class="flex gap-2 rounded-xl bg-rose-50 p-3 text-sm text-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
         <Ikon nama="TriangleAlert" :ukuran="17" class="mt-0.5" />
         <span><b>Cadangan terakhir gagal</b> ({{ formatWaktuRelatif(cadangan.terakhir_gagal) }}). {{ cadangan.pesan }}</span>
       </div>
-      <div v-if="cadangan?.terakhir" class="rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50 p-3.5 text-sm dark:from-teal-950/40 dark:to-emerald-950/30">
-        <p class="text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">Berhasil terakhir</p>
+      <div v-if="cadangan?.terakhir" class="rounded-xl bg-emerald-50 p-3.5 text-sm dark:bg-emerald-950/30">
+        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Berhasil terakhir</p>
         <p class="mt-0.5 font-bold">{{ tanggalPanjang(cadangan.terakhir) }} · {{ formatWaktuRelatif(cadangan.terakhir) }}</p>
         <p class="text-slate-600 dark:text-slate-300">{{ cadangan.jumlah_dokumen }} dokumen dari {{ cadangan.jumlah_koleksi }} koleksi</p>
         <div class="mt-2 flex flex-wrap gap-3">
@@ -122,7 +122,7 @@ const susunan = [
       <p v-else-if="!cadangan" class="rounded-xl bg-slate-50 p-3 text-sm text-slate-500 dark:bg-slate-900/50">Belum ada cadangan.</p>
 
       <p class="text-xs text-slate-500">Harian pukul 23.00 WITA ke spreadsheet <b>SIBOS Cadangan {{ new Date().getFullYear() }}</b>; tiap Minggu + tiap cadangan manual juga disimpan sebagai JSON (12 versi terakhir).</p>
-      <button class="tombol w-full bg-tosca text-white hover:bg-teal-600" :disabled="!!sibuk || !f.url_apps_script" @click="cadangkanSekarang">
+      <button class="tombol-utama w-full" :disabled="!!sibuk || !f.url_apps_script" @click="cadangkanSekarang">
         <Ikon :nama="sibuk === 'cadang' ? 'RefreshCw' : 'CloudUpload'" :ukuran="17" :class="sibuk === 'cadang' && 'animate-spin'" />
         {{ sibuk === 'cadang' ? 'Mencadangkan…' : 'Cadangkan sekarang' }}
       </button>

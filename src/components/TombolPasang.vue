@@ -20,10 +20,10 @@ async function pasang() {
 
 <template>
   <div v-if="tunda || iPhone" class="relative">
-    <button type="button" @click="pasang" class="hidden items-center gap-2 rounded-xl bg-tosca/10 px-3 py-2 text-sm font-semibold text-teal-700 hover:bg-tosca/20 sm:flex dark:text-teal-300">
+    <button type="button" @click="pasang" class="hidden items-center gap-2 rounded-xl bg-biru/10 px-3 py-2 text-sm font-semibold text-biru hover:bg-biru/20 sm:flex dark:text-teal-300">
       <Ikon nama="Smartphone" :ukuran="16" /> Pasang SIBOS
     </button>
-    <button type="button" @click="pasang" aria-label="Pasang SIBOS" class="grid h-10 w-10 place-items-center rounded-xl text-teal-600 hover:bg-slate-100 sm:hidden dark:hover:bg-slate-800">
+    <button type="button" @click="pasang" aria-label="Pasang SIBOS" class="grid h-10 w-10 place-items-center rounded-xl text-biru hover:bg-slate-100 sm:hidden dark:hover:bg-slate-800">
       <Ikon nama="Download" :ukuran="20" />
     </button>
     <div v-if="petunjukIos" class="kartu absolute right-0 z-40 mt-2 w-64 p-3 text-sm">

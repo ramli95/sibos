@@ -7,7 +7,7 @@ import { ringkasan, proporsiJuknis, matriksSnpKomponen, jenisBelanja } from '@/u
 import { KOMPONEN_ARKAS } from '@/config/kodeArkas'
 import { rupiah, rupiahRingkas, persen, NAMA_BULAN } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
-import KartuStat from '@/components/KartuStat.vue'
+import GridStat from '@/components/GridStat.vue'
 import GrafikBulanan from '@/components/GrafikBulanan.vue'
 
 const rkas = useRkas()
@@ -19,9 +19,9 @@ const realisasi = computed(() => Array(12).fill(0))
 const totalRealisasi = computed(() => realisasi.value.reduce((a, b) => a + b, 0))
 
 const kartu = computed(() => [
-  { judul: 'Total RKAS', nilai: rupiahRingkas(r.value.jumlah), ikon: 'Sigma', warna: 'from-violet-500 via-purple-500 to-fuchsia-600', bayangan: 'shadow-fuchsia-500/30', sub: rupiah(r.value.jumlah), persen: pagu.value ? (r.value.jumlah / pagu.value) * 100 : 0 },
+  { judul: 'Total RKAS', nilai: rupiahRingkas(r.value.jumlah), ikon: 'Sigma', nada: 'gelap', sub: rupiah(r.value.jumlah), persen: pagu.value ? (r.value.jumlah / pagu.value) * 100 : 0 },
   ...['operasional', 'alat_mesin', 'aset_lain'].map((k) => ({
-    judul: KATEGORI[k].nama, nilai: rupiahRingkas(r.value.kategori[k]), ikon: KATEGORI[k].ikon, warna: KATEGORI[k].warna, bayangan: KATEGORI[k].bayangan,
+    judul: KATEGORI[k].nama, nilai: rupiahRingkas(r.value.kategori[k]), ikon: KATEGORI[k].ikon, nada: 'primer',
     sub: `Realisasi Rp 0 · sisa ${rupiahRingkas(r.value.kategori[k])}`, persen: 0,
   })),
 ])
@@ -46,14 +46,12 @@ const posisiBatas = (p) => Math.min(100, (p.batas / Math.max(p.batas * 1.6, p.pe
 
 <template>
   <div class="space-y-5">
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <KartuStat v-for="k in kartu" :key="k.judul" v-bind="k" :memuat="rkas.memuat" :bisa-klik="false" ringkas />
-    </div>
+    <GridStat :daftar="kartu" :memuat="rkas.memuat" :bisa-klik="false" ringkas />
 
     <!-- Proporsi juknis -->
     <section class="kartu p-5">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow"><Ikon nama="Scale" :ukuran="19" /></span>
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="Scale" :ukuran="19" /></span>
         <div class="flex-1">
           <h2 class="font-bold">Proporsi juknis BOSP</h2>
           <p class="text-xs text-slate-500">Permendikdasmen No. 8 Tahun 2026 Pasal 42 · dihitung dari alokasi {{ rupiah(pagu) }}</p>
@@ -62,7 +60,7 @@ const posisiBatas = (p) => Math.min(100, (p.batas / Math.max(p.batas * 1.6, p.pe
       <div class="grid gap-4 lg:grid-cols-3">
         <div v-for="p in proporsi" :key="p.kunci" class="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
           <div class="flex items-start gap-3">
-            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-white" :style="{ background: p.warna }"><Ikon :nama="p.ikon" :ukuran="19" /></span>
+            <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl', p.aman ? 'ikon-chip-sukses' : 'ikon-chip-bahaya']"><Ikon :nama="p.ikon" :ukuran="19" /></span>
             <div class="min-w-0 flex-1">
               <p class="font-semibold leading-tight">{{ p.judul }}</p>
               <p class="text-xs text-slate-500">{{ p.jenis === 'min' ? 'Minimal' : 'Maksimal' }} {{ p.batas }}% · {{ p.pasal }}</p>
@@ -89,7 +87,7 @@ const posisiBatas = (p) => Math.min(100, (p.batas / Math.max(p.batas * 1.6, p.pe
     <!-- Proporsi jenis belanja -->
     <section class="kartu p-5">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 text-white shadow"><Ikon nama="ChartPie" :ukuran="19" /></span>
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="ChartPie" :ukuran="19" /></span>
         <div class="flex-1">
           <h2 class="font-bold">Proporsi antarjenis belanja</h2>
           <p class="text-xs text-slate-500">Dari total pagu, dikelompokkan menurut kode rekening seperti grafik "Review Kertas Kerja" ARKAS.</p>
@@ -110,7 +108,7 @@ const posisiBatas = (p) => Math.min(100, (p.batas / Math.max(p.batas * 1.6, p.pe
     <!-- Rencana vs realisasi bulanan -->
     <section class="kartu p-5">
       <div class="mb-2 flex flex-wrap items-center gap-3">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 text-white shadow"><Ikon nama="ChartColumn" :ukuran="19" /></span>
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="ChartColumn" :ukuran="19" /></span>
         <div class="flex-1">
           <h2 class="font-bold">Rencana vs realisasi per bulan</h2>
           <p class="text-xs text-slate-500">Realisasi terisi otomatis dari belanja (Fase 3). Tahap I {{ rupiah(r.tahap1) }} · Tahap II {{ rupiah(r.tahap2) }}</p>
@@ -146,7 +144,7 @@ const posisiBatas = (p) => Math.min(100, (p.batas / Math.max(p.batas * 1.6, p.pe
     <!-- Matriks SNP × komponen -->
     <section class="kartu p-5">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow"><Ikon nama="Grid3x3" :ukuran="19" /></span>
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="Grid3x3" :ukuran="19" /></span>
         <div class="flex-1">
           <h2 class="font-bold">Matriks SNP × komponen</h2>
           <p class="text-xs text-slate-500">Kode segmen 1 (SNP) dan segmen 2 (komponen Pasal 42) dari kode kegiatan ARKAS. Angka dalam juta rupiah; warna makin pekat = anggaran makin besar.</p>

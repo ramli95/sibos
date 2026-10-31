@@ -36,7 +36,7 @@ async function simpan() {
 
 <template>
   <TataLetakAkun>
-    <span class="grid h-12 w-12 place-items-center rounded-2xl bg-tosca/15 text-teal-600"><Ikon nama="ShieldCheck" :ukuran="24" /></span>
+    <span class="grid h-12 w-12 place-items-center rounded-2xl ikon-chip"><Ikon nama="ShieldCheck" :ukuran="24" /></span>
     <h1 class="mt-4 text-2xl font-extrabold">{{ auth.pengguna?.wajib_ganti_password ? 'Buat password Anda' : 'Ganti password' }}</h1>
     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
       <template v-if="auth.pengguna?.wajib_ganti_password">Ini login pertama Anda. Buat password sendiri yang hanya Anda ketahui.</template>

@@ -49,9 +49,9 @@ function simpan() { if (sah.value) emit('simpan', { ...f, nama_item: f.nama_item
       </div>
       <p v-if="ganda" class="flex gap-2 rounded-xl bg-rose-50 p-2.5 text-xs text-rose-700 dark:bg-rose-950/30 dark:text-rose-300"><Ikon nama="CircleAlert" :ukuran="14" /> Item dengan nama, satuan dan harga yang sama sudah ada.</p>
       <!-- Referensi SSH -->
-      <section class="rounded-2xl border border-sky-200 bg-sky-50/60 p-3.5 dark:border-sky-900 dark:bg-sky-950/20">
+      <section class="rounded-2xl border border-blue-200 bg-blue-50/60 p-3.5 dark:border-blue-900 dark:bg-blue-950/20">
         <div class="flex flex-wrap items-center gap-2">
-          <Ikon nama="Landmark" :ukuran="17" class="text-sky-600" />
+          <Ikon nama="Landmark" :ukuran="17" class="text-biru" />
           <b class="flex-1 text-sm">Referensi SSH pemerintah</b>
           <button type="button" class="tombol-garis px-3 py-1.5 text-xs" @click="cariSsh = true"><Ikon nama="Search" :ukuran="14" class="text-biru" /> {{ f.kode_ssh ? 'Ganti' : 'Cari di SSH' }}</button>
           <button v-if="f.kode_ssh" type="button" class="tombol-garis px-3 py-1.5 text-xs" @click="lepasSsh"><Ikon nama="X" :ukuran="14" class="text-rose-500" /> Lepas</button>
@@ -63,7 +63,7 @@ function simpan() { if (sah.value) emit('simpan', { ...f, nama_item: f.nama_item
             <p class="angka font-bold">{{ rupiah(f.harga_ssh) }}</p>
             <span v-if="selisihSsh > 0" class="lencana bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300"><Ikon nama="TrendingUp" :ukuran="12" /> {{ persen((selisihSsh / f.harga_ssh) * 100, 1) }} di atas SSH</span>
             <span v-else-if="selisihSsh < 0" class="lencana bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"><Ikon nama="TrendingDown" :ukuran="12" /> {{ persen((-selisihSsh / f.harga_ssh) * 100, 1) }} di bawah SSH</span>
-            <span v-else class="lencana bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"><Ikon nama="Equal" :ukuran="12" /> Sama dengan SSH</span>
+            <span v-else class="lencana bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300"><Ikon nama="Equal" :ukuran="12" /> Sama dengan SSH</span>
           </div>
         </div>
         <p v-if="selisihSsh > 0" class="mt-2 flex items-start gap-1.5 text-xs text-rose-700 dark:text-rose-300"><Ikon nama="TriangleAlert" :ukuran="14" class="mt-0.5" /> SSH adalah harga tertinggi. Siapkan alasan bila harga sekolah melebihi SSH.</p>
@@ -80,7 +80,7 @@ function simpan() { if (sah.value) emit('simpan', { ...f, nama_item: f.nama_item
       <div>
         <span class="label">Kategori anggaran</span>
         <div class="grid gap-2 sm:grid-cols-3">
-          <label v-for="(k, kk) in KATEGORI" :key="kk" :class="['flex cursor-pointer items-center gap-2 rounded-xl border p-2.5 text-sm', f.kategori === kk ? 'border-transparent bg-gradient-to-r text-white shadow ' + k.warna : 'border-slate-300 dark:border-slate-600']">
+          <label v-for="(k, kk) in KATEGORI" :key="kk" :class="['flex cursor-pointer items-center gap-2 rounded-xl border p-2.5 text-sm', f.kategori === kk ? 'border-biru bg-biru text-white shadow' : 'border-slate-300 dark:border-slate-600']">
             <input v-model="f.kategori" type="radio" :value="kk" class="sr-only" /><Ikon :nama="k.ikon" :ukuran="16" /> {{ k.nama }}
           </label>
         </div>
@@ -88,7 +88,7 @@ function simpan() { if (sah.value) emit('simpan', { ...f, nama_item: f.nama_item
       <label class="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><input v-model="f.aktif" type="checkbox" class="h-5 w-5 accent-emerald-600" /><span class="text-sm font-semibold">Aktif (bisa dipilih saat belanja)</span></label>
 
       <section v-if="props.item?.riwayat?.length" class="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50">
-        <h4 class="mb-2 flex items-center gap-2 text-sm font-bold"><Ikon nama="History" :ukuran="15" class="text-ungu" /> Riwayat harga</h4>
+        <h4 class="mb-2 flex items-center gap-2 text-sm font-bold"><Ikon nama="History" :ukuran="15" class="text-biru" /> Riwayat harga</h4>
         <ol class="space-y-1 text-sm">
           <li v-for="(r, i) in [...props.item.riwayat].reverse()" :key="i" class="flex justify-between"><span class="text-slate-500">{{ r.tanggal }} · TA {{ r.tahun }}</span><b class="angka">{{ rupiah(r.harga) }}</b></li>
         </ol>

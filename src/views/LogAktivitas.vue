@@ -18,18 +18,18 @@ const jenis = ref('semua')
 const hari = ref(90)
 
 const AKSI = {
-  tambah: { label: 'Tambah', ikon: 'Plus', warna: 'from-emerald-400 to-teal-600' },
-  ubah: { label: 'Ubah', ikon: 'Pencil', warna: 'from-sky-400 to-blue-600' },
-  hapus: { label: 'Hapus', ikon: 'Trash2', warna: 'from-rose-400 to-red-500' },
-  impor: { label: 'Impor', ikon: 'FileUp', warna: 'from-teal-400 to-cyan-600' },
-  masuk: { label: 'Masuk', ikon: 'LogOut', warna: 'from-slate-400 to-slate-600' },
-  keluar: { label: 'Keluar', ikon: 'LogOut', warna: 'from-slate-400 to-slate-500' },
-  ubah_password: { label: 'Password', ikon: 'KeyRound', warna: 'from-amber-400 to-orange-500' },
-  reset_password: { label: 'Reset password', ikon: 'KeyRound', warna: 'from-amber-400 to-orange-500' },
-  penyiapan_awal: { label: 'Penyiapan', ikon: 'Sparkles', warna: 'from-violet-500 to-fuchsia-500' },
-  serah_terima_bendahara: { label: 'Serah terima', ikon: 'Repeat', warna: 'from-violet-500 to-fuchsia-500' },
+  tambah: { label: 'Tambah', ikon: 'Plus', warna: 'ikon-chip-sukses' },
+  ubah: { label: 'Ubah', ikon: 'Pencil', warna: 'ikon-chip' },
+  hapus: { label: 'Hapus', ikon: 'Trash2', warna: 'ikon-chip-bahaya' },
+  impor: { label: 'Impor', ikon: 'FileUp', warna: 'ikon-chip' },
+  masuk: { label: 'Masuk', ikon: 'LogOut', warna: 'ikon-chip' },
+  keluar: { label: 'Keluar', ikon: 'LogOut', warna: 'ikon-chip' },
+  ubah_password: { label: 'Password', ikon: 'KeyRound', warna: 'ikon-chip' },
+  reset_password: { label: 'Reset password', ikon: 'KeyRound', warna: 'ikon-chip' },
+  penyiapan_awal: { label: 'Penyiapan', ikon: 'Sparkles', warna: 'ikon-chip' },
+  serah_terima_bendahara: { label: 'Serah terima', ikon: 'Repeat', warna: 'ikon-chip' },
 }
-const gaya = (a) => AKSI[a] || { label: a, ikon: 'History', warna: 'from-slate-400 to-slate-600' }
+const gaya = (a) => AKSI[a] || { label: a, ikon: 'History', warna: 'ikon-chip' }
 
 async function muat() {
   memuat.value = true
@@ -106,7 +106,7 @@ function ekspor() {
       </div>
       <select v-model="jenis" class="masukan w-auto"><option value="semua">Semua aksi</option><option v-for="a in jenisAda" :key="a" :value="a">{{ gaya(a).label }}</option></select>
       <select v-model.number="hari" class="masukan w-auto" @change="muat"><option :value="7">7 hari</option><option :value="30">30 hari</option><option :value="90">90 hari</option><option :value="183">6 bulan</option></select>
-      <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
+      <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> Cetak / Unduh</button>
     </div>
 
     <CetakDaftar v-if="cetakTerbuka" judul="Log Aktivitas" :subjudul="`${hari} hari terakhir`" :kolom="kolomCetak" :baris="hasil" :tanda-tangan="false" excel
@@ -118,7 +118,7 @@ function ekspor() {
         <h3 class="mb-2 flex items-center gap-2 text-sm font-bold text-slate-500"><Ikon nama="CalendarDays" :ukuran="15" class="text-biru" /> {{ g.tanggal }}</h3>
         <ol class="kartu divide-y divide-slate-100 dark:divide-slate-800">
           <li v-for="l in g.isi" :key="l.id" class="flex gap-3 p-3.5">
-            <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white', gaya(l.aksi).warna]"><Ikon :nama="gaya(l.aksi).ikon" :ukuran="16" /></span>
+            <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl', gaya(l.aksi).warna]"><Ikon :nama="gaya(l.aksi).ikon" :ukuran="16" /></span>
             <div class="min-w-0 flex-1">
               <p class="text-sm">{{ l.keterangan }}</p>
               <p class="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-slate-500">

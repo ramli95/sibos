@@ -57,6 +57,27 @@
   @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
 }
 
+/* Sistem warna SIBOS (aturan 60-30-10):
+   60% netral (slate) · 30% warna utama biru/navy · 10% aksen semantik
+   (hijau = sesuai/selesai, kuning = perlu dicek, merah = melampaui/galat).
+   Warna lain hanya untuk grafik data. */
+@utility ikon-chip {
+  @apply bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300;
+}
+@utility ikon-chip-sukses {
+  @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300;
+}
+@utility ikon-chip-peringatan {
+  @apply bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300;
+}
+@utility ikon-chip-bahaya {
+  @apply bg-rose-100 text-rose-700 dark:bg-rose-400/15 dark:text-rose-300;
+}
+@utility tanpa-penggulir {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
 /* Penggulir tipis & transparan: muncul samar saat kursor di atas area */
 @utility gulir-halus {
   scrollbar-width: thin;

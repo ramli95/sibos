@@ -94,7 +94,7 @@ async function keluarSetelahSelesai() {
 
     <!-- Selesai -->
     <section v-if="selesai" class="kartu p-6 text-center">
-      <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow"><Ikon nama="CircleCheck" :ukuran="28" /></span>
+      <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl ikon-chip-sukses"><Ikon nama="CircleCheck" :ukuran="28" /></span>
       <h2 class="mt-4 text-xl font-bold">Serah terima tercatat</h2>
       <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">
         Mulai {{ tanggalPanjang(f.tanggal) }}, <b>{{ f.nama }}</b> menjadi Bendahara (Admin) SIBOS. Dokumen bertanggal sebelumnya tetap atas nama bendahara lama.
@@ -162,12 +162,12 @@ async function keluarSetelahSelesai() {
         <h3 class="mb-3 flex items-center gap-2 font-bold"><Ikon nama="ShieldCheck" :ukuran="19" class="text-biru" /> Ringkasan</h3>
         <div class="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
           <div class="rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50"><p class="text-xs text-slate-500">Dari</p><p class="font-semibold">{{ lama?.nama || '—' }}</p></div>
-          <Ikon nama="ArrowRightLeft" :ukuran="22" class="mx-auto text-violet-500" />
-          <div class="rounded-xl bg-violet-50 p-3 dark:bg-violet-950/40"><p class="text-xs text-slate-500">Kepada</p><p class="font-semibold">{{ f.nama }}{{ f.gelar ? `, ${f.gelar}` : '' }}</p></div>
+          <Ikon nama="ArrowRightLeft" :ukuran="22" class="mx-auto text-biru" />
+          <div class="rounded-xl bg-biru/5 p-3 dark:bg-blue-950/30"><p class="text-xs text-slate-500">Kepada</p><p class="font-semibold">{{ f.nama }}{{ f.gelar ? `, ${f.gelar}` : '' }}</p></div>
         </div>
         <ul class="mt-4 space-y-1.5 text-sm">
           <li class="flex gap-2"><Ikon nama="CalendarDays" :ukuran="16" class="mt-0.5 text-amber-500" /> Mulai {{ tanggalPanjang(f.tanggal) }}; periode lama ditutup sehari sebelumnya.</li>
-          <li class="flex gap-2"><Ikon nama="UserCheck" :ukuran="16" class="mt-0.5 text-teal-500" /> Jabatan: {{ f.jabatan.map((j) => (j === 'bendahara_bosp' ? 'Bendahara BOSP' : 'Bendahara Gaji')).join(' & ') }}</li>
+          <li class="flex gap-2"><Ikon nama="UserCheck" :ukuran="16" class="mt-0.5 text-biru" /> Jabatan: {{ f.jabatan.map((j) => (j === 'bendahara_bosp' ? 'Bendahara BOSP' : 'Bendahara Gaji')).join(' & ') }}</li>
           <li class="flex gap-2"><Ikon nama="UsersRound" :ukuran="16" class="mt-0.5 text-rose-500" /> Bendahara lama: {{ f.aksesLama === 'tim_bos' ? 'tetap sebagai Tim BOS' : 'dinonaktifkan' }}</li>
         </ul>
       </div>
@@ -185,7 +185,7 @@ async function keluarSetelahSelesai() {
     <div v-if="!selesai" class="flex justify-between">
       <button class="tombol-garis" @click="langkah > 1 ? langkah-- : router.back()"><Ikon nama="ArrowLeft" :ukuran="17" /> {{ langkah > 1 ? 'Kembali' : 'Batal' }}</button>
       <button v-if="langkah < 3" class="tombol-utama" :disabled="!bisaLanjut" @click="langkah++">Lanjut <Ikon nama="ChevronRight" :ukuran="17" /></button>
-      <button v-else class="tombol bg-violet-600 text-white hover:bg-violet-700" :disabled="memproses" @click="tetapkan">
+      <button v-else class="tombol-utama" :disabled="memproses" @click="tetapkan">
         <Ikon :nama="memproses ? 'RefreshCw' : 'Repeat'" :ukuran="17" :class="memproses && 'animate-spin'" /> Tetapkan serah terima
       </button>
     </div>

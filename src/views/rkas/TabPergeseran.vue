@@ -87,7 +87,7 @@ const kodeRekening = computed(() => [...new Set(rkas.uraian.map((u) => u.kode_re
     <div class="space-y-4">
       <section v-if="auth.isAdmin" class="kartu p-5">
         <div class="mb-4 flex flex-wrap items-center gap-3">
-          <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-rose-400 to-red-600 text-white shadow"><Ikon nama="ArrowRightLeft" :ukuran="19" /></span>
+          <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="ArrowRightLeft" :ukuran="19" /></span>
           <div class="flex-1">
             <h2 class="font-bold">Geser anggaran</h2>
             <p class="text-xs text-slate-500">Pilih uraian yang dikurangi dan ditambah, ubah volume/harga/bulan. Total {{ rkas.versi?.nama }} harus tetap {{ rupiah(rkas.versi?.total) }}.</p>
@@ -162,7 +162,7 @@ const kodeRekening = computed(() => [...new Set(rkas.uraian.map((u) => u.kode_re
 
     <!-- Riwayat -->
     <aside class="kartu h-fit p-5">
-      <h3 class="mb-3 flex items-center gap-2 font-bold"><Ikon nama="History" :ukuran="18" class="text-ungu" /> Riwayat pergeseran</h3>
+      <h3 class="mb-3 flex items-center gap-2 font-bold"><Ikon nama="History" :ukuran="18" class="text-biru" /> Riwayat pergeseran</h3>
       <p v-if="!riwayat.length" class="text-sm text-slate-500">Belum ada pergeseran pada versi ini.</p>
       <ol class="space-y-3">
         <li v-for="p in riwayat" :key="p.id" class="rounded-xl border border-slate-200 p-3 text-sm dark:border-slate-700">

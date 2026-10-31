@@ -14,9 +14,9 @@ import { muatReferensi, simpanReferensi } from './referensi'
 import { kategoriRekening, pecahKode } from '@/utils/arkas'
 
 export const JENIS_VERSI = {
-  murni: { nama: 'Murni', ikon: 'FileCheck', warna: 'from-sky-400 to-blue-600', lencana: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300' },
+  murni: { nama: 'Murni', ikon: 'FileCheck', warna: 'from-sky-400 to-blue-600', lencana: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
   pergeseran: { nama: 'Pergeseran', ikon: 'ArrowRightLeft', warna: 'from-amber-400 to-orange-500', lencana: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
-  perubahan: { nama: 'Perubahan', ikon: 'FilePen', warna: 'from-emerald-400 to-teal-600', lencana: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
+  perubahan: { nama: 'Perubahan', ikon: 'FilePen', warna: 'from-emerald-400 to-teal-600', lencana: 'bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300' },
 }
 
 const jumlahkan = (arr, f) => arr.reduce((s, x) => s + (Number(f(x)) || 0), 0)

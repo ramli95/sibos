@@ -14,10 +14,7 @@ const sibuk = ref('')
 const saring = ref('semua')
 onMounted(() => { izin.value = izinPush() })
 
-const warna = {
-  info: 'from-sky-400 to-blue-600', sukses: 'from-emerald-400 to-teal-600',
-  peringatan: 'from-amber-400 to-orange-500', galat: 'from-rose-400 to-red-500',
-}
+const warna = { info: 'ikon-chip', sukses: 'ikon-chip-sukses', peringatan: 'ikon-chip-peringatan', galat: 'ikon-chip-bahaya' }
 const tampil = computed(() => notif.daftar.filter((n) => saring.value === 'semua' || !n.dibaca))
 
 async function aktifkan() {
@@ -35,7 +32,7 @@ async function uji() {
 <template>
   <div class="mx-auto max-w-3xl space-y-5">
     <!-- Push di perangkat ini -->
-    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-biru to-tosca p-5 text-white shadow">
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy to-biru p-5 text-white shadow">
       <Ikon nama="BellRing" :ukuran="90" class="absolute -bottom-4 -right-3 opacity-15" />
       <div class="relative flex flex-wrap items-center gap-4">
         <span class="grid h-12 w-12 place-items-center rounded-2xl bg-white/20"><Ikon nama="Smartphone" :ukuran="24" /></span>
@@ -48,7 +45,7 @@ async function uji() {
             <template v-else>Terima pemberitahuan (cadangan gagal, tenggat laporan, pajak, KGB) di HP atau laptop.</template>
           </p>
         </div>
-        <button v-if="pushDidukung() && izin !== 'denied'" class="tombol bg-white text-violet-700 hover:bg-violet-50" :disabled="!!sibuk" @click="aktifkan">
+        <button v-if="pushDidukung() && izin !== 'denied'" class="tombol bg-white text-navy hover:bg-blue-50" :disabled="!!sibuk" @click="aktifkan">
           <Ikon :nama="sibuk === 'aktif' ? 'RefreshCw' : 'Bell'" :ukuran="17" :class="sibuk === 'aktif' && 'animate-spin'" /> {{ izin === 'granted' ? 'Segarkan' : 'Aktifkan' }}
         </button>
         <button v-if="izin === 'granted'" class="tombol bg-white/15 text-white hover:bg-white/25" :disabled="!!sibuk" @click="uji">
@@ -68,7 +65,7 @@ async function uji() {
       </header>
       <ul class="divide-y divide-slate-100 dark:divide-slate-800">
         <li v-for="n in tampil" :key="n.id" :class="['flex cursor-pointer gap-3 p-4 transition hover:bg-slate-50 dark:hover:bg-slate-800/40', !n.dibaca && 'bg-blue-50/60 dark:bg-blue-950/20']" @click="notif.tandai(n)">
-          <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white', warna[n.jenis] || warna.info]"><Ikon :nama="n.ikon || 'Bell'" :ukuran="18" /></span>
+          <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl', warna[n.jenis] || warna.info]"><Ikon :nama="n.ikon || 'Bell'" :ukuran="18" /></span>
           <div class="min-w-0 flex-1">
             <p class="font-semibold">{{ n.judul }} <span v-if="!n.dibaca" class="ml-1 inline-block h-2 w-2 rounded-full bg-merah align-middle" /></p>
             <p class="text-sm text-slate-600 dark:text-slate-300">{{ n.isi }}</p>

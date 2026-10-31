@@ -83,7 +83,7 @@ async function hapus() {
 <template>
   <div class="space-y-5">
     <!-- Cek pejabat pada tanggal -->
-    <section class="flex flex-wrap items-center gap-3 rounded-2xl bg-gradient-to-r from-blue-50 via-violet-50 to-teal-50 p-4 dark:from-blue-950/40 dark:via-violet-950/30 dark:to-teal-950/30">
+    <section class="flex flex-wrap items-center gap-3 rounded-2xl bg-biru/5 p-4 dark:bg-blue-950/30">
       <span class="grid h-10 w-10 place-items-center rounded-xl bg-biru text-white"><Ikon nama="CalendarDays" :ukuran="20" /></span>
       <p class="min-w-0 flex-1 text-sm">Dokumen otomatis memakai pejabat yang menjabat pada <b>tanggal dokumen</b>. Coba tanggal lain untuk melihat siapa penanda tangannya:</p>
       <input v-model="tanggalCek" type="date" class="masukan w-auto" />
@@ -93,7 +93,7 @@ async function hapus() {
     <div v-else class="grid gap-4 xl:grid-cols-2">
       <article v-for="j in perJabatan" :key="j.kunci" class="kartu overflow-hidden">
         <header class="flex items-center gap-3 border-b border-slate-100 p-4 dark:border-slate-800">
-          <span :class="['grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-white shadow', j.warna]"><Ikon :nama="j.ikon" :ukuran="21" /></span>
+          <span :class="['grid h-11 w-11 place-items-center rounded-xl ikon-chip']"><Ikon :nama="j.ikon" :ukuran="21" /></span>
           <div class="min-w-0 flex-1">
             <h3 class="font-bold">{{ j.label }}</h3>
             <p class="truncate text-xs" :class="j.aktif ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600'">

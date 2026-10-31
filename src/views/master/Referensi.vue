@@ -118,31 +118,31 @@ async function impor(e) {
       <button v-for="j in JENIS_REFERENSI" :key="j.kunci" @click="aktif = j.kunci"
               :class="['flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition',
                        aktif === j.kunci ? 'bg-biru/10 text-biru dark:bg-biru/20 dark:text-blue-300' : 'hover:bg-slate-100 dark:hover:bg-slate-800']">
-        <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-white', j.warna]"><Ikon :nama="j.ikon" :ukuran="16" /></span>
+        <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg ikon-chip']"><Ikon :nama="j.ikon" :ukuran="16" /></span>
         <span class="flex-1">{{ j.singkat }}</span>
-        <span v-if="status[j.kunci] === false" class="hidden h-2 w-2 rounded-full bg-kuning lg:block" title="Belum dipasang" />
+        <span v-if="status[j.kunci] === false" class="hidden h-2 w-2 rounded-full bg-amber-500 lg:block" title="Belum dipasang" />
       </button>
     </nav>
 
     <div class="min-w-0 space-y-4">
-      <div v-if="adaBelum && auth.isAdmin" class="flex flex-wrap items-center gap-3 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 p-4 dark:from-amber-950/40 dark:to-orange-950/30">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-kuning text-arang"><Ikon nama="Sparkles" :ukuran="20" /></span>
+      <div v-if="adaBelum && auth.isAdmin" class="flex flex-wrap items-center gap-3 rounded-2xl bg-amber-50 p-4 dark:bg-amber-950/30">
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip-peringatan"><Ikon nama="Sparkles" :ukuran="20" /></span>
         <p class="min-w-0 flex-1 text-sm"><b>Data awal referensi belum dipasang.</b> Pasang sekali untuk menyimpan isi bawaan (SNP, komponen Pasal 42, kategori, akun SIMAKDA, pajak, satuan, sumber dana) ke database.</p>
-        <button class="tombol bg-kuning text-arang hover:brightness-95" @click="pasangAwal"><Ikon nama="Download" :ukuran="17" /> Pasang data awal</button>
+        <button class="tombol-utama" @click="pasangAwal"><Ikon nama="Download" :ukuran="17" /> Pasang data awal</button>
       </div>
 
       <section class="kartu overflow-hidden">
         <header class="flex flex-wrap items-center gap-3 border-b border-slate-200 p-4 dark:border-slate-700">
-          <span :class="['grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-white shadow', def.warna]"><Ikon :nama="def.ikon" :ukuran="21" /></span>
+          <span :class="['grid h-11 w-11 place-items-center rounded-xl ikon-chip']"><Ikon :nama="def.ikon" :ukuran="21" /></span>
           <div class="min-w-0 flex-1">
             <h2 class="font-bold">{{ def.judul }}</h2>
             <p class="text-xs text-slate-500">{{ def.ket }}</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <template v-if="!ubah">
-              <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="16" class="text-merah" /> Cetak / Unduh</button>
+              <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="16" class="text-biru" /> Cetak / Unduh</button>
               <template v-if="auth.isAdmin">
-                <label class="tombol-garis cursor-pointer"><Ikon nama="FileUp" :ukuran="16" class="text-tosca" /> Impor<input type="file" accept=".xlsx,.csv" class="sr-only" @change="impor" /></label>
+                <label class="tombol-garis cursor-pointer"><Ikon nama="FileUp" :ukuran="16" class="text-biru" /> Impor<input type="file" accept=".xlsx,.csv" class="sr-only" @change="impor" /></label>
                 <button class="tombol-utama" @click="mulaiUbah"><Ikon nama="Pencil" :ukuran="16" /> Ubah</button>
               </template>
             </template>
@@ -174,7 +174,7 @@ async function impor(e) {
               <tr v-for="{ b, i } in tampil" :key="i" class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
                 <td v-for="k in def.kolom" :key="k.k" :class="['px-4 py-2', ubah && 'py-1.5']">
                   <template v-if="ubah">
-                    <input v-if="k.bool" v-model="b[k.k]" type="checkbox" class="h-4 w-4 accent-tosca" />
+                    <input v-if="k.bool" v-model="b[k.k]" type="checkbox" class="h-4 w-4 accent-biru" />
                     <input v-else v-model="b[k.k]" :class="['masukan py-1.5', k.k === 'kode' && 'kode']" />
                   </template>
                   <template v-else>

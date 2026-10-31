@@ -96,7 +96,7 @@ async function simpanKop() {
             <Ikon v-else nama="Image" :ukuran="28" class="text-slate-300" />
           </div>
           <div class="min-w-0 flex-1">
-            <p class="flex items-center gap-2 font-bold"><span :class="['h-2.5 w-2.5 rounded-full bg-gradient-to-br', l.warna]" />{{ l.judul }}</p>
+            <p class="flex items-center gap-2 font-bold"><span :class="'h-2.5 w-2.5 rounded-full bg-biru'" />{{ l.judul }}</p>
             <p class="text-xs text-slate-500">Posisi {{ l.posisi }} kop · PNG latar transparan paling rapi.</p>
             <p v-if="profil[l.kunci]" class="mt-1 text-xs" :class="profil[l.kunci].startsWith('data:') ? 'text-emerald-600' : 'text-amber-600'">
               {{ profil[l.kunci].startsWith('data:') ? 'Tersimpan di SIBOS' : 'Tersimpan sebagai tautan' }}
@@ -124,7 +124,7 @@ async function simpanKop() {
     <!-- Susunan kop -->
     <section class="kartu p-5">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <h3 class="flex flex-1 items-center gap-2 font-bold"><Ikon nama="FileSignature" :ukuran="18" class="text-merah" /> Susunan kop surat</h3>
+        <h3 class="flex flex-1 items-center gap-2 font-bold"><Ikon nama="FileSignature" :ukuran="18" class="text-biru" /> Susunan kop surat</h3>
         <button class="tombol-garis px-3 py-2" @click="kembalikanBawaan"><Ikon nama="RefreshCw" :ukuran="15" /> Bawaan tata naskah</button>
       </div>
       <div class="mb-4 grid gap-4 sm:grid-cols-2">
@@ -172,8 +172,8 @@ async function simpanKop() {
     <!-- Pratinjau -->
     <section class="kartu p-5">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <h3 class="flex flex-1 items-center gap-2 font-bold"><Ikon nama="Eye" :ukuran="18" class="text-tosca" /> Pratinjau (lebar F4 tegak)</h3>
-        <button class="tombol bg-merah px-3 py-2 text-white hover:brightness-95" @click="ujiCetak = true"><Ikon nama="Printer" :ukuran="16" /> Uji cetak F4</button>
+        <h3 class="flex flex-1 items-center gap-2 font-bold"><Ikon nama="Eye" :ukuran="18" class="text-biru" /> Pratinjau (lebar F4 tegak)</h3>
+        <button class="tombol-utama px-3 py-2" @click="ujiCetak = true"><Ikon nama="Printer" :ukuran="16" /> Uji cetak F4</button>
       </div>
       <div class="gulir-halus overflow-x-auto rounded-xl bg-slate-200 p-4 dark:bg-slate-900">
         <div class="mx-auto bg-white shadow" style="width: 215mm; min-width: 215mm; padding: 1.5cm 2cm 1.5cm 3cm">

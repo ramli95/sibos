@@ -7,7 +7,7 @@ import { muatRekanan, muatPegawai, simpanRekanan, hapusRekanan } from '@/service
 import { eksporExcel } from '@/utils/excel'
 import { formatWa } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
-import KartuStat from '@/components/KartuStat.vue'
+import GridStat from '@/components/GridStat.vue'
 import FormRekanan from './FormRekanan.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
@@ -51,10 +51,10 @@ const statistik = computed(() => {
   const badan = d.filter((r) => r.bentuk_usaha === 'badan').length
   const rek = d.filter((r) => r.no_rekening).length
   return [
-    { judul: 'Rekanan', nilai: d.length, ikon: 'Store', warna: 'from-amber-400 via-orange-400 to-orange-600', bayangan: 'shadow-orange-500/30', s: 'semua', sub: `${rek} sudah ada rekening`, persen: pr(rek) },
-    { judul: 'PKP', nilai: pkp, ikon: 'BadgeCheck', warna: 'from-emerald-400 via-teal-500 to-teal-600', bayangan: 'shadow-teal-500/30', s: 'pkp', sub: 'Memungut PPN', persen: pr(pkp) },
-    { judul: 'Non-PKP', nilai: d.length - pkp, ikon: 'ReceiptText', warna: 'from-sky-400 via-sky-500 to-blue-600', bayangan: 'shadow-sky-500/30', s: 'nonpkp', sub: 'Tanpa PPN', persen: pr(d.length - pkp) },
-    { judul: 'Badan usaha', nilai: badan, ikon: 'Building2', warna: 'from-violet-500 via-purple-500 to-fuchsia-600', bayangan: 'shadow-fuchsia-500/30', s: 'badan', sub: 'CV, PT, UD, koperasi', persen: pr(badan) },
+    { judul: 'Rekanan', nilai: d.length, ikon: 'Store', nada: 'gelap', s: 'semua', sub: `${rek} sudah ada rekening`, persen: pr(rek) },
+    { judul: 'PKP', nilai: pkp, ikon: 'BadgeCheck', nada: 'primer', s: 'pkp', sub: 'Memungut PPN', persen: pr(pkp) },
+    { judul: 'Non-PKP', nilai: d.length - pkp, ikon: 'ReceiptText', nada: 'primer', s: 'nonpkp', sub: 'Tanpa PPN', persen: pr(d.length - pkp) },
+    { judul: 'Badan usaha', nilai: badan, ikon: 'Building2', nada: 'primer', s: 'badan', sub: 'CV, PT, UD, koperasi', persen: pr(badan) },
   ]
 })
 
@@ -94,9 +94,7 @@ async function ekspor() {
 
 <template>
   <div class="space-y-5">
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <KartuStat v-for="s in statistik" :key="s.judul" v-bind="s" :memuat="memuat" :aktif="saring === s.s && s.s !== 'semua'" @klik="saring = s.s" />
-    </div>
+    <GridStat :daftar="statistik" :memuat="memuat" :aktif="(s) => saring === s.s && s.s !== 'semua'" @klik="(s) => (saring = s.s)" />
 
     <div class="kartu flex flex-wrap items-center gap-2 p-3">
       <div class="relative min-w-[14rem] flex-1">
@@ -104,17 +102,17 @@ async function ekspor() {
         <input v-model="cari" class="masukan pl-9" placeholder="Cari nama usaha, pemilik, NPWP…" />
       </div>
       <div class="ml-auto flex flex-wrap gap-2">
-        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
+        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> Cetak / Unduh</button>
         <template v-if="auth.isAdmin">
-          <RouterLink to="/impor?jenis=rekanan" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-tosca" /> Impor</RouterLink>
-          <button class="tombol bg-orange-500 text-white hover:bg-orange-600" @click="terpilih = {}"><Ikon nama="Plus" :ukuran="17" /> Tambah</button>
+          <RouterLink to="/impor?jenis=rekanan" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-biru" /> Impor</RouterLink>
+          <button class="tombol-utama" @click="terpilih = {}"><Ikon nama="Plus" :ukuran="17" /> Tambah</button>
         </template>
       </div>
     </div>
 
     <div v-if="memuat" class="kartu p-10 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="inline animate-spin" /> Memuat rekanan…</div>
     <div v-else-if="!hasil.length" class="kartu flex flex-col items-center gap-3 p-10 text-center">
-      <span class="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white"><Ikon nama="Store" :ukuran="26" /></span>
+      <span class="grid h-14 w-14 place-items-center rounded-2xl ikon-chip"><Ikon nama="Store" :ukuran="26" /></span>
       <p class="font-semibold">{{ daftar.length ? 'Tidak ada yang cocok.' : 'Belum ada data rekanan.' }}</p>
       <RouterLink v-if="!daftar.length && auth.isAdmin" to="/impor?jenis=rekanan" class="tombol-utama"><Ikon nama="FileUp" :ukuran="17" /> Impor dari Excel</RouterLink>
     </div>
@@ -122,19 +120,19 @@ async function ekspor() {
       <button v-for="r in hasil" :key="r.id" type="button" @click="terpilih = r"
               :class="['kartu flex flex-col gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md', r.aktif === false && 'opacity-55']">
         <div class="flex items-start gap-3">
-          <span :class="['grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white', r.bentuk_usaha === 'badan' ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500' : 'bg-gradient-to-br from-amber-400 to-orange-500']">
+          <span :class="['grid h-11 w-11 shrink-0 place-items-center rounded-xl ikon-chip']">
             <Ikon :nama="r.bentuk_usaha === 'badan' ? 'Building2' : 'Store'" :ukuran="20" />
           </span>
           <div class="min-w-0 flex-1">
             <p class="truncate font-bold">{{ r.nama_usaha }}</p>
             <p class="truncate text-xs text-slate-500">{{ r.pemilik || '—' }}</p>
           </div>
-          <span :class="['lencana', r.status_pkp ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300']">{{ r.status_pkp ? 'PKP' : 'Non-PKP' }}</span>
+          <span :class="['lencana', r.status_pkp ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300']">{{ r.status_pkp ? 'PKP' : 'Non-PKP' }}</span>
         </div>
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <span class="flex items-center gap-1.5 truncate text-slate-600 dark:text-slate-300"><Ikon nama="ReceiptText" :ukuran="13" class="text-tosca" /><span class="kode truncate">{{ r.npwp || 'NPWP —' }}</span></span>
+          <span class="flex items-center gap-1.5 truncate text-slate-600 dark:text-slate-300"><Ikon nama="ReceiptText" :ukuran="13" class="text-biru" /><span class="kode truncate">{{ r.npwp || 'NPWP —' }}</span></span>
           <span class="flex items-center gap-1.5 truncate text-slate-600 dark:text-slate-300"><Ikon nama="Phone" :ukuran="13" class="text-emerald-500" /><span class="kode truncate">{{ formatWa(r.no_wa) || r.telepon || '—' }}</span></span>
-          <span class="col-span-2 flex items-center gap-1.5 truncate text-slate-600 dark:text-slate-300"><Ikon nama="Landmark" :ukuran="13" class="text-kuning" />{{ r.bank ? `${r.bank} · ${r.no_rekening || ''}` : 'Rekening —' }}</span>
+          <span class="col-span-2 flex items-center gap-1.5 truncate text-slate-600 dark:text-slate-300"><Ikon nama="Landmark" :ukuran="13" class="text-biru" />{{ r.bank ? `${r.bank} · ${r.no_rekening || ''}` : 'Rekening —' }}</span>
         </div>
       </button>
     </div>

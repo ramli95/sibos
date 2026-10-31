@@ -38,8 +38,8 @@ const k = (n) => n.kode + '@' + n.tingkat
 const cetak = ref(null)
 async function ekspor() { try { await eksporRkas(rkas) } catch (e) { notif.kabari(e.message, 'galat') } }
 const saringKat = [
-  { k: 'semua', j: 'Semua', ikon: 'Layers', w: 'bg-slate-700 text-white dark:bg-slate-200 dark:text-slate-900' },
-  ...Object.entries(KATEGORI).map(([kk, v]) => ({ k: kk, j: v.nama, ikon: v.ikon, w: 'text-white bg-gradient-to-r ' + v.warna })),
+  { k: 'semua', j: 'Semua', ikon: 'Layers', w: 'bg-biru text-white' },
+  ...Object.entries(KATEGORI).map(([kk, v]) => ({ k: kk, j: v.nama, ikon: v.ikon, w: 'bg-biru text-white' })),
 ]
 </script>
 
@@ -58,8 +58,8 @@ const saringKat = [
       </div>
       <div class="ml-auto flex flex-wrap gap-2">
         <button class="tombol-garis px-3" title="Buka semua" @click="bukaSemua(true)"><Ikon nama="ChevronsUpDown" :ukuran="17" class="text-biru" /></button>
-        <button class="tombol-garis px-3" title="Tutup semua" @click="bukaSemua(false)"><Ikon nama="ChevronsDownUp" :ukuran="17" class="text-ungu" /></button>
-        <button class="tombol-garis" @click="cetak = { mode: 'tahap' }"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
+        <button class="tombol-garis px-3" title="Tutup semua" @click="bukaSemua(false)"><Ikon nama="ChevronsDownUp" :ukuran="17" class="text-biru" /></button>
+        <button class="tombol-garis" @click="cetak = { mode: 'tahap' }"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> Cetak / Unduh</button>
         <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Excel</button>
       </div>
     </div>

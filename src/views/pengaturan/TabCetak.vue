@@ -48,7 +48,7 @@ function kembalikan() { c.value = structuredClone(CETAK_AWAL) }
 
       <section v-for="o in ['portrait', 'landscape']" :key="o" class="kartu p-5">
         <h3 class="mb-4 flex items-center gap-2 font-bold">
-          <span :class="['grid h-8 w-8 place-items-center rounded-lg', o === 'portrait' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300']">
+          <span :class="['grid h-8 w-8 place-items-center rounded-lg', o === 'portrait' ? 'bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300' : 'bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300']">
             <span :class="['rounded-sm border-2 border-current', o === 'portrait' ? 'h-4 w-3' : 'h-3 w-4']" />
           </span>
           Margin {{ o === 'portrait' ? 'tegak (portrait)' : 'mendatar (landscape)' }} · cm
@@ -59,10 +59,10 @@ function kembalikan() { c.value = structuredClone(CETAK_AWAL) }
       </section>
 
       <section class="kartu p-5">
-        <h3 class="mb-3 flex items-center gap-2 font-bold"><Ikon nama="Stamp" :ukuran="18" class="text-ungu" /> Tanda tangan bawaan</h3>
+        <h3 class="mb-3 flex items-center gap-2 font-bold"><Ikon nama="Stamp" :ukuran="18" class="text-biru" /> Tanda tangan bawaan</h3>
         <div class="grid gap-2 sm:grid-cols-2">
           <label v-for="[v, l, ket] in [['basah', 'Tanda tangan basah', 'Ruang kosong untuk ditandatangani'], ['gambar', 'Gambar tanda tangan', 'Memakai gambar dari Pejabat per Periode']]" :key="v"
-                 :class="['cursor-pointer rounded-xl border p-3', c.tanda_tangan === v ? 'border-ungu bg-violet-50 dark:bg-violet-950/30' : 'border-slate-300 dark:border-slate-600']">
+                 :class="['cursor-pointer rounded-xl border p-3', c.tanda_tangan === v ? 'border-biru bg-biru/5 dark:bg-blue-950/30' : 'border-slate-300 dark:border-slate-600']">
             <input v-model="c.tanda_tangan" type="radio" :value="v" class="sr-only" /><b class="block text-sm">{{ l }}</b><span class="text-xs text-slate-500">{{ ket }}</span>
           </label>
         </div>
@@ -77,14 +77,14 @@ function kembalikan() { c.value = structuredClone(CETAK_AWAL) }
 
     <!-- Gambar margin -->
     <aside class="kartu h-fit space-y-4 p-5 lg:sticky lg:top-24">
-      <h3 class="flex items-center gap-2 font-bold"><Ikon nama="Eye" :ukuran="18" class="text-tosca" /> Gambaran halaman</h3>
+      <h3 class="flex items-center gap-2 font-bold"><Ikon nama="Eye" :ukuran="18" class="text-biru" /> Gambaran halaman</h3>
       <div class="mx-auto bg-white shadow ring-1 ring-slate-200" :style="{ width: '172px', height: '264px', padding: `${c.portrait.atas * 8}px ${c.portrait.kanan * 8}px ${c.portrait.bawah * 8}px ${c.portrait.kiri * 8}px` }">
         <div class="h-full rounded-sm border border-dashed border-biru/60 bg-biru/5 p-1.5">
           <div class="mb-1.5 h-2 rounded bg-slate-300" /><div v-for="i in 9" :key="i" class="mb-1 h-1 rounded bg-slate-200" :style="{ width: 100 - (i % 3) * 12 + '%' }" />
         </div>
       </div>
       <p class="text-center text-xs text-slate-500">F4 tegak · kiri {{ c.portrait.kiri }} cm, sisi lain {{ c.portrait.atas }}/{{ c.portrait.kanan }}/{{ c.portrait.bawah }} cm</p>
-      <button class="tombol w-full bg-merah text-white hover:brightness-95" @click="uji = true"><Ikon nama="Printer" :ukuran="17" /> Uji cetak kop di F4</button>
+      <button class="tombol-utama w-full" @click="uji = true"><Ikon nama="Printer" :ukuran="17" /> Uji cetak kop di F4</button>
       <p class="text-xs text-slate-500">Saat dialog cetak terbuka, pilih ukuran kertas <b>F4/Folio</b> (atau 215 × 330 mm) dan skala <b>100% / Ukuran sebenarnya</b>.</p>
     </aside>
     <JendelaUjiCetak v-if="uji" @tutup="uji = false" />

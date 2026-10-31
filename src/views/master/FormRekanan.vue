@@ -35,13 +35,13 @@ function simpan() {
   <Laci :judul="props.rekanan?.id ? (props.bolehUbah ? 'Ubah rekanan' : 'Data rekanan') : 'Tambah rekanan'" :subjudul="props.rekanan?.nama_usaha" ikon="Store" warna="from-amber-400 to-orange-500" @tutup="emit('tutup')">
     <fieldset :disabled="!props.bolehUbah" class="space-y-5 p-5">
       <section class="space-y-4">
-        <h3 class="flex items-center gap-2 text-sm font-bold"><Ikon nama="Store" :ukuran="16" class="text-orange-500" /> Usaha</h3>
+        <h3 class="flex items-center gap-2 text-sm font-bold"><Ikon nama="Store" :ukuran="16" class="text-biru" /> Usaha</h3>
         <div><label class="label" for="nu">Nama usaha / toko <span class="text-merah">*</span></label><input id="nu" v-model="f.nama_usaha" class="masukan" /></div>
         <div>
           <span class="label">Bentuk usaha</span>
           <div class="grid grid-cols-2 gap-2">
             <label v-for="[v, l, ket] in [['orang_pribadi', 'Orang pribadi', 'Toko/usaha perorangan'], ['badan', 'Badan usaha', 'CV, PT, UD, koperasi']]" :key="v"
-                   :class="['cursor-pointer rounded-xl border p-3', f.bentuk_usaha === v ? 'border-orange-400 bg-orange-50 dark:bg-orange-950/30' : 'border-slate-300 dark:border-slate-600']">
+                   :class="['cursor-pointer rounded-xl border p-3', f.bentuk_usaha === v ? 'border-biru bg-biru/5 dark:bg-blue-950/30' : 'border-slate-300 dark:border-slate-600']">
               <input v-model="f.bentuk_usaha" type="radio" :value="v" class="sr-only" /><b class="block text-sm">{{ l }}</b><span class="text-xs text-slate-500">{{ ket }}</span>
             </label>
           </div>
@@ -52,7 +52,7 @@ function simpan() {
             <p v-if="galatNpwp" class="mt-1 text-xs text-rose-600">{{ galatNpwp }}</p>
           </div>
           <label class="flex cursor-pointer items-center gap-3 self-end rounded-xl border border-slate-200 p-2.5 dark:border-slate-700">
-            <input v-model="f.status_pkp" type="checkbox" class="h-5 w-5 accent-orange-500" />
+            <input v-model="f.status_pkp" type="checkbox" class="h-5 w-5 accent-biru" />
             <span><b class="block text-sm">Pengusaha Kena Pajak (PKP)</b><span class="text-xs text-slate-500">Memungut PPN</span></span>
           </label>
         </div>
@@ -71,7 +71,7 @@ function simpan() {
       </section>
 
       <section class="space-y-4 border-t border-slate-200 pt-5 dark:border-slate-700">
-        <h3 class="flex items-center gap-2 text-sm font-bold"><Ikon nama="Landmark" :ukuran="16" class="text-tosca" /> Rekening</h3>
+        <h3 class="flex items-center gap-2 text-sm font-bold"><Ikon nama="Landmark" :ukuran="16" class="text-biru" /> Rekening</h3>
         <div class="grid gap-4 sm:grid-cols-3">
           <div><label class="label" for="bk">Bank</label><input id="bk" v-model="f.bank" class="masukan" /></div>
           <div><label class="label" for="rk">No. rekening</label><input id="rk" v-model="f.no_rekening" class="masukan kode" inputmode="numeric" /></div>
@@ -80,7 +80,7 @@ function simpan() {
       </section>
 
       <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
-        <input v-model="f.aktif" type="checkbox" class="h-5 w-5 accent-tosca" />
+        <input v-model="f.aktif" type="checkbox" class="h-5 w-5 accent-biru" />
         <span><b class="block text-sm">Rekanan aktif</b><span class="text-xs text-slate-500">Rekanan nonaktif tidak muncul saat memilih penyedia belanja.</span></span>
       </label>
 
@@ -94,7 +94,7 @@ function simpan() {
     </fieldset>
 
     <template v-if="props.bolehUbah" #kaki>
-      <button class="tombol bg-orange-500 text-white hover:bg-orange-600" :disabled="!sah || props.menyimpan" @click="simpan">
+      <button class="tombol-utama" :disabled="!sah || props.menyimpan" @click="simpan">
         <Ikon :nama="props.menyimpan ? 'RefreshCw' : 'Save'" :ukuran="17" :class="props.menyimpan && 'animate-spin'" /> Simpan
       </button>
       <button class="tombol-garis" @click="emit('tutup')">Batal</button>

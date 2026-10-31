@@ -9,7 +9,7 @@ import { JENIS_IMPOR, tebakPemetaan, cariBarisJudul, normalJudul } from '@/confi
 import { bacaBerkas, unduhTemplat } from '@/utils/excel'
 import { useNotifikasi } from '@/stores/notifikasi'
 import Ikon from '@/components/Ikon.vue'
-import KartuStat from '@/components/KartuStat.vue'
+import GridStat from '@/components/GridStat.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -187,7 +187,7 @@ const gayaStatus = {
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <button v-for="(d, k) in JENIS_IMPOR" :key="k" type="button" @click="jenis = k; router.replace({ query: { jenis: k } })"
                 :class="['kartu flex items-center gap-4 p-4 text-left transition', jenis === k ? 'ring-2 ring-biru' : 'hover:shadow-md']">
-          <span :class="['grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br text-white shadow', d.warna]"><Ikon :nama="d.ikon" :ukuran="22" /></span>
+          <span :class="['grid h-12 w-12 shrink-0 place-items-center rounded-2xl ikon-chip']"><Ikon :nama="d.ikon" :ukuran="22" /></span>
           <div class="min-w-0 flex-1"><p class="font-bold">Impor {{ d.judul }}</p><p class="text-xs text-slate-500">{{ d.sumber }}</p></div>
           <Ikon :nama="jenis === k ? 'CircleCheck' : 'ChevronRight'" :ukuran="20" :class="jenis === k ? 'text-biru' : 'text-slate-300'" />
         </button>
@@ -196,7 +196,7 @@ const gayaStatus = {
       <label :class="['kartu flex cursor-pointer flex-col items-center gap-3 border-2 border-dashed p-10 text-center transition', seret ? 'border-biru bg-biru/5' : 'border-slate-300 dark:border-slate-600']"
              @dragover.prevent="seret = true" @dragleave="seret = false" @drop.prevent="lepas">
         <input type="file" accept=".xlsx,.csv" class="sr-only" @change="pilihBerkas($event.target.files[0])" />
-        <span class="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-tosca to-biru text-white shadow-lg">
+        <span class="grid h-16 w-16 place-items-center rounded-2xl ikon-chip">
           <Ikon :nama="membaca ? 'RefreshCw' : 'FileUp'" :ukuran="30" :class="membaca && 'animate-spin'" />
         </span>
         <p class="text-lg font-bold">{{ membaca ? 'Membaca berkas…' : 'Seret berkas Excel ke sini atau klik untuk memilih' }}</p>
@@ -229,7 +229,7 @@ const gayaStatus = {
 
       <div class="kartu overflow-hidden">
         <div class="flex items-center gap-2 border-b border-slate-200 p-4 dark:border-slate-700">
-          <Ikon nama="Wand2" :ukuran="18" class="text-violet-500" />
+          <Ikon nama="Wand2" :ukuran="18" class="text-biru" />
           <p class="text-sm"><b>{{ pemetaan.filter(Boolean).length }}</b> kolom dicocokkan otomatis. Periksa dan ubah bila perlu.</p>
         </div>
         <div class="max-h-[55vh] overflow-y-auto">
@@ -264,15 +264,13 @@ const gayaStatus = {
 
     <!-- 3. Pratinjau -->
     <template v-else-if="langkah === 3">
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KartuStat v-for="[k, j, w, b, ik, sub] in [
-                     ['baru', 'Data baru', 'from-emerald-400 via-teal-500 to-teal-600', 'shadow-teal-500/30', 'Plus', 'Akan ditambahkan'],
-                     [mode, mode === 'perbarui' ? 'Diperbarui' : 'Dilewati', 'from-sky-400 via-sky-500 to-blue-600', 'shadow-sky-500/30', mode === 'perbarui' ? 'RefreshCw' : 'SkipForward', 'Sudah ada di SIBOS'],
-                     ['galat', 'Galat', 'from-rose-400 via-rose-500 to-red-600', 'shadow-rose-500/30', 'CircleX', 'Tidak ikut disimpan'],
-                     ['peringatan', 'Peringatan', 'from-amber-400 via-orange-400 to-orange-600', 'shadow-orange-500/30', 'TriangleAlert', 'Tetap disimpan, mohon dicek']]" :key="j"
-                   :judul="j" :nilai="hitung[k]" :ikon="ik" :warna="w" :bayangan="b" :sub="sub" :persen="pratinjau.length ? Math.round((hitung[k] / pratinjau.length) * 100) : 0"
-                   :aktif="saringPratinjau === k" @klik="saringPratinjau = saringPratinjau === k ? 'semua' : k" />
-      </div>
+      <GridStat :daftar="[
+                  { k: 'baru', judul: 'Data baru', nada: 'sukses', ikon: 'Plus', sub: 'Akan ditambahkan' },
+                  { k: mode, judul: mode === 'perbarui' ? 'Diperbarui' : 'Dilewati', nada: 'primer', ikon: mode === 'perbarui' ? 'RefreshCw' : 'SkipForward', sub: 'Sudah ada di SIBOS' },
+                  { k: 'galat', judul: 'Galat', nada: 'bahaya', ikon: 'CircleX', sub: 'Tidak ikut disimpan' },
+                  { k: 'peringatan', judul: 'Peringatan', nada: 'peringatan', ikon: 'TriangleAlert', sub: 'Tetap disimpan, mohon dicek' },
+                ].map((x) => ({ ...x, nilai: hitung[x.k], persen: pratinjau.length ? Math.round((hitung[x.k] / pratinjau.length) * 100) : 0 }))"
+                :aktif="(x) => saringPratinjau === x.k" @klik="(x) => (saringPratinjau = saringPratinjau === x.k ? 'semua' : x.k)" />
 
       <div class="kartu flex flex-wrap items-center gap-3 p-4">
         <Ikon nama="Info" :ukuran="18" class="text-biru" />
@@ -309,7 +307,7 @@ const gayaStatus = {
 
     <!-- 4. Selesai -->
     <section v-else class="kartu flex flex-col items-center gap-3 p-10 text-center">
-      <span class="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg"><Ikon nama="CircleCheck" :ukuran="32" /></span>
+      <span class="grid h-16 w-16 place-items-center rounded-2xl ikon-chip-sukses"><Ikon nama="CircleCheck" :ukuran="32" /></span>
       <h2 class="text-xl font-bold">Impor {{ def.judul.toLowerCase() }} selesai</h2>
       <p class="text-slate-500"><b class="text-emerald-600">{{ hasilSimpan?.tambah }}</b> data baru dan <b class="text-biru">{{ hasilSimpan?.ubah }}</b> data diperbarui. Tercatat di log aktivitas.</p>
       <div class="mt-2 flex flex-wrap justify-center gap-2">

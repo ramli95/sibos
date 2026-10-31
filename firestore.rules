@@ -136,6 +136,15 @@ service cloud.firestore {
       allow read: if aktif();
       allow write: if admin();
     }
+    // SSH pemerintah yang disimpan/diubah sekolah (isi dipotong 1.000 item per dokumen)
+    match /ssh/{sumber} {
+      allow read: if aktif();
+      allow write: if admin();
+      match /potong/{n} {
+        allow read: if aktif();
+        allow write: if admin();
+      }
+    }
 
     // ---------- notifikasi, log, impor ----------
     match /notifikasi/{id} {

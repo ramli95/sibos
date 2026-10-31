@@ -11,7 +11,7 @@ const gaya = {
 </script>
 
 <template>
-  <div class="tanpa-cetak pointer-events-none fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2 px-4" aria-live="polite">
+  <div class="tanpa-cetak pointer-events-none fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 lg:bottom-4" aria-live="polite">
     <TransitionGroup enter-from-class="opacity-0 translate-y-2" leave-to-class="opacity-0" enter-active-class="transition" leave-active-class="transition">
       <div v-for="t in notif.toast" :key="t.id" :class="['pointer-events-auto flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium shadow-lg', gaya[t.jenis]?.kelas]">
         <Ikon :nama="gaya[t.jenis]?.ikon || 'Info'" />

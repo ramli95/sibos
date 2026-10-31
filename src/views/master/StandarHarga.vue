@@ -11,11 +11,13 @@ import { KATEGORI } from '@/utils/arkas'
 import { eksporExcel } from '@/utils/excel'
 import { rupiah } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
-import KartuStat from '@/components/KartuStat.vue'
+import GridStat from '@/components/GridStat.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 import FormHarga from './FormHarga.vue'
 import CariSsh from '@/components/CariSsh.vue'
-import { namaSumber } from '@/services/ssh'
+import { namaSumber, ubahItemSsh } from '@/services/ssh'
+import FormItemSsh from './FormItemSsh.vue'
+import KelolaSsh from './KelolaSsh.vue'
 
 const route = useRoute()
 const auth = useAuth()
@@ -36,6 +38,25 @@ function pakaiSsh(b) {
   }
 }
 
+// Kelola SSH pemerintah (Bendahara)
+const kelolaSsh = ref(false)
+const itemSsh = ref(null) // { item, sumber }
+async function simpanItemSsh(data) {
+  menyimpan.value = true
+  try {
+    const r = await ubahItemSsh(itemSsh.value.sumber.kunci, itemSsh.value.item.idx ?? null, data)
+    notif.kabari(`${data.uraian} tersimpan di ${itemSsh.value.sumber.nama}${r.pratinjau ? ' (Mode Pratinjau)' : ''}.`)
+    itemSsh.value = null
+  } catch (e) { notif.kabari(e.message, 'galat') } finally { menyimpan.value = false }
+}
+async function hapusItemSsh() {
+  const { item, sumber } = itemSsh.value
+  if (!confirm(`Hapus "${item.uraian}" dari ${sumber.nama}?`)) return
+  menyimpan.value = true
+  try { await ubahItemSsh(sumber.kunci, item.idx, null); notif.kabari(`${item.uraian} dihapus dari ${sumber.nama}.`); itemSsh.value = null }
+  catch (e) { notif.kabari(e.message, 'galat') } finally { menyimpan.value = false }
+}
+
 async function muat() {
   memuat.value = true
   try { daftar.value = await muatStandarHarga() } catch (e) { notif.kabari(e.message, 'galat') } finally { memuat.value = false }
@@ -45,20 +66,14 @@ onMounted(async () => {
   if (route.query.dari === 'rkas' && auth.isAdmin) siapkanDariRkas()
 })
 
-const WARNA = {
-  Konsumsi: ['from-amber-400 via-orange-400 to-orange-600', 'shadow-orange-500/30', 'UtensilsCrossed'],
-  Transpor: ['from-sky-400 via-sky-500 to-blue-600', 'shadow-sky-500/30', 'Bus'],
-  Honor: ['from-rose-400 via-pink-500 to-fuchsia-600', 'shadow-pink-500/30', 'HeartHandshake'],
-  Jasa: ['from-violet-500 via-purple-500 to-indigo-600', 'shadow-violet-500/30', 'Wrench'],
-  ATK: ['from-emerald-400 via-teal-500 to-teal-600', 'shadow-teal-500/30', 'Pencil'],
-}
+const IKON_KELOMPOK = { Konsumsi: 'UtensilsCrossed', Transpor: 'Bus', Honor: 'HeartHandshake', Jasa: 'Wrench', ATK: 'Pencil' }
 const daftarKelompok = computed(() => [...new Set(daftar.value.map((h) => h.kelompok || 'Barang Lainnya'))].sort())
 const statistik = computed(() => {
   const d = daftar.value
   const n = (k) => d.filter((h) => h.kelompok === k).length
   return [
-    { judul: 'Item harga', nilai: d.length, ikon: 'Tags', warna: 'from-amber-400 via-orange-500 to-rose-500', bayangan: 'shadow-orange-500/30', k: 'semua', sub: `${daftarKelompok.value.length} kelompok · ${d.filter((h) => h.aktif !== false).length} aktif` },
-    ...['Konsumsi', 'Honor', 'ATK'].map((k) => ({ judul: k, nilai: n(k), ikon: WARNA[k][2], warna: WARNA[k][0], bayangan: WARNA[k][1], k, sub: k === 'Konsumsi' ? 'Makan, snack, air' : k === 'Honor' ? 'Narasumber, panitia, tenaga' : 'Alat tulis kantor' })),
+    { judul: 'Item harga', nilai: d.length, ikon: 'Tags', nada: 'gelap', k: 'semua', sub: `${daftarKelompok.value.length} kelompok · ${d.filter((h) => h.aktif !== false).length} aktif` },
+    ...['Konsumsi', 'Honor', 'ATK'].map((k) => ({ judul: k, nilai: n(k), ikon: IKON_KELOMPOK[k], k, sub: k === 'Konsumsi' ? 'Makan, snack, air' : k === 'Honor' ? 'Narasumber, panitia, tenaga' : 'Alat tulis kantor' })),
   ]
 })
 const hasil = computed(() => {
@@ -172,24 +187,24 @@ async function ekspor() {
   ]
   try { await eksporExcel({ judul: 'Standar Harga Satuan', kolom, baris: hasil.value, namaBerkas: 'Standar Harga Satuan SIBOS' }) } catch (e) { notif.kabari(e.message, 'galat') }
 }
-const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
 </script>
 
 <template>
   <div class="space-y-5">
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <KartuStat v-for="s in statistik" :key="s.judul" v-bind="s" :memuat="memuat" :aktif="kelompok === s.k && s.k !== 'semua'" @klik="kelompok = s.k" />
-    </div>
+    <GridStat :daftar="statistik" :memuat="memuat" :aktif="(s) => kelompok === s.k && s.k !== 'semua'" @klik="(s) => (kelompok = s.k)" />
 
     <div class="kartu flex gap-1 p-1.5" role="tablist" aria-label="Jenis standar harga">
-      <button v-for="t in [{ k: 'sekolah', j: 'Harga sekolah', ikon: 'Tags', w: 'text-orange-500' }, { k: 'ssh', j: 'Referensi SSH pemerintah', ikon: 'Landmark', w: 'text-sky-500' }]" :key="t.k" role="tab" :aria-selected="tab === t.k"
+      <button v-for="t in [{ k: 'sekolah', j: 'Harga sekolah', ikon: 'Tags', w: 'text-slate-400' }, { k: 'ssh', j: 'Referensi SSH pemerintah', ikon: 'Landmark', w: 'text-slate-400' }]" :key="t.k" role="tab" :aria-selected="tab === t.k"
               :class="['flex flex-1 items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition sm:flex-none', tab === t.k ? 'bg-biru text-white shadow' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800']"
               @click="tab = t.k">
         <Ikon :nama="t.ikon" :ukuran="17" :class="tab === t.k ? 'text-white' : t.w" /> {{ t.j }}
       </button>
     </div>
 
-    <CariSsh v-if="tab === 'ssh'" mode="halaman" :boleh-pakai="auth.isAdmin" @pilih="pakaiSsh" />
+    <CariSsh v-if="tab === 'ssh'" mode="halaman" :boleh-pakai="auth.isAdmin" :boleh-ubah="auth.isAdmin" @pilih="pakaiSsh"
+             @ubah="(item, sumber) => (itemSsh = { item, sumber })" @tambah="(sumber) => (itemSsh = { item: {}, sumber })" @kelola="kelolaSsh = true" />
+    <FormItemSsh v-if="itemSsh" :item="itemSsh.item" :sumber="itemSsh.sumber" :menyimpan="menyimpan" @tutup="itemSsh = null" @simpan="simpanItemSsh" @hapus="hapusItemSsh" />
+    <KelolaSsh v-if="kelolaSsh" @tutup="kelolaSsh = false" />
 
     <template v-else>
     <div class="kartu flex flex-wrap items-center gap-2 p-3">
@@ -199,20 +214,20 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
       </div>
       <select v-model="kelompok" class="masukan w-auto"><option value="semua">Semua kelompok</option><option v-for="k in daftarKelompok" :key="k" :value="k">{{ k }}</option></select>
       <div class="ml-auto flex flex-wrap gap-2">
-        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
+        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> Cetak / Unduh</button>
         <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Excel</button>
         <template v-if="auth.isAdmin">
-          <button class="tombol-garis" @click="siapkanDariRkas"><Ikon nama="ClipboardList" :ukuran="17" class="text-kuning" /> Ambil dari RKAS</button>
-          <RouterLink to="/impor?jenis=standar_harga" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-tosca" /> Impor Excel</RouterLink>
-          <button class="tombol bg-orange-500 text-white hover:bg-orange-600" @click="terpilih = {}"><Ikon nama="Plus" :ukuran="17" /> Tambah</button>
+          <button class="tombol-garis" @click="siapkanDariRkas"><Ikon nama="ClipboardList" :ukuran="17" class="text-biru" /> Ambil dari RKAS</button>
+          <RouterLink to="/impor?jenis=standar_harga" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-biru" /> Impor Excel</RouterLink>
+          <button class="tombol-utama" @click="terpilih = {}"><Ikon nama="Plus" :ukuran="17" /> Tambah</button>
         </template>
       </div>
     </div>
 
     <!-- Usulan dari RKAS -->
     <section v-if="usulan" class="kartu overflow-hidden">
-      <div class="flex flex-wrap items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-amber-50 to-orange-50 p-4 dark:border-slate-800 dark:from-amber-950/30 dark:to-orange-950/20">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow"><Ikon nama="ClipboardList" :ukuran="19" /></span>
+      <div class="flex flex-wrap items-center gap-3 border-b border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="ClipboardList" :ukuran="19" /></span>
         <div class="flex-1">
           <h2 class="font-bold">Harga dari RKAS {{ usulan.versi.tahun }} · {{ usulan.versi.nama }}</h2>
           <p class="text-xs text-slate-600 dark:text-slate-300">Satu harga per item per tahun; nama sama dengan harga berbeda menjadi item varian. Centang yang akan disimpan.</p>
@@ -232,7 +247,7 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
               <td class="px-3 py-1.5"><input v-model="b.pilih" type="checkbox" class="h-4 w-4" :disabled="b.status === 'sama'" /></td>
               <td class="px-2 py-1.5"><span :class="['lencana', b.status === 'baru' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : b.status === 'berubah' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800']">{{ b.status }}</span></td>
               <td class="px-2 py-1.5"><input v-model="b.kelompok" class="w-32 rounded-lg border border-slate-200 bg-transparent px-2 py-1 text-xs dark:border-slate-700" /></td>
-              <td class="px-2 py-1.5">{{ b.nama_item }}<span v-if="b.varian" class="lencana ml-1.5 bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">varian</span></td>
+              <td class="px-2 py-1.5">{{ b.nama_item }}<span v-if="b.varian" class="lencana ml-1.5 bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300">varian</span></td>
               <td class="px-2 py-1.5 text-slate-600 dark:text-slate-300">{{ b.satuan }}</td>
               <td class="angka px-2 py-1.5 text-right">{{ rupiah(b.harga, { tanpaRp: true }) }}<span v-if="b.lama" class="block text-[11px] text-slate-400 line-through">{{ rupiah(b.lama.harga, { tanpaRp: true }) }}</span></td>
               <td class="kode px-3 py-1.5 text-xs">{{ b.kode_rekening }}</td>
@@ -250,13 +265,13 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
 
     <div v-if="memuat" class="kartu p-10 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="inline animate-spin" /> Memuat standar harga…</div>
     <div v-else-if="!hasil.length" class="kartu flex flex-col items-center gap-3 p-10 text-center">
-      <span class="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 to-rose-500 text-white"><Ikon nama="Tags" :ukuran="26" /></span>
+      <span class="grid h-14 w-14 place-items-center rounded-2xl ikon-chip"><Ikon nama="Tags" :ukuran="26" /></span>
       <p class="font-semibold">{{ daftar.length ? 'Tidak ada yang cocok.' : 'Belum ada standar harga.' }}</p>
       <button v-if="!daftar.length && auth.isAdmin" class="tombol-utama" @click="siapkanDariRkas"><Ikon nama="ClipboardList" :ukuran="17" /> Ambil dari RKAS</button>
     </div>
     <section v-for="[k, isi] in kelompokTampil" v-else :key="k" class="kartu overflow-hidden">
       <div class="flex items-center gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
-        <span :class="['grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br text-white shadow-sm', warnaKelompok(k)]"><Ikon :nama="WARNA[k]?.[2] || 'Package'" :ukuran="17" /></span>
+        <span :class="['grid h-9 w-9 place-items-center rounded-xl ikon-chip']"><Ikon :nama="IKON_KELOMPOK[k] || 'Package'" :ukuran="17" /></span>
         <h3 class="flex-1 font-bold">{{ k }}</h3><span class="lencana bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{{ isi.length }} item</span>
       </div>
       <div class="overflow-x-auto">
@@ -266,13 +281,13 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
               <td class="kode w-24 px-4 py-2.5 text-xs text-slate-500">{{ h.kode_item }}</td>
               <td class="px-2 py-2.5">
                 <p class="font-medium">{{ h.nama_item }}</p><p v-if="h.spesifikasi" class="text-xs text-slate-500">{{ h.spesifikasi }}</p>
-                <p v-if="h.harga_ssh" class="mt-0.5 flex items-center gap-1 text-[11px]" :class="h.harga > h.harga_ssh ? 'text-rose-600' : 'text-sky-600 dark:text-sky-400'">
+                <p v-if="h.harga_ssh" class="mt-0.5 flex items-center gap-1 text-[11px]" :class="h.harga > h.harga_ssh ? 'text-rose-600' : 'text-emerald-600 dark:text-emerald-400'">
                   <Ikon nama="Landmark" :ukuran="12" /> SSH {{ namaSumber(h.sumber_ssh) }} {{ rupiah(h.harga_ssh) }}<template v-if="h.harga > h.harga_ssh"> · di atas SSH</template>
                 </p>
               </td>
               <td class="w-36 px-2 py-2.5 text-slate-600 dark:text-slate-300">{{ h.satuan }}</td>
               <td class="angka w-32 px-2 py-2.5 text-right font-bold">{{ rupiah(h.harga) }}</td>
-              <td class="w-28 px-2 py-2.5"><span :class="['lencana bg-gradient-to-r text-white', KATEGORI[h.kategori]?.warna]">{{ KATEGORI[h.kategori]?.nama }}</span></td>
+              <td class="w-28 px-2 py-2.5"><span :class="'lencana bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'">{{ KATEGORI[h.kategori]?.nama }}</span></td>
               <td class="w-24 px-4 py-2.5 text-right text-xs text-slate-500">{{ h.pajak_bawaan || '—' }}</td>
             </tr>
           </tbody>

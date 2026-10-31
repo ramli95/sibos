@@ -9,6 +9,7 @@ import Ikon from '@/components/Ikon.vue'
 import MenuSamping from '@/components/MenuSamping.vue'
 import LoncengNotifikasi from '@/components/LoncengNotifikasi.vue'
 import TombolPasang from '@/components/TombolPasang.vue'
+import NavBawah from '@/components/NavBawah.vue'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { dengarkanPushDepan } from '@/services/push'
 import { useTampilan } from '@/stores/tampilan'
@@ -61,11 +62,11 @@ async function keluar() {
 
     <div class="flex min-w-0 flex-col">
       <header class="tanpa-cetak sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/85 px-4 backdrop-blur sm:px-6 dark:border-slate-800 dark:bg-[#161D2B]/85">
-        <button class="grid h-10 w-10 place-items-center rounded-xl hover:bg-slate-100 lg:hidden dark:hover:bg-slate-800" aria-label="Buka menu" @click="laciTerbuka = true">
+        <button class="hidden h-10 w-10 place-items-center rounded-xl hover:bg-slate-100 sm:grid lg:hidden dark:hover:bg-slate-800" aria-label="Buka menu" @click="laciTerbuka = true">
           <Ikon nama="Menu" :ukuran="22" />
         </button>
         <div class="flex min-w-0 flex-1 items-center gap-2.5">
-          <span class="hidden h-9 w-9 place-items-center rounded-xl bg-biru/10 text-biru sm:grid dark:bg-biru/20 dark:text-blue-300">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-biru/10 text-biru dark:bg-biru/20 dark:text-blue-300">
             <Ikon :nama="route.meta.ikon || 'LayoutDashboard'" :ukuran="18" />
           </span>
           <h1 class="truncate text-base font-bold sm:text-lg">{{ route.meta.judul }}</h1>
@@ -79,7 +80,7 @@ async function keluar() {
 
         <div ref="wadahAkun" class="relative">
           <button type="button" @click="menuAkun = !menuAkun" :aria-expanded="menuAkun" class="flex items-center gap-2 rounded-xl p-1 pr-2 hover:bg-slate-100 dark:hover:bg-slate-800">
-            <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-biru to-tosca text-sm font-bold text-white">{{ inisial }}</span>
+            <span class="grid h-9 w-9 place-items-center rounded-xl bg-biru text-sm font-bold text-white">{{ inisial }}</span>
             <Ikon nama="ChevronDown" :ukuran="16" class="hidden text-slate-400 sm:block" />
           </button>
           <div v-if="menuAkun" class="kartu absolute right-0 z-40 mt-2 w-72 p-2">
@@ -94,10 +95,10 @@ async function keluar() {
             </div>
             <hr class="my-1 border-slate-200 dark:border-slate-700" />
             <RouterLink to="/buat-password" @click="menuAkun = false" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
-              <Ikon nama="KeyRound" :ukuran="16" class="text-kuning" /> Ganti password
+              <Ikon nama="KeyRound" :ukuran="16" class="text-biru" /> Ganti password
             </RouterLink>
             <RouterLink v-if="auth.punyaPeran('kepala_sekolah') && !auth.isAdmin" to="/serah-terima" @click="menuAkun = false" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
-              <Ikon nama="Repeat" :ukuran="16" class="text-ungu" /> Serah terima bendahara
+              <Ikon nama="Repeat" :ukuran="16" class="text-biru" /> Serah terima bendahara
             </RouterLink>
             <button @click="keluar" class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40">
               <Ikon nama="LogOut" :ukuran="16" /> Keluar
@@ -106,9 +107,10 @@ async function keluar() {
         </div>
       </header>
 
-      <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:py-8">
+      <main class="mx-auto w-full max-w-7xl flex-1 px-4 pb-28 pt-5 sm:px-6 sm:pt-6 lg:py-8">
         <RouterView />
       </main>
+      <NavBawah @lainnya="laciTerbuka = true" />
     </div>
   </div>
 </template>

@@ -190,7 +190,7 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
     <!-- Daftar versi -->
     <section class="kartu p-5">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow"><Ikon nama="GitCompareArrows" :ukuran="19" /></span>
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="GitCompareArrows" :ukuran="19" /></span>
         <div class="flex-1">
           <h2 class="font-bold">Versi RKAS {{ rkas.tahun }}</h2>
           <p class="text-xs text-slate-500">Satu versi ditandai berlaku; dipakai Dasbor, belanja dan laporan. "Ajukan Pengesahan" tetap dilakukan di ARKAS.</p>
@@ -201,7 +201,7 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         <div v-for="v in rkas.daftarVersi" :key="v.id" :class="['rounded-2xl border p-4', v.berlaku ? 'border-emerald-300 bg-emerald-50/50 dark:border-emerald-700 dark:bg-emerald-950/20' : 'border-slate-200 dark:border-slate-700']">
           <div class="flex items-start gap-3">
-            <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-white shadow', JENIS_VERSI[v.jenis]?.warna]"><Ikon :nama="JENIS_VERSI[v.jenis]?.ikon" :ukuran="18" /></span>
+            <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl ikon-chip']"><Ikon :nama="JENIS_VERSI[v.jenis]?.ikon" :ukuran="18" /></span>
             <div class="min-w-0 flex-1">
               <p class="truncate font-bold">{{ v.nama }}</p>
               <p class="text-xs text-slate-500">{{ v.tanggal_dokumen || 'Tanpa tanggal' }} · {{ v.jumlah_uraian }} uraian</p>
@@ -211,14 +211,14 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
           <p class="angka mt-3 text-xl font-extrabold">{{ rupiah(v.total) }}</p>
           <p class="angka text-xs text-slate-500">T1 {{ rupiah(v.tahap1) }} · T2 {{ rupiah(v.tahap2) }}</p>
           <div class="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-            <span :class="['lencana', v.ada_bulanan ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300']">
+            <span :class="['lencana', v.ada_bulanan ? 'bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300' : 'bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300']">
               <Ikon :nama="v.ada_bulanan ? 'CalendarDays' : 'CalendarRange'" :ukuran="12" /> {{ v.ada_bulanan ? 'Rencana bulanan ada' : 'Belum ada rencana bulanan' }}
             </span>
             <span v-if="v.pagu && v.pagu === v.total" class="lencana bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"><Ikon nama="CircleCheck" :ukuran="12" /> = Pagu ARKAS</span>
           </div>
           <div v-if="auth.isAdmin" class="mt-3 flex flex-wrap gap-2">
             <button v-if="!v.berlaku" class="tombol-garis px-3 py-1.5 text-xs" @click="berlaku(v)"><Ikon nama="BadgeCheck" :ukuran="14" class="text-emerald-600" /> Jadikan berlaku</button>
-            <button class="tombol-garis px-3 py-1.5 text-xs" @click="mulaiImpor(v)"><Ikon nama="CalendarDays" :ukuran="14" class="text-tosca" /> {{ v.ada_bulanan ? 'Ganti' : 'Tambah' }} rincian bulanan</button>
+            <button class="tombol-garis px-3 py-1.5 text-xs" @click="mulaiImpor(v)"><Ikon nama="CalendarDays" :ukuran="14" class="text-biru" /> {{ v.ada_bulanan ? 'Ganti' : 'Tambah' }} rincian bulanan</button>
             <button class="tombol-garis px-3 py-1.5 text-xs" @click="hapus(v)"><Ikon nama="Trash2" :ukuran="14" class="text-rose-500" /> Hapus</button>
           </div>
         </div>
@@ -227,8 +227,8 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
 
     <!-- Impor -->
     <section v-if="impor" class="kartu overflow-hidden">
-      <div class="flex flex-wrap items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-amber-50 to-rose-50 p-5 dark:border-slate-800 dark:from-amber-950/30 dark:to-rose-950/20">
-        <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 text-white shadow"><Ikon nama="FileUp" :ukuran="20" /></span>
+      <div class="flex flex-wrap items-center gap-3 border-b border-slate-100 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/40">
+        <span class="grid h-11 w-11 place-items-center rounded-xl ikon-chip"><Ikon nama="FileUp" :ukuran="20" /></span>
         <div class="flex-1">
           <h2 class="font-bold">{{ impor.hanyaBulan ? `Rincian per bulan untuk ${namaVersi(impor.target)}` : 'Impor RKAS dari PDF ARKAS' }}</h2>
           <p class="text-xs text-slate-600 dark:text-slate-300">Berkas dibaca di perangkat ini; tidak diunggah ke mana pun.</p>
@@ -237,24 +237,24 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
       </div>
 
       <div v-if="impor.langkah === 3" class="flex flex-col items-center gap-3 p-8 text-center">
-        <span class="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow"><Ikon nama="CircleCheck" :ukuran="28" /></span>
+        <span class="grid h-14 w-14 place-items-center rounded-2xl ikon-chip-sukses"><Ikon nama="CircleCheck" :ukuran="28" /></span>
         <p class="text-lg font-bold">RKAS tersimpan</p>
         <p class="text-sm text-slate-500">{{ ringkasImpor.n }} uraian · <b class="angka">{{ rupiah(ringkasImpor.total) }}</b>. Kode kegiatan & rekening ARKAS yang baru sudah ditambahkan ke Referensi Juknis.</p>
         <div class="flex flex-wrap justify-center gap-2">
           <button class="tombol-utama" @click="router.replace('/rkas/kertas-kerja'); impor = null"><Ikon nama="ListTree" :ukuran="17" /> Lihat kertas kerja</button>
-          <button class="tombol-garis" @click="router.push('/standar-harga?dari=rkas')"><Ikon nama="Tags" :ukuran="17" class="text-kuning" /> Perbarui Standar Harga</button>
+          <button class="tombol-garis" @click="router.push('/standar-harga?dari=rkas')"><Ikon nama="Tags" :ukuran="17" class="text-biru" /> Perbarui Standar Harga</button>
         </div>
       </div>
 
       <div v-else class="space-y-5 p-5">
         <div class="grid gap-3 md:grid-cols-2">
           <label v-if="!impor.hanyaBulan" :class="['flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed p-4 transition hover:border-biru', impor.berkasTahap ? 'border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-slate-300 dark:border-slate-600']">
-            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 text-white"><Ikon :nama="membaca === 'tahap' ? 'RefreshCw' : impor.berkasTahap ? 'CircleCheck' : 'Layers'" :ukuran="20" :class="membaca === 'tahap' && 'animate-spin'" /></span>
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl ikon-chip-sukses"><Ikon :nama="membaca === 'tahap' ? 'RefreshCw' : impor.berkasTahap ? 'CircleCheck' : 'Layers'" :ukuran="20" :class="membaca === 'tahap' && 'animate-spin'" /></span>
             <span class="min-w-0 flex-1"><b class="block text-sm">1. Kertas Kerja RKAS per Tahap <span class="text-rose-500">*</span></b><span class="block truncate text-xs text-slate-500">{{ impor.berkasTahap || 'PDF dari ARKAS → Cetak → Kertas Kerja per Tahap' }}</span></span>
             <input type="file" accept="application/pdf,.pdf" class="sr-only" @change="bacaBerkas('tahap', $event)" />
           </label>
           <label :class="['flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed p-4 transition hover:border-biru', impor.berkasBulan ? 'border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-slate-300 dark:border-slate-600']">
-            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white"><Ikon :nama="membaca.startsWith('bulan') ? 'RefreshCw' : impor.berkasBulan ? 'CircleCheck' : 'CalendarDays'" :ukuran="20" :class="membaca.startsWith('bulan') && 'animate-spin'" /></span>
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl ikon-chip-sukses"><Ikon :nama="membaca.startsWith('bulan') ? 'RefreshCw' : impor.berkasBulan ? 'CircleCheck' : 'CalendarDays'" :ukuran="20" :class="membaca.startsWith('bulan') && 'animate-spin'" /></span>
             <span class="min-w-0 flex-1"><b class="block text-sm">{{ impor.hanyaBulan ? '' : '2. ' }}Rincian Kertas Kerja Perbulan <span class="font-normal text-slate-500">{{ impor.hanyaBulan ? '' : '(disarankan)' }}</span></b><span class="block truncate text-xs text-slate-500">{{ membaca.startsWith('bulan:') ? 'Membaca ' + membaca.slice(6) + '…' : impor.hasilBulan ? `${impor.hasilBulan.bulan.length} bulan terbaca (${impor.hasilBulan.bulan.map((b) => NAMA_BULAN[b.bulan - 1].slice(0, 3)).join(', ')})` : 'PDF dari ARKAS, boleh pilih 12 berkas sekaligus' }}</span></span>
             <input type="file" accept="application/pdf,.pdf" multiple class="sr-only" @change="bacaBerkas('bulan', $event)" />
           </label>
@@ -312,7 +312,7 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
                   <td class="angka px-2 py-1.5 text-right">{{ rupiah(u.tahap2, { tanpaRp: true }) }}</td>
                   <td v-if="adaBulanDiPratinjau" class="px-3 py-1.5">
                     <div class="flex h-4 items-end gap-px" :title="u.bulan ? u.bulan.map((x, i) => `${NAMA_BULAN[i]}: ${rupiah(x)}`).join('\n') : ''">
-                      <i v-for="(x, i) in (u.bulan || [])" :key="i" class="w-1.5 rounded-sm bg-teal-500" :style="{ height: x ? Math.max(15, (x / (u.jumlah || 1)) * 100) + '%' : '2px', opacity: x ? 1 : 0.25 }" />
+                      <i v-for="(x, i) in (u.bulan || [])" :key="i" class="w-1.5 rounded-sm bg-biru" :style="{ height: x ? Math.max(15, (x / (u.jumlah || 1)) * 100) + '%' : '2px', opacity: x ? 1 : 0.25 }" />
                     </div>
                   </td>
                 </tr>
@@ -331,7 +331,7 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
     <!-- Bandingkan -->
     <section v-if="rkas.daftarVersi.length > 1" class="kartu p-5">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow"><Ikon nama="ArrowDownUp" :ukuran="19" /></span>
+        <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="ArrowDownUp" :ukuran="19" /></span>
         <div class="flex-1"><h2 class="font-bold">Bandingkan versi</h2><p class="text-xs text-slate-500">Perbedaan anggaran per kegiatan, mis. Murni dibanding Perubahan.</p></div>
       </div>
       <div class="flex flex-wrap items-end gap-2">

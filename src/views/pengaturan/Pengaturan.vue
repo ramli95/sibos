@@ -25,7 +25,7 @@ const komponen = { profil: TabProfil, kop: TabKop, pejabat: TabPejabat, pengguna
               :class="['flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition',
                        aktif === t.kunci ? 'bg-biru text-white shadow' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800']"
               @click="router.replace(`/pengaturan/${t.kunci}`)">
-        <Ikon :nama="t.ikon" :ukuran="17" :class="aktif === t.kunci ? 'text-white' : t.warna" /> {{ t.judul }}
+        <Ikon :nama="t.ikon" :ukuran="17" :class="aktif === t.kunci ? 'text-white' : 'text-slate-400'" /> {{ t.judul }}
       </button>
     </div>
     <component :is="komponen[aktif] || SegeraHadir" />

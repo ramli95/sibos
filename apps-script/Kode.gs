@@ -12,9 +12,9 @@ const KONFIG = {
   SIMPAN_JSON: 12,
   SIMPAN_LOG_BULAN: 6,
 };
-const VERSI = 4;
+const VERSI = 5;
 const FS = 'https://firestore.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/databases/(default)/documents';
-const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian'];
+const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian', 'potong'];
 
 /* ======================= PINTU MASUK ======================= */
 
@@ -175,6 +175,8 @@ function cadangkan(jenis, oleh) {
       jumlah += docs.length;
       // RKAS disimpan per SNP (rkas/{versi}/bagian/{snp}.butir) → di Sheets satu baris per uraian
       if (id === 'bagian') tulisLembar(ss, 'rkas_uraian', ratakanButir(docs));
+      // SSH disimpan per potong (ssh/{sumber}/potong/{n}.butir) → di Sheets satu baris per item
+      else if (id === 'potong') tulisLembar(ss, 'ssh_item', ratakanButir(docs));
       else tulisLembar(ss, id, docs);
     });
     tulisRingkasan(ss, semua, mulai, jenis, oleh);

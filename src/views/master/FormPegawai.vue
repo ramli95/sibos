@@ -16,12 +16,12 @@ const f = reactive({ ...kosong, aktif: true, terima_tpg: false, status_kepegawai
 const tab = ref('identitas')
 
 const tabs = computed(() => [
-  { kunci: 'identitas', judul: 'Identitas', ikon: 'UserRound', warna: 'text-biru' },
-  { kunci: 'kepegawaian', judul: 'Kepegawaian', ikon: 'Briefcase', warna: 'text-tosca' },
+  { kunci: 'identitas', judul: 'Identitas', ikon: 'UserRound', warna: '' },
+  { kunci: 'kepegawaian', judul: 'Kepegawaian', ikon: 'Briefcase', warna: '' },
   ...(props.lihatRahasia ? [
-    { kunci: 'keluarga', judul: 'Keluarga & Pajak', ikon: 'HeartHandshake', warna: 'text-merah' },
-    { kunci: 'rekening', judul: 'Kontak & Rekening', ikon: 'Landmark', warna: 'text-kuning' },
-  ] : [{ kunci: 'kontak', judul: 'Kontak', ikon: 'Phone', warna: 'text-kuning' }]),
+    { kunci: 'keluarga', judul: 'Keluarga & Pajak', ikon: 'HeartHandshake', warna: '' },
+    { kunci: 'rekening', judul: 'Kontak & Rekening', ikon: 'Landmark', warna: '' },
+  ] : [{ kunci: 'kontak', judul: 'Kontak', ikon: 'Phone', warna: '' }]),
 ])
 
 // --- NIP: validasi + isi otomatis tanggal lahir & jenis kelamin ---
@@ -69,7 +69,7 @@ const judul = computed(() => props.pegawai?.id ? (props.bolehUbah ? 'Ubah data p
       <button v-for="t in tabs" :key="t.kunci" role="tab" :aria-selected="tab === t.kunci" @click="tab = t.kunci"
               :class="['flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition',
                        tab === t.kunci ? 'bg-biru text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800']">
-        <Ikon :nama="t.ikon" :ukuran="16" :class="tab === t.kunci ? '' : t.warna" /> {{ t.judul }}
+        <Ikon :nama="t.ikon" :ukuran="16" :class="tab === t.kunci ? '' : 'text-slate-400'" /> {{ t.judul }}
       </button>
     </div>
 
@@ -97,7 +97,7 @@ const judul = computed(() => props.pegawai?.id ? (props.bolehUbah ? 'Ubah data p
             <div class="flex gap-2">
               <label v-for="[v, l] in [['L', 'Laki-laki'], ['P', 'Perempuan']]" :key="v"
                      :class="['flex flex-1 cursor-pointer items-center justify-center rounded-xl border px-2 py-2.5 text-sm font-semibold',
-                              f.jenis_kelamin === v ? (v === 'L' ? 'border-biru bg-biru/10 text-biru' : 'border-merah bg-merah/10 text-rose-600') : 'border-slate-300 dark:border-slate-600']">
+                              f.jenis_kelamin === v ? (v === 'L' ? 'border-biru bg-biru/10 text-biru' : 'border-biru bg-biru/10 text-biru') : 'border-slate-300 dark:border-slate-600']">
                 <input v-model="f.jenis_kelamin" type="radio" :value="v" class="sr-only" />{{ l }}
               </label>
             </div>
@@ -122,7 +122,7 @@ const judul = computed(() => props.pegawai?.id ? (props.bolehUbah ? 'Ubah data p
           <div class="grid grid-cols-3 gap-2">
             <label v-for="(s, i) in STATUS_KEPEGAWAIAN" :key="s"
                    :class="['flex cursor-pointer items-center justify-center rounded-xl border px-2 py-2.5 text-sm font-bold',
-                            f.status_kepegawaian === s ? ['border-biru bg-biru text-white', 'border-tosca bg-tosca text-white', 'border-kuning bg-kuning text-arang', 'border-merah bg-merah text-white'][i] : 'border-slate-300 dark:border-slate-600']">
+                            f.status_kepegawaian === s ? 'border-biru bg-biru text-white' : 'border-slate-300 dark:border-slate-600']">
               <input v-model="f.status_kepegawaian" type="radio" :value="s" class="sr-only" />{{ s }}
             </label>
           </div>
@@ -144,7 +144,7 @@ const judul = computed(() => props.pegawai?.id ? (props.bolehUbah ? 'Ubah data p
           <span><b class="block text-sm">Menerima TPG (tunjangan profesi)</b><span class="text-xs text-slate-500">Penerima TPG tidak boleh menerima honor dari BOSP.</span></span>
         </label>
         <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
-          <input v-model="f.aktif" type="checkbox" class="h-5 w-5 accent-tosca" />
+          <input v-model="f.aktif" type="checkbox" class="h-5 w-5 accent-biru" />
           <span><b class="block text-sm">Masih aktif bertugas</b><span class="text-xs text-slate-500">Matikan untuk pegawai yang pindah/pensiun; datanya tetap tersimpan.</span></span>
         </label>
         <div v-if="!asn && wajibHonorer.length && props.lihatRahasia" class="flex gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
@@ -168,7 +168,7 @@ const judul = computed(() => props.pegawai?.id ? (props.bolehUbah ? 'Ubah data p
           <p class="mt-1 text-xs text-slate-500">Dipakai untuk PPh 21 honor & bukti potong.</p>
         </div>
         <div class="flex gap-2 rounded-xl bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-900/50 dark:text-slate-300">
-          <Ikon nama="Lock" :ukuran="15" class="text-merah" /> Data di tab ini dan tab rekening hanya dapat dilihat Bendahara (Admin).
+          <Ikon nama="Lock" :ukuran="15" class="text-biru" /> Data di tab ini dan tab rekening hanya dapat dilihat Bendahara (Admin).
         </div>
       </template>
 

@@ -7,7 +7,7 @@ import { muatPegawai, simpanPegawai, hapusPegawai } from '@/services/master'
 import { eksporExcel } from '@/utils/excel'
 import { formatNip, formatWa, STATUS_KEPEGAWAIAN } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
-import KartuStat from '@/components/KartuStat.vue'
+import GridStat from '@/components/GridStat.vue'
 import FormPegawai from './FormPegawai.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
@@ -47,7 +47,7 @@ const hasil = computed(() => {
 
 const warnaStatus = {
   PNS: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  PPPK: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
+  PPPK: 'bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300',
   Honorer: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
 }
 const statistik = computed(() => {
@@ -57,11 +57,11 @@ const statistik = computed(() => {
   const tpg = d.filter((p) => p.terima_tpg).length
   const l = d.filter((p) => p.jenis_kelamin === 'L').length
   return [
-    { judul: 'Pegawai aktif', nilai: d.length, ikon: 'Users', warna: 'from-blue-500 via-indigo-500 to-indigo-700', bayangan: 'shadow-indigo-500/30', saring: 'Semua', sub: `${l} laki-laki · ${d.length - l} perempuan` },
-    { judul: 'PNS', nilai: n('PNS'), ikon: 'BadgeCheck', warna: 'from-sky-400 via-sky-500 to-blue-600', bayangan: 'shadow-sky-500/30', saring: 'PNS', sub: `${pr(n('PNS'))}% dari pegawai`, persen: pr(n('PNS')) },
-    { judul: 'PPPK', nilai: n('PPPK'), ikon: 'Briefcase', warna: 'from-emerald-400 via-teal-500 to-teal-600', bayangan: 'shadow-teal-500/30', saring: 'PPPK', sub: `${pr(n('PPPK'))}% dari pegawai`, persen: pr(n('PPPK')) },
-    { judul: 'Honorer', nilai: n('Honorer'), ikon: 'UserRound', warna: 'from-amber-400 via-orange-400 to-orange-600', bayangan: 'shadow-orange-500/30', saring: 'Honorer', sub: `${pr(n('Honorer'))}% dari pegawai`, persen: pr(n('Honorer')) },
-    { judul: 'Penerima TPG', nilai: tpg, ikon: 'Sparkles', warna: 'from-violet-500 via-purple-500 to-fuchsia-600', bayangan: 'shadow-fuchsia-500/30', saring: null, sub: 'Tidak boleh menerima honor BOS', persen: pr(tpg) },
+    { judul: 'Pegawai aktif', nilai: d.length, ikon: 'Users', nada: 'gelap', saring: 'Semua', sub: `${l} laki-laki · ${d.length - l} perempuan` },
+    { judul: 'PNS', nilai: n('PNS'), ikon: 'BadgeCheck', nada: 'primer', saring: 'PNS', sub: `${pr(n('PNS'))}% dari pegawai`, persen: pr(n('PNS')) },
+    { judul: 'PPPK', nilai: n('PPPK'), ikon: 'Briefcase', nada: 'primer', saring: 'PPPK', sub: `${pr(n('PPPK'))}% dari pegawai`, persen: pr(n('PPPK')) },
+    { judul: 'Honorer', nilai: n('Honorer'), ikon: 'UserRound', nada: 'primer', saring: 'Honorer', sub: `${pr(n('Honorer'))}% dari pegawai`, persen: pr(n('Honorer')) },
+    { judul: 'Penerima TPG', nilai: tpg, ikon: 'Sparkles', nada: 'peringatan', saring: null, sub: 'Tidak boleh menerima honor BOS', persen: pr(tpg) },
   ]
 })
 
@@ -122,9 +122,8 @@ async function ekspor() {
 <template>
   <div class="space-y-5">
     <!-- Statistik -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-      <KartuStat v-for="s in statistik" :key="s.judul" v-bind="s" :memuat="memuat" :bisa-klik="!!s.saring" :aktif="!!s.saring && saring === s.saring && s.saring !== 'Semua'" @klik="saring = s.saring" />
-    </div>
+    <GridStat :daftar="statistik.map((s) => ({ ...s, bisaKlik: !!s.saring }))" :memuat="memuat" kolom="sm:grid-cols-3 xl:grid-cols-5"
+              :aktif="(s) => !!s.saring && saring === s.saring && s.saring !== 'Semua'" @klik="(s) => (saring = s.saring)" />
 
     <!-- Alat -->
     <div class="kartu flex flex-wrap items-center gap-2 p-3">
@@ -138,9 +137,9 @@ async function ekspor() {
       </div>
       <label class="flex items-center gap-1.5 px-1 text-xs text-slate-500"><input v-model="tampilNonaktif" type="checkbox" class="accent-biru" /> Tampilkan nonaktif</label>
       <div class="ml-auto flex flex-wrap gap-2">
-        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
+        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> Cetak / Unduh</button>
         <template v-if="auth.isAdmin">
-          <RouterLink to="/impor?jenis=pegawai" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-tosca" /> Impor</RouterLink>
+          <RouterLink to="/impor?jenis=pegawai" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-biru" /> Impor</RouterLink>
           <button class="tombol-utama" @click="terpilih = {}"><Ikon nama="UserPlus" :ukuran="17" /> Tambah</button>
         </template>
       </div>
@@ -150,7 +149,7 @@ async function ekspor() {
     <div class="kartu overflow-hidden">
       <div v-if="memuat" class="p-10 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="inline animate-spin" /> Memuat data pegawai…</div>
       <div v-else-if="!hasil.length" class="flex flex-col items-center gap-3 p-10 text-center">
-        <span class="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 text-white"><Ikon nama="Users" :ukuran="26" /></span>
+        <span class="grid h-14 w-14 place-items-center rounded-2xl ikon-chip"><Ikon nama="Users" :ukuran="26" /></span>
         <p class="font-semibold">{{ daftar.length ? 'Tidak ada yang cocok dengan pencarian.' : 'Belum ada data pegawai.' }}</p>
         <RouterLink v-if="!daftar.length && auth.isAdmin" to="/impor?jenis=pegawai" class="tombol-utama"><Ikon nama="FileUp" :ukuran="17" /> Impor dari Excel</RouterLink>
       </div>
@@ -164,8 +163,8 @@ async function ekspor() {
             <tr v-for="p in hasil" :key="p.id" class="cursor-pointer transition hover:bg-blue-50/50 dark:hover:bg-slate-800/50" :class="p.aktif === false && 'opacity-50'" @click="terpilih = p">
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm font-bold text-white', p.jenis_kelamin === 'P' ? 'bg-gradient-to-br from-rose-400 to-fuchsia-500' : 'bg-gradient-to-br from-sky-400 to-blue-600']">{{ p.nama?.[0] }}</span>
-                  <div><p class="font-semibold">{{ namaLengkap(p) }}</p><p v-if="p.terima_tpg" class="text-xs text-violet-600 dark:text-violet-300">Penerima TPG</p></div>
+                  <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm font-bold ikon-chip']">{{ p.nama?.[0] }}</span>
+                  <div><p class="font-semibold">{{ namaLengkap(p) }}</p><p v-if="p.terima_tpg" class="text-xs text-amber-700 dark:text-amber-300">Penerima TPG</p></div>
                 </div>
               </td>
               <td class="kode px-3 py-3 text-xs">{{ formatNip(p.nip) || '—' }}</td>
@@ -180,7 +179,7 @@ async function ekspor() {
         <!-- Kartu (HP) -->
         <ul class="divide-y divide-slate-100 md:hidden dark:divide-slate-800">
           <li v-for="p in hasil" :key="p.id" class="flex items-center gap-3 p-4" :class="p.aktif === false && 'opacity-50'" @click="terpilih = p">
-            <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl font-bold text-white', p.jenis_kelamin === 'P' ? 'bg-gradient-to-br from-rose-400 to-fuchsia-500' : 'bg-gradient-to-br from-sky-400 to-blue-600']">{{ p.nama?.[0] }}</span>
+            <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl font-bold ikon-chip']">{{ p.nama?.[0] }}</span>
             <div class="min-w-0 flex-1">
               <p class="truncate font-semibold">{{ namaLengkap(p) }}</p>
               <p class="kode truncate text-xs text-slate-500">{{ formatNip(p.nip) || p.jabatan }}</p>

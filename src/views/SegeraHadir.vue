@@ -6,7 +6,7 @@ const route = useRoute()
 
 <template>
   <div class="kartu flex flex-col items-center px-6 py-16 text-center">
-    <span class="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-tosca to-biru text-white shadow-lg">
+    <span class="grid h-16 w-16 place-items-center rounded-2xl ikon-chip">
       <Ikon :nama="route.meta.ikon || 'Construction'" :ukuran="30" />
     </span>
     <h2 class="mt-5 text-xl font-bold">{{ route.meta.judul }}</h2>
