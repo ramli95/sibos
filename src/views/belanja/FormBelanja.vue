@@ -223,7 +223,7 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
 
       <!-- 2. Penyedia -->
       <section class="kartu space-y-3 p-4 sm:p-5">
-        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="Store" :ukuran="17" /></span> Penyedia</h2>
+        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="Store" :ukuran="17" /></span> Penyedia</h2>
         <div v-if="f.rekanan" class="flex flex-wrap items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
           <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl ikon-chip"><Ikon :nama="f.rekanan.bentuk_usaha === 'badan' ? 'Building2' : 'Store'" :ukuran="19" /></span>
           <div class="min-w-0 flex-1">
@@ -281,7 +281,7 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
 
       <!-- 4. Tanggal & nomor -->
       <section class="kartu space-y-4 p-4 sm:p-5">
-        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="CalendarDays" :ukuran="17" /></span> Tanggal &amp; nomor</h2>
+        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="CalendarDays" :ukuran="17" /></span> Tanggal &amp; nomor</h2>
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <div v-for="([k, l], i) in tanggalTampil" :key="k">
             <label class="label text-xs" :for="k"><span class="mr-1 inline-grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-[10px] dark:bg-slate-800">{{ i + 1 }}</span>{{ l }}</label>
@@ -328,9 +328,9 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
 
       <!-- 6. Dokumen -->
       <section class="kartu space-y-4 p-4 sm:p-5">
-        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="FileStack" :ukuran="17" /></span> Dokumen yang dibuat</h2>
+        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="FileStack" :ukuran="17" /></span> Dokumen yang dibuat</h2>
         <div v-if="!siplah" class="flex flex-wrap gap-1.5">
-          <span v-for="k in ['kwitansi_besar', 'surat_pesanan', 'shp', 'bast']" :key="k" class="lencana bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"><Ikon :nama="DOKUMEN[k].ikon" :ukuran="12" /> {{ k === 'surat_pesanan' && spk ? 'Surat Perintah Kerja' : DOKUMEN[k].judul }}</span>
+          <span v-for="k in ['sampul', 'kwitansi_besar', 'surat_pesanan', 'shp', 'bast']" :key="k" class="lencana bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"><Ikon :nama="DOKUMEN[k].ikon" :ukuran="12" /> {{ k === 'surat_pesanan' && spk ? 'Surat Perintah Kerja' : DOKUMEN[k].judul }}</span>
         </div>
         <p v-else class="text-sm text-slate-500">SIPLah: SIBOS hanya membuat kwitansi besar (sampul) dan lampiran; enam dokumen mitra diunggah sebagai PDF di halaman rincian.</p>
         <div class="grid gap-2 sm:grid-cols-2">
@@ -377,7 +377,7 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
 
       <!-- 7. Pajak -->
       <section class="kartu space-y-3 p-4 sm:p-5">
-        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="Percent" :ukuran="17" /></span> Perkiraan pajak</h2>
+        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="Percent" :ukuran="17" /></span> Perkiraan pajak</h2>
         <div v-if="!pajak.length" class="text-sm text-slate-500">Tidak ada pajak yang dipungut/dipotong.</div>
         <div v-for="p in pajak" :key="p.jenis" class="flex items-center gap-3 rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800/50">
           <span class="lencana bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300">{{ p.jenis }}</span>

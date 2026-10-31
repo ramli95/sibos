@@ -181,7 +181,7 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
       </section>
 
       <section class="kartu space-y-3 p-4 sm:p-5">
-        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="ClipboardList" :ukuran="17" /></span> Uraian RKAS &amp; besaran</h2>
+        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="ClipboardList" :ukuran="17" /></span> Uraian RKAS &amp; besaran</h2>
         <div v-if="f.uraian_honor" class="flex items-start gap-3 rounded-xl border border-biru/40 bg-biru/5 p-3 dark:bg-blue-950/30">
           <Ikon nama="BadgeCheck" :ukuran="18" class="mt-0.5 text-biru" />
           <div class="min-w-0 flex-1"><p class="font-semibold">{{ f.uraian_honor.uraian_rkas }}</p>
@@ -212,7 +212,7 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
 
       <section class="kartu space-y-3 p-4 sm:p-5">
         <div class="flex flex-wrap items-center gap-2">
-          <h2 class="flex flex-1 items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="Users" :ukuran="17" /></span> Penerima ({{ penerima.length }})</h2>
+          <h2 class="flex flex-1 items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="Users" :ukuran="17" /></span> Penerima ({{ penerima.length }})</h2>
           <button type="button" class="tombol-garis py-2" @click="pilihPegawai = true"><Ikon nama="UserPlus" :ukuran="16" class="text-biru" /> Pegawai</button>
           <button type="button" class="tombol-utama py-2" @click="luarBaru = {}"><Ikon nama="UserRound" :ukuran="16" /> Orang luar</button>
         </div>
@@ -260,9 +260,9 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
       </section>
 
       <section class="kartu space-y-3 p-4 sm:p-5">
-        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="FileStack" :ukuran="17" /></span> Dokumen pendukung</h2>
+        <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="FileStack" :ukuran="17" /></span> Dokumen pendukung</h2>
         <div class="grid gap-2 sm:grid-cols-2">
-          <span class="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"><Ikon nama="BookOpenText" :ukuran="16" /> Kwitansi Besar (selalu)</span>
+          <span class="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"><Ikon nama="BookOpenText" :ukuran="16" /> Sampul &amp; Kwitansi Besar (selalu)</span>
           <label v-for="k in DOK_HONOR" :key="k" class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm dark:border-slate-700">
             <input v-model="f.dokumen[k]" type="checkbox" class="h-5 w-5 accent-biru" /><Ikon :nama="DOKUMEN[k].ikon" :ukuran="16" class="text-biru" /> <b>{{ DOKUMEN[k].judul }}</b>
           </label>

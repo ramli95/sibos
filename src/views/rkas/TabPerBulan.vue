@@ -64,7 +64,7 @@ async function ekspor(b = bulan.value) { try { await eksporRkas(rkas, { bulan: b
 
       <div v-if="!kegiatan.length" class="kartu p-8 text-center text-sm text-slate-500"><Ikon nama="Info" class="inline" /> Tidak ada rencana belanja pada bulan ini.</div>
       <div v-for="g in kegiatan" :key="g.kode" class="kartu overflow-hidden">
-        <div class="flex items-start gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/30">
+        <div class="flex items-start gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-800" style="background: var(--arkas-kegiatan)">
           <Ikon nama="FolderTree" :ukuran="17" class="mt-0.5 text-amber-500" />
           <p class="min-w-0 flex-1 text-sm font-semibold leading-snug"><span class="kode mr-1.5 text-xs text-slate-500">{{ g.kode }}</span>{{ g.nama }}</p>
           <p class="angka text-sm font-bold">{{ rupiah(g.bulan[bulan - 1]) }}</p>

@@ -116,7 +116,7 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
 <template>
   <div class="space-y-5">
     <div class="kartu flex flex-wrap items-center gap-3 p-4 sm:p-5">
-      <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ikon-chip"><Ikon nama="Mailbox" :ukuran="24" /></span>
+      <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ikon-chip-kuning"><Ikon nama="Mailbox" :ukuran="24" /></span>
       <div class="min-w-[12rem] flex-1">
         <p class="text-xs font-semibold uppercase tracking-wider text-biru dark:text-blue-300">Agenda Surat</p>
         <h1 class="truncate text-lg font-extrabold sm:text-xl">Buku agenda &amp; penomoran {{ tahun }}</h1>

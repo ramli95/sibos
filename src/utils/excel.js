@@ -40,7 +40,7 @@ export function unduhBlob(isi, namaBerkas, jenis) {
  * kolom: [{ kunci, judul, lebar, jenis: 'teks'|'angka'|'uang'|'tanggal' }]
  * baris: array objek
  */
-export async function eksporExcel({ judul, kolom, baris, namaBerkas, landscape = true }) {
+export async function eksporExcel({ judul, kolom, baris, namaBerkas, landscape = true, warnaBaris = null }) {
   const ExcelJS = await muatExcel()
   const wb = new ExcelJS.Workbook()
   wb.creator = 'SIBOS'
@@ -90,7 +90,10 @@ export async function eksporExcel({ judul, kolom, baris, namaBerkas, landscape =
       c.alignment = { vertical: 'top', wrapText: true, ...(c.alignment || {}) }
     })
     row.getCell(1).alignment = { horizontal: 'center', vertical: 'top' }
-    if (r % 2 === 1) row.eachCell({ includeEmpty: true }, (c) => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5FB' } } })
+    // warnaBaris(b) → 'RRGGBB' (mis. warna SNP/komponen/kegiatan ala ARKAS) + tebal
+    const w = warnaBaris?.(b)
+    if (w) row.eachCell({ includeEmpty: true }, (c) => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + w } }; c.font = { name: HURUF, size: 11, bold: true } })
+    else if (r % 2 === 1 && !warnaBaris) row.eachCell({ includeEmpty: true }, (c) => { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5FB' } } })
   })
   for (let r = 4; r <= 4 + baris.length; r++) for (let c = 1; c <= n; c++) ws.getCell(r, c).border = { top: garis, left: garis, bottom: garis, right: garis }
   ws.views = [{ state: 'frozen', ySplit: 4 }]

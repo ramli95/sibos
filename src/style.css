@@ -73,6 +73,13 @@
 @utility ikon-chip-bahaya {
   @apply bg-rose-100 text-rose-700 dark:bg-rose-400/15 dark:text-rose-300;
 }
+/* Variasi chip ikon dengan warna ciri ARKAS (tosca, kuning emas) */
+@utility ikon-chip-tosca {
+  @apply bg-[#2BB5A0]/12 text-[#168C7A] dark:bg-[#2BB5A0]/15 dark:text-[#5FD3C0];
+}
+@utility ikon-chip-kuning {
+  @apply bg-[#F5B21B]/15 text-[#A86F00] dark:bg-[#F5B21B]/15 dark:text-[#F7C54D];
+}
 @utility tanpa-penggulir {
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
@@ -111,10 +118,13 @@
     --viz-operasional: #2563eb; --viz-alat: #f97316; --viz-aset: #0d9488;
     --viz-rencana: #2563eb; --viz-realisasi: #0d9488; --viz-grid: #e2e8f0; --viz-teks: #64748b;
     --viz-aman: #15803d; --viz-waspada: #b45309; --viz-lewat: #dc2626;
+    /* Baris Kertas Kerja ala ARKAS */
+    --arkas-snp: #ffd7d7; --arkas-komponen: #d5ffd5; --arkas-kegiatan: #ffffe1;
   }
   html.dark {
     --viz-operasional: #3b82f6; --viz-alat: #de6a1c; --viz-aset: #0f9f8f;
     --viz-rencana: #3b82f6; --viz-realisasi: #0f9f8f; --viz-grid: #273247; --viz-teks: #94a3b8;
     --viz-aman: #4ade80; --viz-waspada: #fbbf24; --viz-lewat: #f87171;
+    --arkas-snp: rgb(244 63 94 / 0.16); --arkas-komponen: rgb(34 197 94 / 0.14); --arkas-kegiatan: rgb(250 204 21 / 0.10);
   }
 }

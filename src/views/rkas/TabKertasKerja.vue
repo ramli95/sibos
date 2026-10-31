@@ -68,7 +68,7 @@ const saringKat = [
 
     <!-- Tingkat 1: SNP -->
     <section v-for="s in pohon" :key="s.kode" class="kartu overflow-hidden">
-      <button type="button" class="flex w-full items-center gap-3 p-4 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/40" :aria-expanded="terbuka(k(s))" @click="alih(k(s))">
+      <button type="button" class="flex w-full items-center gap-3 p-4 text-left transition hover:brightness-[0.98]" style="background: var(--arkas-snp)" :aria-expanded="terbuka(k(s))" @click="alih(k(s))">
         <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-sm font-extrabold text-white shadow" :style="{ background: WARNA_SNP[s.kode] }"><span class="kode">{{ s.kode }}</span></span>
         <div class="min-w-0 flex-1">
           <p class="truncate font-bold">{{ s.nama || 'SNP ' + s.kode }}</p>
@@ -77,22 +77,22 @@ const saringKat = [
         <p class="angka hidden text-right text-lg font-extrabold sm:block">{{ rupiah(s.jumlah) }}</p>
         <Ikon nama="ChevronDown" :ukuran="18" :class="['transition', terbuka(k(s)) && 'rotate-180']" />
       </button>
-      <p class="angka -mt-2 px-4 pb-3 text-right font-extrabold sm:hidden">{{ rupiah(s.jumlah) }}</p>
+      <p class="angka -mt-2 px-4 pb-3 text-right font-extrabold sm:hidden" style="background: var(--arkas-snp)">{{ rupiah(s.jumlah) }}</p>
 
       <div v-if="terbuka(k(s))" class="border-t border-slate-100 dark:border-slate-800">
         <!-- Tingkat 2: komponen -->
         <div v-for="c in s.anak" :key="c.kode" class="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
-          <button type="button" class="flex w-full items-center gap-3 py-3 pl-6 pr-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800/40" @click="alih(k(c))">
+          <button type="button" class="flex w-full items-center gap-3 py-3 pl-6 pr-4 text-left hover:brightness-[0.98]" style="background: var(--arkas-komponen)" @click="alih(k(c))">
             <span class="h-8 w-1.5 shrink-0 rounded-full" :style="{ background: KOMPONEN_ARKAS[c.kode.split('.')[1]]?.warna || '#94a3b8' }" />
             <span class="kode shrink-0 text-xs text-slate-500">{{ c.kode }}</span>
             <span class="min-w-0 flex-1 truncate text-sm font-semibold">{{ c.nama }}</span>
             <span class="angka text-sm font-bold">{{ rupiah(c.jumlah) }}</span>
             <Ikon nama="ChevronDown" :ukuran="16" :class="['transition', terbuka(k(c)) && 'rotate-180']" />
           </button>
-          <div v-if="terbuka(k(c))" class="pb-2">
+          <div v-if="terbuka(k(c))" class="pb-2 pt-2">
             <!-- Tingkat 3: kegiatan -->
             <div v-for="g in c.anak" :key="g.kode" class="ml-6 mr-3 mb-2 rounded-xl border border-slate-200 dark:border-slate-700">
-              <button type="button" class="flex w-full items-start gap-3 p-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/40" @click="alih(k(g))">
+              <button type="button" class="flex w-full items-start gap-3 rounded-xl p-3 text-left hover:brightness-[0.98]" style="background: var(--arkas-kegiatan)" @click="alih(k(g))">
                 <Ikon nama="FolderTree" :ukuran="16" class="mt-0.5 text-amber-500" />
                 <div class="min-w-0 flex-1">
                   <p class="text-sm font-semibold leading-snug"><span class="kode mr-1.5 text-xs text-slate-500">{{ g.kode }}</span>{{ g.nama }}</p>

@@ -30,7 +30,7 @@ const nama = (p) => (p ? p.nama + (p.gelar ? ', ' + p.gelar : '') : '………�
 
 <style scoped>
 .ttd { width: 100%; margin-top: 0.8cm; border-collapse: collapse; page-break-inside: avoid; break-inside: avoid; }
-.ttd td { vertical-align: top; padding-left: 0.5cm; }
+.ttd td { vertical-align: top; padding-left: 1.6cm; } /* ruang stempel di kiri tanda tangan */
 .tak-terlihat { visibility: hidden; }
 .ruang { height: 2.1cm; position: relative; }
 .ruang img { position: absolute; left: 0; top: 0.1cm; height: 1.9cm; object-fit: contain; }

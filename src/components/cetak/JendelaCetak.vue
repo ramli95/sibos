@@ -65,7 +65,7 @@ async function unduhPdf() {
 
 <template>
   <Teleport to="body">
-    <div class="jendela-cetak fixed inset-0 z-[60] flex flex-col bg-slate-900/85 backdrop-blur-sm" role="dialog" aria-modal="true" :aria-label="`Pratinjau ${props.judul}`">
+    <div class="jendela-cetak fixed inset-0 z-[60] flex flex-col bg-slate-900/55 backdrop-blur-[1.5px]" role="dialog" aria-modal="true" :aria-label="`Pratinjau ${props.judul}`">
       <!-- Bilah atas -->
       <header class="bilah flex flex-wrap items-center gap-3 bg-[#2B2B2B] px-4 py-3 text-white shadow-lg sm:px-6">
         <div class="min-w-0 flex-1">

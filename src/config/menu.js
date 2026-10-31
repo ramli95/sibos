@@ -2,9 +2,9 @@
 // `fase` > 1 berarti menu disiapkan, tetapi baru aktif pada fase tersebut.
 // `peran` kosong = semua peran boleh melihat.
 export const MENU = [
-  { judul: 'Dasbor', ikon: 'LayoutDashboard', ke: '/dasbor', warna: '', fase: 1 },
+  { judul: 'Dasbor', ikon: 'LayoutDashboard', ke: '/dasbor', warna: 'text-biru-muda', fase: 1 },
   {
-    judul: 'RKAS', ikon: 'ClipboardList', warna: '', fase: 2,
+    judul: 'RKAS', ikon: 'ClipboardList', warna: 'text-kuning', fase: 2,
     anak: [
       { judul: 'Ringkasan & Proporsi', ikon: 'ChartPie', ke: '/rkas/ringkasan', fase: 2 },
       { judul: 'Kertas Kerja', ikon: 'ListTree', ke: '/rkas/kertas-kerja', fase: 2 },
@@ -15,7 +15,7 @@ export const MENU = [
     ],
   },
   {
-    judul: 'Belanja & Dokumen', ikon: 'ShoppingCart', warna: '', fase: 3,
+    judul: 'Belanja & Dokumen', ikon: 'ShoppingCart', warna: 'text-[#5FD3C0]', fase: 3,
     anak: [
       { judul: 'Daftar Belanja', ikon: 'ListChecks', ke: '/belanja/daftar', fase: 3 },
       { judul: 'Belanja Baru', ikon: 'CirclePlus', ke: '/belanja/baru', fase: 3, peran: ['bendahara'] },
@@ -23,13 +23,13 @@ export const MENU = [
       { judul: 'Arsip & Kelengkapan', ikon: 'Archive', ke: '/belanja/arsip', fase: 3 },
     ],
   },
-  { judul: 'Pajak', ikon: 'ReceiptText', warna: '', fase: 4 },
-  { judul: 'Buku Kas', ikon: 'BookOpenText', warna: '', fase: 4 },
-  { judul: 'Laporan', ikon: 'FileBarChart', warna: '', fase: 5 },
-  { judul: 'Panduan Input', ikon: 'ArrowRightLeft', warna: '', fase: 5 },
-  { judul: 'Barang & Aset', ikon: 'Boxes', warna: '', fase: 5 },
+  { judul: 'Pajak', ikon: 'ReceiptText', warna: 'text-kuning', fase: 4 },
+  { judul: 'Buku Kas', ikon: 'BookOpenText', warna: 'text-[#5FD3C0]', fase: 4 },
+  { judul: 'Laporan', ikon: 'FileBarChart', warna: 'text-biru-muda', fase: 5 },
+  { judul: 'Panduan Input', ikon: 'ArrowRightLeft', warna: 'text-kuning', fase: 5 },
+  { judul: 'Barang & Aset', ikon: 'Boxes', warna: 'text-[#5FD3C0]', fase: 5 },
   {
-    judul: 'Kepegawaian', ikon: 'IdCard', warna: '', fase: 1, peran: ['bendahara', 'tim_bos', 'kepala_sekolah'],
+    judul: 'Kepegawaian', ikon: 'IdCard', warna: 'text-biru-muda', fase: 1, peran: ['bendahara', 'tim_bos', 'kepala_sekolah'],
     anak: [
       { judul: 'Data Pegawai', ikon: 'Users', ke: '/pegawai', fase: 1 },
       { judul: 'Daftar Gaji', ikon: 'Wallet', fase: 6 },
@@ -38,17 +38,17 @@ export const MENU = [
     ],
   },
   {
-    judul: 'Master Data', ikon: 'Database', warna: '', fase: 1,
+    judul: 'Master Data', ikon: 'Database', warna: 'text-kuning', fase: 1,
     anak: [
       { judul: 'Rekanan', ikon: 'Store', ke: '/rekanan', fase: 1 },
       { judul: 'Referensi Juknis', ikon: 'BookMarked', ke: '/referensi', fase: 1 },
       { judul: 'Standar Harga', ikon: 'Tags', ke: '/standar-harga', fase: 2 },
     ],
   },
-  { judul: 'Agenda Surat', ikon: 'Mailbox', ke: '/agenda-surat/daftar', warna: '', fase: 3 },
-  { judul: 'Impor Data', ikon: 'FileUp', ke: '/impor', warna: '', fase: 1, peran: ['bendahara'] },
-  { judul: 'Log Aktivitas', ikon: 'History', ke: '/log', warna: '', fase: 1, peran: ['bendahara', 'kepala_sekolah'] },
-  { judul: 'Pengaturan', ikon: 'Settings', ke: '/pengaturan', warna: '', fase: 1, peran: ['bendahara'] },
+  { judul: 'Agenda Surat', ikon: 'Mailbox', ke: '/agenda-surat/daftar', warna: 'text-[#5FD3C0]', fase: 3 },
+  { judul: 'Impor Data', ikon: 'FileUp', ke: '/impor', warna: 'text-biru-muda', fase: 1, peran: ['bendahara'] },
+  { judul: 'Log Aktivitas', ikon: 'History', ke: '/log', warna: 'text-kuning', fase: 1, peran: ['bendahara', 'kepala_sekolah'] },
+  { judul: 'Pengaturan', ikon: 'Settings', ke: '/pengaturan', warna: 'text-biru-muda', fase: 1, peran: ['bendahara'] },
 ]
 
 // Tab halaman Pengaturan

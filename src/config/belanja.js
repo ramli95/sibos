@@ -38,7 +38,8 @@ export const JENIS_HONOR = {
 // Semua dokumen yang dapat dibuat SIBOS. urutan = urutan di Paket SPJ.
 // wajib = selalu dibuat untuk belanja Non-SIPLah; pilih = dicentang manual per transaksi.
 export const DOKUMEN = {
-  kwitansi_besar: { judul: 'Kwitansi Besar (Sampul)', ikon: 'BookOpenText', urutan: 1, grup: 1 },
+  sampul: { judul: 'Sampul Kwitansi (format sekolah)', ikon: 'BookMarked', urutan: 0, grup: 1 },
+  kwitansi_besar: { judul: 'Kwitansi Besar (3 tanda tangan)', ikon: 'BookOpenText', urutan: 1, grup: 1 },
   kwitansi_kecil: { judul: 'Kwitansi Kecil', ikon: 'Banknote', urutan: 2, grup: 2 },
   perencanaan: { judul: 'Dokumen Perencanaan', ikon: 'ClipboardList', urutan: 3, grup: 3 },
   pembandingan: { judul: 'Dokumen Hasil Pembandingan', ikon: 'Scale', urutan: 4, grup: 3 },
@@ -57,11 +58,11 @@ export const DOKUMEN = {
 }
 
 export const GRUP_PAKET = {
-  1: 'Kwitansi Besar', 2: 'Kwitansi Kecil', 3: 'Pemesanan', 4: 'Faktur & Invoice', 5: 'Pemeriksaan & Serah Terima', 6: 'Lampiran Foto', 7: 'Daftar Penerimaan & Hadir',
+  1: 'Sampul & Kwitansi Besar', 2: 'Kwitansi Kecil', 3: 'Pemesanan', 4: 'Faktur & Invoice', 5: 'Pemeriksaan & Serah Terima', 6: 'Lampiran Foto', 7: 'Daftar Penerimaan & Hadir',
 }
 
 // Dokumen wajib belanja Non-SIPLah (bukti PBJ Pasal 25 Permendikbudristek 18/2022)
-export const DOKUMEN_WAJIB = ['kwitansi_besar', 'surat_pesanan', 'shp', 'bast']
+export const DOKUMEN_WAJIB = ['sampul', 'kwitansi_besar', 'surat_pesanan', 'shp', 'bast']
 // Dokumen pilihan (centang manual per transaksi), bawaan tercentang
 export const DOKUMEN_PILIHAN = [
   { kunci: 'perencanaan', bawaan: true, ket: 'Boleh dikecualikan untuk belanja ≤ Rp 1 juta (Pasal 12 ayat 3)' },

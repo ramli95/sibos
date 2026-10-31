@@ -90,7 +90,7 @@ async function excel() {
 
 <template>
   <Teleport to="body">
-    <div class="jendela-paket fixed inset-0 z-[60] flex flex-col bg-slate-900/85 backdrop-blur-sm" role="dialog" aria-modal="true" :aria-label="`Pratinjau ${judul}`">
+    <div class="jendela-paket fixed inset-0 z-[60] flex flex-col bg-slate-900/55 backdrop-blur-[1.5px]" role="dialog" aria-modal="true" :aria-label="`Pratinjau ${judul}`">
       <header class="bilah flex flex-wrap items-center gap-2 bg-[#2B2B2B] px-4 py-3 text-white shadow-lg sm:gap-3 sm:px-6">
         <div class="min-w-0 flex-1">
           <h2 class="truncate text-base font-bold sm:text-lg">Pratinjau: {{ judul }}</h2>

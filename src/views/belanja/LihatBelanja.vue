@@ -47,7 +47,7 @@ const st = computed(() => STATUS[b.value?.status] || STATUS.draf)
 const cek = computed(() => (b.value ? kelengkapan(b.value, { foto: foto.value.length }) : []))
 const persen = computed(() => persenLengkap(cek.value))
 const dokumen = computed(() => (b.value ? pilihanPaket(b.value, foto.value) : []))
-const nomorDok = (k) => b.value?.nomor?.[k] || (k === 'kwitansi_besar' ? Object.values(b.value?.bnu || {}).filter(Boolean).join(', ') : '')
+const nomorDok = (k) => b.value?.nomor?.[k] || (['kwitansi_besar', 'sampul'].includes(k) ? Object.values(b.value?.bnu || {}).filter(Boolean).join(', ') : '')
 const gabung = computed(() => (b.value ? grupKwitansiBesar(b.value, belanja.daftar).filter((g) => g.dari.size > 1) : []))
 const namaRek = (k) => rkas.nama.rekening(k) || NAMA_REKENING[k] || ''
 const namaKeg = (k) => rkas.nama.kegiatan(k)
@@ -204,7 +204,7 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
           <!-- Dokumen -->
           <section class="kartu p-4 sm:p-5">
             <div class="mb-3 flex items-center gap-2">
-              <h2 class="flex flex-1 items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="FileStack" :ukuran="17" /></span> Dokumen ({{ dokumen.length }})</h2>
+              <h2 class="flex flex-1 items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="FileStack" :ukuran="17" /></span> Dokumen ({{ dokumen.length }})</h2>
               <button class="tombol-garis py-2" @click="paket = { hanya: null }"><Ikon nama="Printer" :ukuran="16" class="text-biru" /> Paket</button>
             </div>
             <div class="grid gap-2 sm:grid-cols-2">
@@ -220,7 +220,7 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
           <!-- Foto -->
           <section class="kartu p-4 sm:p-5">
             <div class="mb-3 flex items-center gap-2">
-              <h2 class="flex flex-1 items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="Image" :ukuran="17" /></span> Foto dokumentasi ({{ foto.length }})</h2>
+              <h2 class="flex flex-1 items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="Image" :ukuran="17" /></span> Foto dokumentasi ({{ foto.length }})</h2>
               <template v-if="auth.isAdmin">
                 <input ref="masukanFoto" type="file" accept="image/*" multiple class="hidden" @change="pilihFoto" />
                 <button class="tombol-utama py-2" :disabled="sibuk === 'foto'" @click="masukanFoto.click()"><Ikon :nama="sibuk === 'foto' ? 'RefreshCw' : 'Camera'" :ukuran="16" :class="sibuk === 'foto' && 'animate-spin'" /> Tambah</button>
@@ -263,7 +263,7 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
           <input ref="masukanArsip" type="file" accept="application/pdf,image/*" class="hidden" @change="unggah" />
           <!-- PDF SIPLah -->
           <section v-if="siplah" class="kartu p-4 sm:p-5">
-            <h2 class="mb-3 flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="ShoppingBag" :ukuran="17" /></span> Dokumen mitra SIPLah</h2>
+            <h2 class="mb-3 flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="ShoppingBag" :ukuran="17" /></span> Dokumen mitra SIPLah</h2>
             <p class="mb-2 text-xs text-slate-500">SP {{ b.siplah?.nomor_sp || '—' }} · BAST {{ b.siplah?.nomor_bast || '—' }} · Invoice {{ b.siplah?.nomor_invoice || '—' }}</p>
             <ul class="space-y-1.5">
               <li v-for="d in DOKUMEN_SIPLAH" :key="d.kunci" class="flex items-center gap-2 rounded-xl border border-slate-200 p-2 text-sm dark:border-slate-700">
@@ -278,7 +278,7 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
 
           <!-- Arsip -->
           <section class="kartu p-4 sm:p-5">
-            <h2 class="mb-1 flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="Archive" :ukuran="17" /></span> Arsip ke Drive</h2>
+            <h2 class="mb-1 flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="Archive" :ukuran="17" /></span> Arsip ke Drive</h2>
             <p class="mb-3 text-xs text-slate-500">Pindai/foto dokumen yang sudah ditandatangani & nota asli. Tersimpan di Drive SIBOS/{{ b.tahun }}/…/SPJ.</p>
             <div v-for="a in ARSIP" :key="a.kunci" class="mb-2 rounded-xl border border-slate-200 p-2.5 dark:border-slate-700">
               <div class="flex items-center gap-2">
@@ -295,7 +295,7 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
 
           <!-- Nomor -->
           <section v-if="!siplah && !honor" class="kartu p-4 sm:p-5">
-            <h2 class="mb-3 flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="Hash" :ukuran="17" /></span> Nomor dokumen</h2>
+            <h2 class="mb-3 flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-kuning"><Ikon nama="Hash" :ukuran="17" /></span> Nomor dokumen</h2>
             <dl class="space-y-1.5 text-xs">
               <div v-for="(info, kunci) in JENIS_NOMOR" v-show="b.nomor?.[kunci]" :key="kunci" class="flex justify-between gap-2"><dt class="text-slate-500">{{ info.singkat }}</dt><dd class="kode text-right">{{ b.nomor?.[kunci] }}</dd></div>
             </dl>

@@ -15,9 +15,16 @@ const props = defineProps({
 })
 const emit = defineEmits(['klik'])
 
+// Kartu bernada "primer" diberi warna ciri ARKAS bergiliran (biru → tosca → kuning) agar bervariasi
+// tanpa terlalu ramai; nada status (sukses/peringatan/bahaya) dan "gelap" tidak diubah.
+const GILIR = ['primer', 'tosca', 'kuning']
+const kartu = computed(() => {
+  let n = 0
+  return props.daftar.map((k) => ((k.nada || 'primer') === 'primer' ? { ...k, nada: GILIR[n++ % GILIR.length] } : k))
+})
 const halaman = computed(() => {
   const h = []
-  for (let i = 0; i < props.daftar.length; i += 4) h.push(props.daftar.slice(i, i + 4))
+  for (let i = 0; i < kartu.value.length; i += 4) h.push(kartu.value.slice(i, i + 4))
   return h
 })
 const gulir = ref(null)

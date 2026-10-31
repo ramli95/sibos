@@ -89,3 +89,6 @@ export const KOMPONEN_ARKAS = {
 export const WARNA_SNP = {
   '01': '#64748b', '02': '#06b6d4', '03': '#6366f1', '04': '#ec4899', '05': '#f97316', '06': '#14b8a6', '07': '#e11d48', '08': '#a855f7',
 }
+
+// Warna lembut baris Kertas Kerja ARKAS: SNP (merah muda), komponen (hijau muda), kegiatan (kuning muda)
+export const WARNA_TINGKAT_ARKAS = { 1: 'FFD7D7', 2: 'D5FFD5', 3: 'FFFFE1' }

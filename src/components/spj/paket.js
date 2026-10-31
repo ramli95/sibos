@@ -5,6 +5,7 @@ import { DOKUMEN } from '@/config/belanja'
 import { dokumenTransaksi, kelompokRekening } from '@/utils/belanja'
 import { namaOrang } from '@/utils/dokumenSpj'
 import DokKwitansiBesar from './DokKwitansiBesar.vue'
+import DokSampul from './DokSampul.vue'
 import DokKwitansiKecil from './DokKwitansiKecil.vue'
 import DokPerencanaan from './DokPerencanaan.vue'
 import DokPembandingan from './DokPembandingan.vue'
@@ -69,7 +70,10 @@ export function susunPaket(b, o) {
   const ada = (k) => pilih.has(k)
   const dasar = { b, k: o.k, profil: o.profil }
   const h = []
-  if (ada('kwitansi_besar')) grupKwitansiBesar(b, o.semua).forEach((g, i) =>
+  const grup = grupKwitansiBesar(b, o.semua)
+  if (ada('sampul')) grup.forEach((g, i) =>
+    h.push({ kunci: 'sampul', judul: `Sampul${g.bnu ? ' ' + g.bnu : ''}`, komponen: DokSampul, props: { b, k: o.k, grup: g, namaKeg: o.namaKeg }, id: `s${i}` }))
+  if (ada('kwitansi_besar')) grup.forEach((g, i) =>
     h.push({ kunci: 'kwitansi_besar', judul: `Kwitansi Besar${g.bnu ? ' ' + g.bnu : ''}`, komponen: DokKwitansiBesar, props: { b, k: o.k, grup: g, namaKeg: o.namaKeg, namaRek: o.namaRek }, id: `kb${i}` }))
   if (ada('kwitansi_kecil')) h.push({ kunci: 'kwitansi_kecil', judul: 'Kwitansi Kecil', komponen: DokKwitansiKecil, props: { b, k: o.k } })
   if (ada('perencanaan')) h.push({ kunci: 'perencanaan', judul: 'Dokumen Perencanaan', komponen: DokPerencanaan, props: { ...dasar, namaRek: o.namaRek } })

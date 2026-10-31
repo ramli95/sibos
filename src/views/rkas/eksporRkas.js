@@ -1,3 +1,4 @@
+import { WARNA_TINGKAT_ARKAS } from '@/config/kodeArkas'
 // Ekspor RKAS ke Excel (F4, Times New Roman): baris induk (SNP/komponen/kegiatan) + uraian, dengan rencana bulanan.
 import { eksporExcel } from '@/utils/excel'
 import { bangunPohon, barisDatar } from '@/utils/rkasPohon'
@@ -24,5 +25,6 @@ export async function eksporRkas(rkas, { bulan = 0, tahap = 0 } = {}) {
     if (adaBulan) NAMA_BULAN.forEach((n, i) => kolom.push({ judul: n, lebar: 13, jenis: 'uang', nilai: (b) => b.bulan?.[i] || 0 }))
   }
   const periode = bulan ? NAMA_BULAN[bulan - 1] : tahap ? `Tahap ${tahap}` : 'Tahap I dan II'
-  await eksporExcel({ judul: `RKAS ${rkas.tahun} ${rkas.versi?.nama || ''} ${periode}`.slice(0, 120), kolom, baris, namaBerkas: `RKAS ${rkas.tahun} ${rkas.versi?.nama || ''} - ${periode}` })
+  await eksporExcel({ judul: `RKAS ${rkas.tahun} ${rkas.versi?.nama || ''} ${periode}`.slice(0, 120), kolom, baris, namaBerkas: `RKAS ${rkas.tahun} ${rkas.versi?.nama || ''} - ${periode}`,
+    warnaBaris: (b) => (b.induk ? WARNA_TINGKAT_ARKAS[b.tingkat] || null : null) })
 }

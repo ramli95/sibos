@@ -21,7 +21,7 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
 <template>
   <div class="space-y-5">
     <div class="kartu flex flex-wrap items-center gap-3 p-4 sm:p-5">
-      <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ikon-chip"><Ikon nama="ShoppingCart" :ukuran="24" /></span>
+      <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ikon-chip-tosca"><Ikon nama="ShoppingCart" :ukuran="24" /></span>
       <div class="min-w-0 flex-1">
         <p class="text-xs font-semibold uppercase tracking-wider text-biru dark:text-blue-300">Belanja &amp; Dokumen SPJ</p>
         <h1 class="truncate text-lg font-extrabold sm:text-xl">Tahun Anggaran {{ belanja.tahun }}</h1>

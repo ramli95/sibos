@@ -24,6 +24,9 @@ const NADA = {
   sukses: 'from-emerald-600 to-emerald-700 shadow-emerald-600/20',
   peringatan: 'from-amber-500 to-orange-600 shadow-amber-500/20',
   bahaya: 'from-rose-600 to-rose-700 shadow-rose-600/20',
+  // Warna ciri ARKAS untuk variasi kartu data biasa
+  tosca: 'from-[#22A08D] to-[#167A6C] shadow-[#22A08D]/25',
+  kuning: 'from-[#E3A414] to-[#B97F0A] shadow-[#E3A414]/25',
 }
 </script>
 

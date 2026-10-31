@@ -200,9 +200,9 @@ export const uraianHonorBulanan = (u) => !!u && (u.komponen === '12' || String(u
 export function dokumenTransaksi(b) {
   if (b.jenis === 'honor') {
     const d = { ...Object.fromEntries((JENIS_HONOR[b.jenis_honor]?.dokumen || []).map((k) => [k, true])), ...(b.dokumen || {}) }
-    return ['kwitansi_besar', ...Object.keys(d).filter((k) => d[k] && k !== 'kwitansi_besar')]
+    return ['sampul', 'kwitansi_besar', ...Object.keys(d).filter((k) => d[k] && !['sampul', 'kwitansi_besar'].includes(k))]
   }
-  if (b.cara === 'siplah') return ['kwitansi_besar', ...['foto', 'daftar_hadir', 'penerima_konsumsi', 'notulen'].filter((k) => b.dokumen?.[k])]
+  if (b.cara === 'siplah') return ['sampul', 'kwitansi_besar', ...['foto', 'daftar_hadir', 'penerima_konsumsi', 'notulen'].filter((k) => b.dokumen?.[k])]
   const pilih = Object.keys(b.dokumen || {}).filter((k) => b.dokumen[k])
   return [...new Set([...DOKUMEN_WAJIB, ...pilih])]
 }

@@ -86,7 +86,7 @@ const namaBerkas = computed(() => `RKAS ${rkas.tahun} ${v.value?.nama || ''} - $
           <tr><th style="width:1.3cm">Kode</th><th>Kegiatan</th><th v-for="b in NAMA_BULAN" :key="b">{{ b.slice(0, 3) }}</th><th>Jumlah</th></tr>
         </thead>
         <tbody>
-          <tr v-for="(b, i) in rekap" :key="i" :class="b.jenis === 'snp' && 'tebal'">
+          <tr v-for="(b, i) in rekap" :key="i" :class="b.jenis === 'snp' && 'tebal t1'">
             <td class="tengah">{{ b.kode }}</td><td>{{ b.nama }}</td>
             <td v-for="(x, m) in b.bulan" :key="m" class="kanan">{{ x ? n(x) : '-' }}</td>
             <td class="kanan">{{ n(b.jumlah) }}</td>
@@ -113,7 +113,7 @@ const namaBerkas = computed(() => `RKAS ${rkas.tahun} ${v.value?.nama || ''} - $
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(b, i) in baris" :key="i" :class="b.induk && 'tebal'">
+          <tr v-for="(b, i) in baris" :key="i" :class="b.induk && ['tebal', `t${b.tingkat}`]">
             <td class="tengah">{{ i + 1 }}.</td>
             <template v-if="b.induk">
               <td></td><td>{{ b.kode }}.</td><td>{{ b.nama }}</td><td></td><td></td><td></td>
@@ -156,6 +156,9 @@ const namaBerkas = computed(() => `RKAS ${rkas.tahun} ${v.value?.nama || ''} - $
 .tabel thead { display: table-header-group; }
 .tabel tr { page-break-inside: avoid; break-inside: avoid; }
 .tebal td { font-weight: bold; }
+/* Warna baris ala Kertas Kerja ARKAS */
+.t1 td { background: #ffd7d7; } .t2 td { background: #d5ffd5; } .t3 td { background: #ffffe1; }
+.t1 td, .t2 td, .t3 td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .tengah { text-align: center; }
 .kanan { text-align: right; white-space: nowrap; }
 @media print { .tabel th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
