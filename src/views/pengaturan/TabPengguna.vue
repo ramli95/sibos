@@ -3,6 +3,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { PERAN, SEMUA_PERAN } from '@/config/peran'
 import { modePratinjau } from '@/services/firebase'
 import { daftarPengguna, buatPengguna, ubahPeran } from '@/services/pengguna'
+import { panggilPenghubung } from '@/services/penghubung'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { useAuth } from '@/stores/auth'
 import Ikon from '@/components/Ikon.vue'
@@ -51,6 +52,17 @@ async function alihAktif(p) {
   try { await ubahPeran(p, p.peran, aktif); p.aktif = aktif } catch (e) { notif.kabari(e.message, 'galat') }
 }
 
+const mereset = ref('')
+async function resetPassword(p) {
+  if (!confirm(`Buat password sementara untuk ${p.nama}? Password lamanya tidak berlaku lagi.`)) return
+  mereset.value = p.uid
+  try {
+    const r = await panggilPenghubung('reset_password', { uid: p.uid })
+    hasilAkun.value = { username: r.username, password: r.password, reset: true }
+    p.wajib_ganti_password = true
+  } catch (e) { notif.kabari(e.message, 'galat') } finally { mereset.value = '' }
+}
+
 const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('Disalin.'))
 </script>
 
@@ -70,7 +82,7 @@ const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('
 
     <!-- Akun baru dibuat -->
     <section v-if="hasilAkun" class="kartu border-emerald-300 p-5 dark:border-emerald-700">
-      <h3 class="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300"><Ikon nama="CircleCheck" :ukuran="19" /> Akun berhasil dibuat</h3>
+      <h3 class="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300"><Ikon nama="CircleCheck" :ukuran="19" /> {{ hasilAkun.reset ? 'Password sementara dibuat' : 'Akun berhasil dibuat' }}</h3>
       <p class="mt-1 text-sm text-slate-500">Berikan data ini kepada pemilik akun. Password sementara hanya tampil sekali; saat login pertama ia wajib membuat password sendiri.</p>
       <div class="mt-3 flex flex-wrap gap-3">
         <div class="rounded-xl bg-slate-100 px-4 py-2 dark:bg-slate-800"><span class="text-xs text-slate-500">Username</span><p class="kode font-semibold">{{ hasilAkun.username }}</p></div>
@@ -126,6 +138,10 @@ const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('
               <Ikon :nama="PERAN[k].ikon" :ukuran="12" /> {{ PERAN[k].singkat }}
             </button>
           </div>
+          <button v-if="p.uid !== auth.pengguna?.uid" type="button" @click="resetPassword(p)" title="Reset password (password sementara)" :disabled="mereset === p.uid"
+                  class="grid h-9 w-9 place-items-center rounded-lg text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40">
+            <Ikon nama="KeyRound" :ukuran="17" :class="mereset === p.uid && 'animate-pulse'" />
+          </button>
           <button type="button" @click="alihAktif(p)" :title="p.aktif === false ? 'Aktifkan' : 'Nonaktifkan'"
                   :class="['grid h-9 w-9 place-items-center rounded-lg', p.aktif === false ? 'text-emerald-600 hover:bg-emerald-50' : 'text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40']">
             <Ikon nama="Power" :ukuran="17" />
@@ -133,7 +149,7 @@ const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('
         </li>
       </ul>
       <p class="flex gap-2 border-t border-slate-200 p-4 text-xs text-slate-500 dark:border-slate-700">
-        <Ikon nama="Info" :ukuran="14" class="mt-0.5" /> Reset password untuk pengguna tanpa email akan aktif setelah penghubung Apps Script terpasang.
+        <Ikon nama="Info" :ukuran="14" class="mt-0.5" /> Tombol kunci kuning membuat password sementara (lewat penghubung Apps Script). Pengguna yang punya email juga bisa memakai "Lupa password" sendiri.
       </p>
     </section>
   </div>

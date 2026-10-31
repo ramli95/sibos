@@ -1,22 +1,41 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive, onMounted } from 'vue'
+import { doc, getDoc, collection, getCountFromServer } from 'firebase/firestore'
 import { useAuth } from '@/stores/auth'
-import { modePratinjau } from '@/services/firebase'
+import { db, modePratinjau } from '@/services/firebase'
 import { sapaan, tanggalPanjang } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
 
 const auth = useAuth()
 const namaDepan = computed(() => (auth.pengguna?.nama || '').split(',')[0])
 
-// Daftar persiapan Fase 1 — status diperbarui otomatis saat tiap bagian tersambung
+// Daftar persiapan Fase 1 — status dibaca langsung dari database
+const st = reactive({ penghubung: false, profil: false, logo: false, pejabat: 0, pegawai: 0, rekanan: 0, cadangan: false })
+
+onMounted(async () => {
+  if (modePratinjau || !auth.isAdmin) return
+  const aman = (p) => p.catch(() => null)
+  const [ph, pr, cd, pj, pg, rk] = await Promise.all([
+    aman(getDoc(doc(db, 'sistem', 'penghubung'))), aman(getDoc(doc(db, 'sekolah', 'profil'))), aman(getDoc(doc(db, 'sistem', 'cadangan'))),
+    aman(getCountFromServer(collection(db, 'pejabat'))), aman(getCountFromServer(collection(db, 'pegawai'))), aman(getCountFromServer(collection(db, 'rekanan'))),
+  ])
+  st.penghubung = !!ph?.data()?.url_apps_script
+  st.profil = !!pr?.exists()
+  st.logo = !!(pr?.data()?.logo_pemkot && pr?.data()?.logo_tutwuri)
+  st.cadangan = !!cd?.data()?.terakhir
+  st.pejabat = pj?.data().count || 0
+  st.pegawai = pg?.data().count || 0
+  st.rekanan = rk?.data().count || 0
+})
+
 const persiapan = computed(() => [
   { ikon: 'Database', judul: 'Firebase tersambung', ket: 'Login & database Firestore Jakarta', selesai: !modePratinjau, warna: 'from-orange-400 to-rose-500', ke: null },
-  { ikon: 'HardDrive', judul: 'Penghubung Google Drive', ket: 'Apps Script + folder SIBOS', selesai: false, warna: 'from-emerald-400 to-teal-500', ke: '/pengaturan/drive' },
-  { ikon: 'School', judul: 'Profil sekolah & kop', ket: 'Identitas, logo Pemkot & Tut Wuri', selesai: false, warna: 'from-blue-500 to-indigo-600', ke: '/pengaturan/profil' },
-  { ikon: 'UserCheck', judul: 'Pejabat per periode', ket: 'KS, Bendahara, Komite, Pengurus Barang', selesai: false, warna: 'from-violet-500 to-fuchsia-500', ke: '/pengaturan/pejabat' },
-  { ikon: 'Users', judul: 'Impor data pegawai', ket: 'Dari sheet dB-SKPG', selesai: false, warna: 'from-sky-400 to-blue-600', ke: '/impor' },
-  { ikon: 'Store', judul: 'Impor data rekanan', ket: 'Dari sheet db_Rekanan', selesai: false, warna: 'from-amber-400 to-orange-500', ke: '/impor' },
-  { ikon: 'CloudUpload', judul: 'Cadangan pertama', ket: 'Muncul di Drive: SIBOS/Cadangan', selesai: false, warna: 'from-teal-400 to-cyan-600', ke: '/pengaturan/drive' },
+  { ikon: 'HardDrive', judul: 'Penghubung Google Drive', ket: st.penghubung ? 'URL Apps Script tersimpan' : 'Apps Script + folder SIBOS', selesai: st.penghubung, warna: 'from-emerald-400 to-teal-500', ke: '/pengaturan/drive' },
+  { ikon: 'CloudUpload', judul: 'Cadangan pertama', ket: 'Muncul di Drive: SIBOS/Cadangan', selesai: st.cadangan, warna: 'from-teal-400 to-cyan-600', ke: '/pengaturan/drive' },
+  { ikon: 'School', judul: 'Profil sekolah & kop', ket: st.logo ? 'Profil & logo lengkap' : 'Tinggal unggah logo Pemkot & Tut Wuri', selesai: st.profil && st.logo, warna: 'from-blue-500 to-indigo-600', ke: '/pengaturan/profil' },
+  { ikon: 'UserCheck', judul: 'Pejabat per periode', ket: st.pejabat ? `${st.pejabat} periode tercatat` : 'KS, Bendahara, Komite, Pengurus Barang', selesai: st.pejabat >= 5, warna: 'from-violet-500 to-fuchsia-500', ke: '/pengaturan/pejabat' },
+  { ikon: 'Users', judul: 'Impor data pegawai', ket: st.pegawai ? `${st.pegawai} pegawai` : 'Dari sheet dB-SKPG', selesai: st.pegawai > 0, warna: 'from-sky-400 to-blue-600', ke: '/impor' },
+  { ikon: 'Store', judul: 'Impor data rekanan', ket: st.rekanan ? `${st.rekanan} rekanan` : 'Dari sheet db_Rekanan', selesai: st.rekanan > 0, warna: 'from-amber-400 to-orange-500', ke: '/impor' },
 ])
 const jumlahSelesai = computed(() => persiapan.value.filter((p) => p.selesai).length)
 const persen = computed(() => Math.round((jumlahSelesai.value / persiapan.value.length) * 100))
@@ -36,7 +55,7 @@ const persen = computed(() => Math.round((jumlahSelesai.value / persiapan.value.
     </section>
 
     <!-- Persiapan Fase 1 -->
-    <section class="kartu p-5 sm:p-6">
+    <section v-if="auth.isAdmin" class="kartu p-5 sm:p-6">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h3 class="flex items-center gap-2 text-lg font-bold"><Ikon nama="Sparkles" :ukuran="20" class="text-kuning" /> Persiapan Fase 1</h3>
         <span class="lencana bg-biru/10 text-biru dark:bg-biru/20 dark:text-blue-300">{{ jumlahSelesai }} dari {{ persiapan.length }} selesai</span>
