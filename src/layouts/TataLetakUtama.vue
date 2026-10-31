@@ -13,6 +13,9 @@ import NavBawah from '@/components/NavBawah.vue'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { dengarkanPushDepan } from '@/services/push'
 import { useTampilan } from '@/stores/tampilan'
+import { usePanduan } from '@/stores/panduan'
+import { turUntukRute } from '@/config/panduan'
+import TurPanduan from '@/components/TurPanduan.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,6 +39,11 @@ const wadahAkun = ref(null)
 onClickOutside(wadahAkun, () => (menuAkun.value = false))
 
 const inisial = computed(() => (auth.pengguna?.nama || '?').split(',')[0].split(/\s+/).filter(Boolean).slice(0, 2).map((k) => k[0]).join('').toUpperCase())
+
+// Tombol bantuan: putar tur halaman ini, atau buka daftar Panduan Input
+const panduan = usePanduan()
+const turHalaman = computed(() => turUntukRute(route.path))
+function bantuan() { if (turHalaman.value && route.path !== '/panduan') panduan.mulai(turHalaman.value); else router.push('/panduan') }
 
 async function keluar() {
   await auth.keluar()
@@ -69,13 +77,17 @@ async function keluar() {
           <span class="grid h-9 w-9 place-items-center rounded-xl bg-biru/10 text-biru dark:bg-biru/20 dark:text-blue-300">
             <Ikon :nama="route.meta.ikon || 'LayoutDashboard'" :ukuran="18" />
           </span>
-          <h1 class="truncate text-base font-bold sm:text-lg">{{ route.meta.judul }}</h1>
+          <h1 class="truncate text-base font-bold sm:text-lg" data-tur="judul-halaman">{{ route.meta.judul }}</h1>
           <span v-if="modePratinjau" class="lencana hidden bg-amber-100 text-amber-800 md:inline-flex dark:bg-amber-900/40 dark:text-amber-300">
             <Ikon nama="Construction" :ukuran="13" /> Mode Pratinjau
           </span>
         </div>
 
         <TombolPasang />
+        <button type="button" class="grid h-10 w-10 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-biru dark:hover:bg-slate-800" data-tur="tombol-panduan"
+                :title="turHalaman ? 'Putar panduan halaman ini' : 'Panduan Input'" aria-label="Panduan" @click="bantuan">
+          <Ikon nama="CircleHelp" :ukuran="21" />
+        </button>
         <LoncengNotifikasi />
 
         <div ref="wadahAkun" class="relative">
@@ -112,5 +124,6 @@ async function keluar() {
       </main>
       <NavBawah @lainnya="laciTerbuka = true" />
     </div>
+    <TurPanduan />
   </div>
 </template>

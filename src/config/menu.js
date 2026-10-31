@@ -44,9 +44,27 @@ export const MENU = [
       { judul: 'Migrasi 2026', ikon: 'DatabaseZap', ke: '/buku-kas/migrasi', fase: 4, peran: ['bendahara'] },
     ],
   },
-  { judul: 'Laporan', ikon: 'FileBarChart', warna: 'text-biru-muda', fase: 5 },
-  { judul: 'Panduan Input', ikon: 'ArrowRightLeft', warna: 'text-kuning', fase: 5 },
-  { judul: 'Barang & Aset', ikon: 'Boxes', warna: 'text-[#5FD3C0]', fase: 5 },
+  {
+    judul: 'Laporan', ikon: 'FileBarChart', warna: 'text-biru-muda', fase: 5,
+    anak: [
+      { judul: 'Realisasi SNP & Komponen', ikon: 'ChartPie', ke: '/laporan/realisasi', fase: 5 },
+      { judul: 'Laporan Pemda Bulanan', ikon: 'Landmark', ke: '/laporan/pemda', fase: 5 },
+      { judul: 'Tahap & Tahunan', ikon: 'CalendarRange', ke: '/laporan/tahunan', fase: 5 },
+      { judul: 'Kesiapan SPJ', ikon: 'Gauge', ke: '/laporan/kesiapan', fase: 5 },
+      { judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet', ke: '/laporan/simakda', fase: 5 },
+    ],
+  },
+  {
+    judul: 'Barang & Aset', ikon: 'Boxes', warna: 'text-[#5FD3C0]', fase: 5, peran: ['bendahara', 'pengurus_barang', 'kepala_sekolah', 'tim_bos'],
+    anak: [
+      { judul: 'Barang dari Belanja', ikon: 'PackageSearch', ke: '/barang/klasifikasi', fase: 5 },
+      { judul: 'KIB & Inventaris', ikon: 'Boxes', ke: '/barang/inventaris', fase: 5 },
+      { judul: 'Ruangan & KIR', ikon: 'DoorOpen', ke: '/barang/ruang', fase: 5 },
+      { judul: 'BAST Pengurus Barang', ikon: 'PackageCheck', ke: '/barang/bast', fase: 5 },
+      { judul: 'Persediaan', ikon: 'Warehouse', ke: '/barang/persediaan', fase: 5 },
+    ],
+  },
+  { judul: 'Panduan Input', ikon: 'Compass', ke: '/panduan', warna: 'text-kuning', fase: 5 },
   {
     judul: 'Kepegawaian', ikon: 'IdCard', warna: 'text-biru-muda', fase: 1, peran: ['bendahara', 'tim_bos', 'kepala_sekolah'],
     anak: [

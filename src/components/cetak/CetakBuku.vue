@@ -5,7 +5,7 @@ import { ref, computed, onMounted } from 'vue'
 import { modePratinjau } from '@/services/firebase'
 import { muatProfilSekolah } from '@/services/cetak'
 import { muatPejabat, pejabatPada } from '@/services/pejabat'
-import { PEJABAT_AWAL } from '@/config/sekolahAwal'
+import { PEJABAT_CONTOH } from '@/config/sekolahAwal'
 import JendelaCetak from './JendelaCetak.vue'
 import DokBuku from './DokBuku.vue'
 
@@ -22,6 +22,10 @@ const props = defineProps({
   excel: Boolean,
   kecil: Boolean,
   warnaBaris: Function,
+  // Penanda tangan: { jabatan, label } (pejabat per tanggal) atau { label, pejabat: { nama, gelar, nip } }
+  ttdKiri: { type: Object, default: () => ({ jabatan: 'kepala_sekolah', label: 'Mengetahui, Kepala Sekolah' }) },
+  ttdKanan: { type: Object, default: () => ({ jabatan: 'bendahara_bosp', label: 'Bendahara BOSP' }) },
+  ttdTengah: { type: Object, default: null },
 })
 const emit = defineEmits(['tutup', 'excel'])
 const profil = ref(null)
@@ -29,12 +33,10 @@ const pejabat = ref([])
 const pakaiTtd = ref(true)
 onMounted(async () => {
   profil.value = await muatProfilSekolah()
-  pejabat.value = modePratinjau ? PEJABAT_AWAL : await muatPejabat().catch(() => [])
+  pejabat.value = modePratinjau ? PEJABAT_CONTOH : await muatPejabat().catch(() => [])
 })
-const ttd = computed(() => (pakaiTtd.value ? {
-  kiri: { label: 'Mengetahui, Kepala Sekolah', pejabat: pejabatPada(pejabat.value, 'kepala_sekolah', props.tanggal) },
-  kanan: { label: 'Bendahara BOSP', pejabat: pejabatPada(pejabat.value, 'bendahara_bosp', props.tanggal) },
-} : null))
+const isi = (x) => (x ? { label: x.label, pejabat: x.pejabat || (x.jabatan ? pejabatPada(pejabat.value, x.jabatan, props.tanggal) : null) } : null)
+const ttd = computed(() => (pakaiTtd.value ? { kiri: isi(props.ttdKiri), kanan: isi(props.ttdKanan), tengah: isi(props.ttdTengah) } : null))
 </script>
 
 <template>

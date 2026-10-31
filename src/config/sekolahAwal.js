@@ -21,6 +21,12 @@ export const PEJABAT_AWAL = [
   { jabatan: 'bendahara_gaji', nama: 'Ramli', gelar: 'S.Pd., M.Pd., Gr.', nip: '199511152020121007', mulai: null, sampai: null },
 ]
 
+// Pejabat untuk Mode Pratinjau (tidak pernah disimpan ke Firestore)
+export const PEJABAT_CONTOH = [
+  ...PEJABAT_AWAL,
+  { jabatan: 'pengurus_barang', nama: 'Contoh Pengurus Barang', gelar: 'S.E.', nip: '198702142019022001', pangkat: 'Penata Muda/III.a', mulai: null, sampai: null },
+]
+
 export const JABATAN = {
   kepala_sekolah: { label: 'Kepala Sekolah', ikon: 'Stamp', warna: 'from-violet-500 to-fuchsia-500' },
   bendahara_bosp: { label: 'Bendahara BOSP', ikon: 'PiggyBank', warna: 'from-blue-500 to-indigo-600' },

@@ -1,8 +1,9 @@
 rules_version = '2';
 // ================================================================
-//  Aturan akses Firestore SIBOS — Fase 4 (Pajak & Buku Kas)
+//  Aturan akses Firestore SIBOS — Fase 5 (Laporan, Kesiapan SPJ, Panduan, Barang & Aset)
 //  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
 //  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
+//  Kecuali Barang & Aset: Bendahara dan Pengurus Barang boleh mencatat inventaris, ruangan, dan persediaan.
 //  Peralihan bendahara: Bendahara aktif, atau Kepala Sekolah bila bendahara berhalangan.
 // ================================================================
 service cloud.firestore {
@@ -16,6 +17,7 @@ service cloud.firestore {
     function admin() { return punya('bendahara'); }
     function kepsek() { return punya('kepala_sekolah'); }
     function salahSatu(daftar) { return aktif() && profil().peran.hasAny(daftar); }
+    function barang() { return salahSatu(['bendahara', 'pengurus_barang']); }
     function hanyaUbah(kolom) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(kolom); }
 
     // Penyiapan Awal: hanya email pemilik pertama, hanya sekali, dan semua dalam satu batch
@@ -194,6 +196,30 @@ service cloud.firestore {
     // Rekening koran hasil impor + pasangan mutasi
     match /rekening_koran/{id} {
       allow read: if salahSatu(['bendahara', 'kepala_sekolah', 'tim_bos']);
+      allow write: if admin();
+    }
+
+    // ---------- barang & aset (Fase 5) ----------
+    // Inventaris (KIB & ekstrakomptabel), ruangan, mutasi persediaan, dan kelas barang hasil belanja
+    match /aset/{id} {
+      allow read: if aktif();
+      allow write: if barang();
+    }
+    match /aset_ruang/{id} {
+      allow read: if aktif();
+      allow write: if barang();
+    }
+    match /persediaan/{id} {
+      allow read: if aktif();
+      allow write: if barang();
+    }
+    match /barang_kelas/{tahun} {
+      allow read: if aktif();
+      allow write: if barang();
+    }
+    // BAST Bendahara → Pengurus Barang: bernomor surat sekolah, hanya Bendahara
+    match /bast_barang/{id} {
+      allow read: if aktif();
       allow write: if admin();
     }
 

@@ -14,7 +14,7 @@ const emit = defineEmits(['pilih'])
 const route = useRoute()
 const auth = useAuth()
 const tampilan = useTampilan()
-const terbuka = ref({ RKAS: true, 'Belanja & Dokumen': true, Kepegawaian: true, 'Master Data': true })
+const terbuka = ref({ RKAS: true, 'Belanja & Dokumen': true, Laporan: true, 'Barang & Aset': true, Kepegawaian: true, 'Master Data': true })
 
 const terlihat = (m) => !m.peran || auth.punyaPeran(...m.peran)
 const aktif = (ke) => ke && route.path.startsWith(ke)
