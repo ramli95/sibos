@@ -70,7 +70,59 @@ const AWAL = [
   },
 ]
 
-export const daftar = AWAL.map((b) => ({ ...rapikanBelanja(b), id: b.id }))
+// Contoh Semester I (Mode Pratinjau Fase 4): total belanja Rp 444.748.620 agar Uji Paralel menunjukkan
+// saldo Semester I = Rp 145.951.380 (Tahap I Rp 590.700.000 − belanja).
+const HONORER = [
+  { sumber: 'pegawai', id: 'p3', nama: 'Contoh Guru Honorer', status_kepegawaian: 'Honorer', jabatan: 'Guru Seni Budaya', besaran: 2000000, volume: 1, satuan: 'bulan' },
+  { sumber: 'pegawai', id: 'p4', nama: 'Contoh Operator', status_kepegawaian: 'Honorer', jabatan: 'Operator Sekolah', besaran: 2000000, volume: 1, satuan: 'bulan' },
+  { sumber: 'pegawai', id: 'p6', nama: 'Contoh Tenaga Kebersihan', status_kepegawaian: 'Honorer', jabatan: 'Tenaga Kebersihan', besaran: 2000000, volume: 1, satuan: 'bulan' },
+]
+const BULAN_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni']
+let bnuKe = 0
+const bnu = (kk, kr) => ({ [`${kk} ${kr}`]: `BNU ${String(++bnuKe).padStart(2, '0')}` })
+function beli(id, tgl, nama, rek, cara, item) {
+  const it = item.map((x, i) => ({ id: `${id}-${i}`, satuan: 'paket', volume: 1, ...x }))
+  const kunci = {}
+  it.forEach((x) => Object.assign(kunci, bnu(x.kode_kegiatan, x.kode_rekening)))
+  return { id, tahun: 2026, jenis: 'pengadaan', cara, nama_pekerjaan: nama, uraian_pembayaran: `Pembayaran ${nama.charAt(0).toLowerCase() + nama.slice(1)}`, id_rekanan: rek, rekanan: rek ? r(rek) : null,
+    item: it, tgl_pesanan: tgl, tgl_terima: tgl, tgl_lunas: tgl, tgl_kwitansi: tgl, dokumen: {}, nomor: {}, bnu: kunci, arsip: {}, jumlah_foto: 0, sumber: 'contoh' }
+}
+function honorBulan(m) {
+  const tgl = `2026-${String(m + 1).padStart(2, '0')}-25`
+  const kk = '07.12.01', kr = '5.1.02.02.01.0013'
+  return { id: `contoh-honor-${m + 1}`, tahun: 2026, jenis: 'honor', jenis_honor: 'honor', nama_pekerjaan: `Honor Guru dan Tenaga Kependidikan Honorer Bulan ${BULAN_ID[m]} 2026`,
+    uraian_pembayaran: `Pembayaran honor GTK honorer bulan ${BULAN_ID[m]} 2026`, tgl_kegiatan: tgl, tgl_lunas: tgl, uraian_honor: { kode_kegiatan: kk, kode_rekening: kr, uraian_rkas: 'Honor Guru Honorer', harga_rkas: 2000000, kategori: 'operasional' },
+    penerima: HONORER.map((p) => ({ ...p })), dokumen: {}, bnu: bnu(kk, kr), arsip: {}, jumlah_foto: 0, sumber: 'contoh' }
+}
+const SEMESTER_1 = [
+  honorBulan(0),
+  beli('contoh-s1-atk', '2026-02-20', 'Belanja alat tulis kantor semester genap', 'r2', 'non_siplah', [{ nama: 'Kertas HVS F4 80 gram', jenis: 'barang', volume: 50, satuan: 'rim', harga: 165000, kode_kegiatan: '06.05.01', kode_rekening: '5.1.02.01.01.0024' }]),
+  beli('contoh-s1-buku', '2026-02-12', 'Pengadaan buku teks utama Kurikulum Merdeka', 'r2', 'siplah', [{ nama: 'Buku teks utama kelas VII–IX', jenis: 'barang', volume: 790, satuan: 'eksemplar', harga: 150000, kode_kegiatan: '02.02.01', kode_rekening: '5.1.02.01.01.0026' }]),
+  honorBulan(1),
+  beli('contoh-s1-laptop', '2026-03-10', 'Pengadaan laptop untuk asesmen', 'r2', 'siplah', [{ nama: 'Laptop core i5 RAM 8 GB', jenis: 'barang', volume: 8, satuan: 'unit', harga: 8000000, kode_kegiatan: '05.07.01', kode_rekening: '5.2.02.10.01.0002', kategori: 'alat_mesin' }]),
+  beli('contoh-s1-konsumsi', '2026-03-25', 'Konsumsi kegiatan MPLS dan rapat komite', 'r3', 'non_siplah', [{ nama: 'Konsumsi Makan dan Minum-Makan', jenis: 'konsumsi', volume: 320, satuan: 'orang', harga: 30000, kode_kegiatan: '01.01.02', kode_rekening: '5.1.02.01.01.0052' }]),
+  honorBulan(2),
+  ...[0, 1, 2, 3, 4, 5].map((m) => beli(`contoh-s1-listrik-${m + 1}`, `2026-${String(m + 1).padStart(2, '0')}-15`, `Pembayaran langganan daya dan jasa bulan ${BULAN_ID[m]}`, null, 'non_siplah',
+    [{ nama: 'Tagihan listrik & internet', jenis: 'barang', volume: 1, satuan: 'bulan', harga: 4350000, kode_kegiatan: '06.03.01', kode_rekening: '5.1.02.02.01.0061' }])),
+  beli('contoh-s1-pemeliharaan', '2026-04-15', 'Pemeliharaan ringan gedung dan ruang kelas', 'r2', 'non_siplah', [{ nama: 'Jasa pengecatan dan perbaikan plafon', jenis: 'jasa', volume: 1, satuan: 'paket', harga: 24750000, kode_kegiatan: '05.08.01', kode_rekening: '5.1.02.03.02.0118' }]),
+  honorBulan(3),
+  beli('contoh-s1-asesmen', '2026-05-06', 'Penggandaan soal asesmen sumatif', 'r2', 'non_siplah', [{ nama: 'Penggandaan naskah soal & LJK', jenis: 'barang', volume: 1, satuan: 'paket', harga: 31800000, kode_kegiatan: '07.10.02', kode_rekening: '5.1.02.01.01.0026' }]),
+  { id: 'contoh-s1-narasumber', tahun: 2026, jenis: 'honor', jenis_honor: 'narasumber', nama_pekerjaan: 'Honor Narasumber IHT Pembelajaran Mendalam', uraian_pembayaran: 'Pembayaran honor narasumber IHT',
+    tgl_kegiatan: '2026-05-20', tgl_lunas: '2026-05-20', uraian_honor: { kode_kegiatan: '04.06.01', kode_rekening: '5.1.02.02.01.0003', uraian_rkas: 'Honorarium Narasumber', harga_rkas: 700000, kategori: 'operasional' },
+    penerima: [{ sumber: 'luar', id: 'o1', nama: 'Dr. Contoh Narasumber, M.Pd.', nip: '197001011995031001', golongan: 'IV/b', status_kepegawaian: 'PNS', besaran: 700000, volume: 3, satuan: 'jam' }],
+    dokumen: {}, bnu: bnu('04.06.01', '5.1.02.02.01.0003'), arsip: {}, jumlah_foto: 0, sumber: 'contoh' },
+  honorBulan(4),
+  beli('contoh-s1-olahraga', '2026-06-04', 'Pengadaan peralatan olahraga', 'r2', 'siplah', [{ nama: 'Paket peralatan olahraga sekolah', jenis: 'barang', volume: 1, satuan: 'paket', harga: 27400000, kode_kegiatan: '03.02.01', kode_rekening: '5.1.02.01.01.0030' }]),
+  beli('contoh-s1-praktik', '2026-06-18', 'Bahan praktik pembelajaran dan alat kebersihan', 'r2', 'non_siplah', [{ nama: 'Bahan praktik IPA, prakarya dan alat kebersihan', jenis: 'barang', volume: 1, satuan: 'paket', harga: 0, kode_kegiatan: '02.03.01', kode_rekening: '5.1.02.01.01.0029' }]),
+  honorBulan(5),
+]
+// Sisa agar total Semester I tepat Rp 444.748.620
+{
+  const sementara = SEMESTER_1.map((b) => rapikanBelanja(b)).reduce((s, b) => s + b.total, 0)
+  SEMESTER_1.find((b) => b.id === 'contoh-s1-praktik').item[0].harga = 444_748_620 - sementara
+}
+
+export const daftar = [...AWAL, ...SEMESTER_1].map((b) => ({ ...rapikanBelanja(b), id: b.id }))
 export const foto = {}
 
 export const agenda = [

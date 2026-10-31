@@ -106,7 +106,12 @@ export function rapikanBelanja(f) {
   b.total = totalItem(item)
   b.kategori = kategoriBelanja(item)
   b.status = statusBelanja(b)
-  b.pajak = b.pajak_manual ? (b.pajak || []) : honor ? [{ jenis: 'PPh 21', dasar: b.total, tarif: null, nilai: penerima.reduce((s, p) => s + p.pph21, 0), ket: 'Dipotong dari penerima' }].filter((x) => x.nilai) : perkiraanPajak(b)
+  const lama = f.pajak || []
+  // BNU penerimaan pajak (diisi di Buku Kas) dipertahankan saat pajak dihitung ulang
+  b.pajak = (b.pajak_manual ? (b.pajak || []) : perkiraanPajak(b)).map((p) => {
+    const x = lama.find((y) => (y.kunci && y.kunci === p.kunci) || y.jenis === p.jenis)
+    return x?.bnu_terima ? { ...p, bnu_terima: x.bnu_terima } : p
+  })
   b.persen_lengkap = persenLengkap(kelengkapan(b))
   return b
 }

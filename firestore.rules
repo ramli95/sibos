@@ -1,6 +1,6 @@
 rules_version = '2';
 // ================================================================
-//  Aturan akses Firestore SIBOS — Fase 3 (Belanja & Dokumen SPJ)
+//  Aturan akses Firestore SIBOS — Fase 4 (Pajak & Buku Kas)
 //  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
 //  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
 //  Peralihan bendahara: Bendahara aktif, atau Kepala Sekolah bila bendahara berhalangan.
@@ -170,6 +170,30 @@ service cloud.firestore {
     // Penerima honor/transpor dari luar sekolah (narasumber, pengawas, juri)
     match /orang_luar/{id} {
       allow read: if salahSatu(['bendahara', 'tim_bos', 'kepala_sekolah']);
+      allow write: if admin();
+    }
+
+    // ---------- pajak & buku kas (Fase 4) ----------
+    // Tarif pajak ada di referensi/aturan_pajak (aturan referensi di atas: semua melihat, Bendahara mengubah).
+    // Setoran pajak: satu kode billing/NTPN untuk satu atau beberapa kewajiban pajak
+    match /setoran_pajak/{id} {
+      allow read: if aktif();
+      allow write: if admin();
+    }
+    // Baris buku kas manual: penerimaan dana, bunga, pajak bunga, tarik/setor tunai, koreksi
+    match /kas/{id} {
+      allow read: if aktif();
+      allow write: if admin();
+    }
+    // Tutup buku bulanan (tanpa kunci periode: Bendahara boleh membuka kembali; tidak dihapus)
+    match /tutup_buku/{id} {
+      allow read: if aktif();
+      allow create, update: if admin();
+      allow delete: if false;
+    }
+    // Rekening koran hasil impor + pasangan mutasi
+    match /rekening_koran/{id} {
+      allow read: if salahSatu(['bendahara', 'kepala_sekolah', 'tim_bos']);
       allow write: if admin();
     }
 

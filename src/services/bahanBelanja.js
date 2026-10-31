@@ -7,10 +7,13 @@ import { muatPejabat } from './pejabat'
 import { muatProfilSekolah } from './cetak'
 import { muatOrangLuar, muatPolaNomor } from './belanja'
 import { PEJABAT_AWAL } from '@/config/sekolahAwal'
+import { muatAturanPajak } from './kas'
 
 let cache = null
 export async function muatBahan({ segar = false, rahasia = false } = {}) {
   if (cache && !segar) return cache
+  // Tarif pajak terbaru dipasang sebelum formulir menghitung pajak
+  await muatAturanPajak().catch(() => null)
   if (modePratinjau) {
     const c = await import('./contohBelanja')
     cache = {

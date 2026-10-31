@@ -6,6 +6,7 @@ import { db, modePratinjau } from '@/services/firebase'
 import { sapaan, tanggalPanjang, rupiah, rupiahRingkas, persen as fPersen } from '@/utils/format'
 import { useRkas } from '@/stores/rkas'
 import { useBelanja } from '@/stores/belanja'
+import { useKas } from '@/stores/kas'
 import { ringkasan, proporsiJuknis } from '@/utils/rkasPohon'
 import Ikon from '@/components/Ikon.vue'
 import GridStat from '@/components/GridStat.vue'
@@ -16,7 +17,8 @@ const namaDepan = computed(() => (auth.pengguna?.nama || '').split(',')[0])
 // Ringkasan RKAS versi berlaku
 const rkas = useRkas()
 const belanja = useBelanja()
-onMounted(() => { rkas.muat().catch(() => {}); belanja.muat().catch(() => {}) })
+const kas = useKas()
+onMounted(() => { rkas.muat().catch(() => {}); kas.muat().catch(() => {}) })
 const belumLengkap = computed(() => belanja.daftar.filter((b) => (b.persen_lengkap || 0) < 100).length)
 const rk = computed(() => ringkasan(rkas.uraian))
 const proporsi = computed(() => proporsiJuknis(rkas.uraian, rkas.versi?.pagu || rk.value.jumlah))
@@ -30,7 +32,9 @@ const kartuRkas = computed(() => [
 const pintasBelanja = computed(() => [
   ...(auth.isAdmin ? [{ judul: 'Belanja baru', ket: 'Paket dokumen SPJ otomatis', ikon: 'CirclePlus', chip: 'ikon-chip', ke: '/belanja/baru' }] : []),
   { judul: 'Belum lengkap', ket: belumLengkap.value ? `${belumLengkap.value} transaksi perlu arsip/foto/BNU` : 'Semua transaksi lengkap', ikon: 'ListChecks', chip: belumLengkap.value ? 'ikon-chip-peringatan' : 'ikon-chip-sukses', ke: '/belanja/arsip' },
-  { judul: 'Agenda surat', ket: 'Nomor surat & kwitansi', ikon: 'Mailbox', chip: 'ikon-chip', ke: '/agenda-surat/daftar' },
+  { judul: 'Pajak belum disetor', ket: kas.terutang.length ? `${rupiah(kas.totalTerutang)} · ${kas.terutang.length} kewajiban` : 'Semua pajak sudah disetor', ikon: 'ReceiptText', chip: kas.terutang.length ? 'ikon-chip-peringatan' : 'ikon-chip-sukses', ke: '/pajak/terutang' },
+  { judul: 'Buku Kas', ket: `Saldo bank ${rupiah(kas.saldoBank)}`, ikon: 'BookOpenText', chip: 'ikon-chip-tosca', ke: '/buku-kas/bku' },
+  { judul: 'Agenda surat', ket: 'Nomor surat & kwitansi', ikon: 'Mailbox', chip: 'ikon-chip-kuning', ke: '/agenda-surat/daftar' },
 ])
 
 // Daftar persiapan Fase 1 & 2 — status dibaca langsung dari database

@@ -1,7 +1,8 @@
 // Perhitungan belanja: kaitan ke uraian RKAS, status, urutan tanggal, perkiraan pajak, PPh 21 honor,
 // pengelompokan kode rekening (kwitansi besar) dan kelengkapan dokumen.
-import { BATAS, DOKUMEN_WAJIB, DOKUMEN_SIPLAH, JENIS_HONOR } from '@/config/belanja'
+import { DOKUMEN_WAJIB, DOKUMEN_SIPLAH, JENIS_HONOR } from '@/config/belanja'
 import { kategoriRekening } from './arkas'
+import { hitungPajak, pph21Penerima } from './pajak'
 
 /** Salinan data biasa (aman untuk objek reaktif Vue) */
 export const salin = (x) => (x == null ? x : JSON.parse(JSON.stringify(x)))
@@ -113,65 +114,25 @@ export function statusBelanja(b) {
 /** Tanggal realisasi (bulan masuk RKAS): lunas → kwitansi → terima → pesanan */
 export const tanggalRealisasi = (b) => b.tgl_lunas || b.tgl_kwitansi || (b.jenis === 'honor' ? b.tgl_kegiatan : b.tgl_terima) || b.tgl_pesanan || ''
 
-/* ---------------- Pajak (perkiraan; rincian lengkap di Fase 4) ---------------- */
+/* ---------------- Pajak (dari tabel aturan — lihat utils/pajak.js) ---------------- */
 
-export const TARIF = { ppn: 11, pph22: 1.5, pph22_siplah: 0.5, pph23: 2, pph21_bukan_pegawai: 2.5 }
+/** Pajak per transaksi menurut aturan aktif (Pajak → Aturan Tarif) */
+export const perkiraanPajak = (b) => hitungPajak(b)
 
-/**
- * Perkiraan pajak per transaksi (harga sudah termasuk PPN untuk PKP).
- * PPN efektif 11% dari harga jual (PPN 12% × DPP nilai lain 11/12).
- */
-export function perkiraanPajak(b) {
-  const total = totalItem(b.item)
-  const r = b.rekanan || {}
-  const pkp = !!r.status_pkp
-  const barang = jumlah(b.item || [], (i) => (i.jenis === 'jasa' ? 0 : i.jumlah))
-  const jasa = total - barang
-  const dpp = pkp ? Math.round(total / 1.11) : total
-  const hasil = []
-  if (b.cara === 'siplah') {
-    if (pkp) hasil.push({ jenis: 'PPN', dasar: dpp, tarif: TARIF.ppn, nilai: total - dpp, ket: 'Dipungut & disetor mitra SIPLah' })
-    hasil.push({ jenis: 'PPh 22', dasar: dpp, tarif: TARIF.pph22_siplah, nilai: Math.round(dpp * 0.005), ket: 'Dipungut mitra SIPLah' })
-    return hasil
-  }
-  if (pkp && total > BATAS.non_pkp) hasil.push({ jenis: 'PPN', dasar: dpp, tarif: TARIF.ppn, nilai: total - dpp, ket: 'Dipungut Bendahara (PKP, > Rp 2 juta)' })
-  const dppBarang = pkp ? Math.round(barang / 1.11) : barang
-  if (barang > BATAS.non_pkp) hasil.push({ jenis: 'PPh 22', dasar: dppBarang, tarif: TARIF.pph22, nilai: Math.round(dppBarang * TARIF.pph22 / 100), ket: 'Pembelian barang > Rp 2 juta' })
-  if (jasa > 0) {
-    const dppJasa = pkp ? Math.round(jasa / 1.11) : jasa
-    if (r.bentuk_usaha === 'badan') hasil.push({ jenis: 'PPh 23', dasar: dppJasa, tarif: r.npwp ? TARIF.pph23 : 4, nilai: Math.round(dppJasa * (r.npwp ? TARIF.pph23 : 4) / 100), ket: 'Jasa oleh badan usaha' })
-    else hasil.push({ jenis: 'PPh 21', dasar: dppJasa, tarif: r.npwp ? 2.5 : 3, nilai: Math.round(dppJasa * (r.npwp ? 2.5 : 3) / 100), ket: 'Jasa oleh orang pribadi (bukan pegawai, 50% × 5%)' })
-  }
-  return hasil
-}
-
-/** PPh 21 honor (perkiraan): ASN gol. III 5%, IV 15%, I–II 0%; non-ASN 50% × 5% (tanpa NPWP 3%) */
-export function tarifPph21(p, jenis) {
-  if (jenis === 'transpor') return 0
-  const st = String(p.status_kepegawaian || '').toUpperCase()
-  const gol = String(p.golongan || '').toUpperCase()
-  if (st === 'PNS' || st === 'PPPK') {
-    const g = st === 'PPPK' ? pppkKeGol(gol) : gol.startsWith('IV') ? 4 : gol.startsWith('III') ? 3 : /^(I|II)\b/.test(gol) ? 1 : 3
-    return g === 4 ? 15 : g === 3 ? 5 : 0
-  }
-  return p.npwp ? 2.5 : 3
-}
-// Golongan PPPK I–XVII disetarakan: I–IV → gol I, V–VIII → II, IX–XII → III, XIII–XVII → IV
-function pppkKeGol(gol) {
-  const n = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII'].indexOf(gol) + 1
-  return n >= 13 ? 4 : n >= 9 ? 3 : n >= 5 ? 2 : 1
-}
+/** Tarif PPh 21 seorang penerima (bruto dipakai untuk batas PTKP) */
+export const tarifPph21 = (p, jenis, bruto = Math.round((Number(p.besaran) || 0) * (Number(p.volume) || 0))) => pph21Penerima(p, jenis, bruto).tarif
 
 export function rapikanPenerima(p, jenis) {
   const besaran = Math.round(Number(p.besaran) || 0)
   const volume = Number(p.volume) || 0
   const bruto = Math.round(besaran * volume)
-  const tarif = p.tarif_pph21 === '' || p.tarif_pph21 == null ? tarifPph21(p, jenis) : Number(p.tarif_pph21) || 0
+  const otomatis = pph21Penerima({ ...p, sumber: p.sumber || 'pegawai' }, jenis, bruto)
+  const tarif = p.tarif_pph21 === '' || p.tarif_pph21 == null ? otomatis.tarif : Number(p.tarif_pph21) || 0
   const pph21 = Math.round(bruto * tarif / 100)
   return {
     sumber: p.sumber || 'pegawai', id: p.id || null, nama: String(p.nama || '').trim(), nip: p.nip || '', golongan: p.golongan || '',
     jabatan: p.jabatan || '', status_kepegawaian: p.status_kepegawaian || '', npwp: p.npwp || '', instansi: p.instansi || '',
-    besaran, volume, satuan: p.satuan || '', bruto, tarif_pph21: tarif, pph21, diterima: bruto - pph21,
+    besaran, volume, satuan: p.satuan || '', hari: Number(p.hari) || 1, bruto, tarif_pph21: tarif, alasan_pph21: p.tarif_pph21 === '' || p.tarif_pph21 == null ? otomatis.alasan : 'Diisi manual', pph21, diterima: bruto - pph21,
   }
 }
 
