@@ -110,6 +110,47 @@ export const JENIS_IMPOR = {
     label: (d) => d.nama_usaha,
     sub: (d) => d.npwp || d.pemilik,
   },
+  standar_harga: {
+    judul: 'Standar Harga', ikon: 'Tags', warna: 'from-rose-400 to-red-500',
+    sumber: 'Templat SIBOS, SSH Pemkot Makassar, atau sheet harga Jurnal Dana BOS',
+    kunciGanda: 'nama item + satuan + harga',
+    ke: '/standar-harga',
+    kolom: [
+      { kunci: 'nama_item', judul: 'Nama Item', wajib: true, sinonim: ['nama item', 'nama barang', 'uraian', 'nama barang/jasa', 'barang', 'item', 'nama', 'uraian barang', 'jenis barang'], normal: teks },
+      { kunci: 'spesifikasi', judul: 'Spesifikasi', sinonim: ['spesifikasi', 'spek', 'keterangan', 'merk/tipe', 'deskripsi'], normal: teks },
+      { kunci: 'satuan', judul: 'Satuan', wajib: true, sinonim: ['satuan', 'sat', 'unit'], normal: teks },
+      { kunci: 'harga', judul: 'Harga Satuan', wajib: true, sinonim: ['harga', 'harga satuan', 'tarif', 'tarif harga', 'harga (rp)', 'nilai', 'ssh'], normal: (v) => (typeof v === 'number' ? Math.round(v) : angka(String(v).split(',')[0])) },
+      { kunci: 'kelompok', judul: 'Kelompok', sinonim: ['kelompok', 'golongan barang', 'kategori barang', 'jenis belanja'], normal: teks },
+      { kunci: 'kode_item', judul: 'Kode Item', sinonim: ['kode item', 'kode barang', 'kode ssh', 'kode'], normal: teks },
+      { kunci: 'kode_rekening', judul: 'Kode Rekening', sinonim: ['kode rekening', 'rekening', 'akun', 'kode akun'], normal: teks },
+      { kunci: 'pajak_bawaan', judul: 'Pajak Bawaan', sinonim: ['pajak', 'pajak bawaan', 'jenis pajak'], normal: teks },
+      { kunci: 'tahun', judul: 'Tahun', sinonim: ['tahun', 'ta', 'tahun anggaran'], normal: angka },
+    ],
+    periksa(d) {
+      const galat = [], peringatan = []
+      if (!d.nama_item) galat.push('Nama item kosong.')
+      if (!d.satuan) galat.push('Satuan kosong.')
+      if (!(Number(d.harga) > 0)) galat.push('Harga harus lebih dari 0.')
+      if (d.kode_rekening && !/^5\.\d\.\d{2}\.\d{2}\.\d{2}\.\d{4}$/.test(d.kode_rekening)) peringatan.push('Kode rekening bukan format ARKAS (5.1.02.01.01.0012).')
+      d.kategori = /^5\.2\.02/.test(d.kode_rekening) ? 'alat_mesin' : /^5\.2\.05/.test(d.kode_rekening) ? 'aset_lain' : 'operasional'
+      d.tahun ||= new Date().getFullYear()
+      d.kelompok ||= 'Barang Lainnya'
+      d.jenis = 'barang'
+      d.aktif = true
+      d.sumber = 'Impor Excel'
+      return { galat, peringatan }
+    },
+    kunci: (d) => `${d.nama_item.toLowerCase()}|${d.satuan.toLowerCase()}|${d.harga}`,
+    cocokkan(d, ada) {
+      const nm = d.nama_item.toLowerCase(), st = d.satuan.toLowerCase()
+      return ada.find((h) => h.nama_item?.toLowerCase() === nm && h.satuan?.toLowerCase() === st && (Number(h.harga) === Number(d.harga) || (d.kode_item && h.kode_item === d.kode_item)))
+        || (d.kode_item ? ada.find((h) => h.kode_item === d.kode_item) : null)
+    },
+    label: (d) => d.nama_item,
+    sub: (d) => `${d.satuan} · Rp ${Number(d.harga || 0).toLocaleString('id-ID')}`,
+    contoh: [{ nama_item: 'Kertas HVS F4 75 gsm', spesifikasi: 'isi 500 lembar', satuan: 'rim', harga: 73000, kelompok: 'ATK', kode_rekening: '5.1.02.01.01.0012', pajak_bawaan: 'PPN', tahun: 2026 }],
+    petunjuk: ['• Satu baris = satu item harga (satu harga per item per tahun).', '• Harga ditulis angka saja, mis. 73000.', '• Kode rekening mengikuti ARKAS, mis. 5.1.02.01.01.0012; kategori anggaran terisi otomatis dari kode rekening.', '• Item yang sudah ada dicocokkan lewat nama + satuan + harga (atau kode item); harga baru dicatat di riwayat harga.'],
+  },
 }
 
 export const normalJudul = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9/ ]/g, ' ').replace(/\s+/g, ' ').trim()

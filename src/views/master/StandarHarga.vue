@@ -179,8 +179,10 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
       <select v-model="kelompok" class="masukan w-auto"><option value="semua">Semua kelompok</option><option v-for="k in daftarKelompok" :key="k" :value="k">{{ k }}</option></select>
       <div class="ml-auto flex flex-wrap gap-2">
         <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
+        <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Excel</button>
         <template v-if="auth.isAdmin">
           <button class="tombol-garis" @click="siapkanDariRkas"><Ikon nama="ClipboardList" :ukuran="17" class="text-kuning" /> Ambil dari RKAS</button>
+          <RouterLink to="/impor?jenis=standar_harga" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-tosca" /> Impor Excel</RouterLink>
           <button class="tombol bg-orange-500 text-white hover:bg-orange-600" @click="terpilih = {}"><Ikon nama="Plus" :ukuran="17" /> Tambah</button>
         </template>
       </div>

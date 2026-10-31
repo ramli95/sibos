@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db, modePratinjau } from '@/services/firebase'
 import { muatPegawai, muatRekanan, simpanMassal } from '@/services/master'
+import { muatStandarHarga, simpanHargaMassal } from '@/services/rkas'
 import { JENIS_IMPOR, tebakPemetaan, cariBarisJudul, normalJudul } from '@/config/impor'
 import { bacaBerkas, unduhTemplat } from '@/utils/excel'
 import { useNotifikasi } from '@/stores/notifikasi'
@@ -93,7 +94,7 @@ const pratinjau = computed(() => {
       d[kunci] = k.normal(b[c])
     })
     const { galat, peringatan } = def.value.periksa(d)
-    const kunciGanda = jenis.value === 'pegawai' ? (d.nip || d.nik || d.nama.toLowerCase()) : `${d.nama_usaha.toLowerCase()}|${d.npwp}`
+    const kunciGanda = def.value.kunci ? def.value.kunci(d) : jenis.value === 'pegawai' ? (d.nip || d.nik || d.nama.toLowerCase()) : `${d.nama_usaha.toLowerCase()}|${d.npwp}`
     if (kunciGanda && terlihat.has(kunciGanda)) galat.push(`Ganda dengan baris ${terlihat.get(kunciGanda)} di berkas.`)
     else terlihat.set(kunciGanda, b.no)
     const lama = galat.length ? null : def.value.cocokkan(d, ada.value)
@@ -111,7 +112,7 @@ const tampilPratinjau = computed(() => pratinjau.value.filter((p) =>
 
 async function keLangkah3() {
   if (wajibBelum.value.length) return
-  try { ada.value = modePratinjau ? [] : jenis.value === 'pegawai' ? await muatPegawai({ denganRahasia: true }) : await muatRekanan() }
+  try { ada.value = modePratinjau ? [] : jenis.value === 'pegawai' ? await muatPegawai({ denganRahasia: true }) : jenis.value === 'standar_harga' ? await muatStandarHarga() : await muatRekanan() }
   catch (e) { return notif.kabari(e.message, 'galat') }
   langkah.value = 3
 }
@@ -123,7 +124,17 @@ async function simpan() {
   if (modePratinjau) { hasilSimpan.value = { tambah: hitung.value.baru, ubah: hitung.value.perbarui }; langkah.value = 4; return }
   menyimpan.value = true
   try {
-    hasilSimpan.value = await simpanMassal(jenis.value, daftar, berkas.value.name)
+    if (jenis.value === 'standar_harga') {
+      // kode item otomatis untuk item baru; harga lama tercatat di riwayat
+      let n = Math.max(0, ...ada.value.map((h) => Number(String(h.kode_item || '').replace(/\D/g, '')) || 0))
+      const isi = daftar.map((x) => {
+        const lama = x.id ? ada.value.find((h) => h.id === x.id) : null
+        if (!x.data.kode_item) x.data.kode_item = lama?.kode_item || `SH-${String(++n).padStart(4, '0')}`
+        x.data.harga = Number(x.data.harga); x.data.tahun = Number(x.data.tahun)
+        return { ...x, sebelum: lama }
+      })
+      hasilSimpan.value = await simpanHargaMassal(isi, `Impor standar harga dari "${berkas.value.name}"`)
+    } else hasilSimpan.value = await simpanMassal(jenis.value, daftar, berkas.value.name)
     // ingat pemetaan kolom untuk impor berikutnya
     const kolom = Object.fromEntries(judulKolom.value.map((j, i) => [normalJudul(j), pemetaan.value[i]]).filter(([j, k]) => j && k))
     await setDoc(doc(db, 'pemetaan_impor', jenis.value), { kolom, diperbarui: serverTimestamp() }, { merge: true })
@@ -139,6 +150,7 @@ function ulang() {
 }
 
 function templat() {
+  if (def.value.contoh) return unduhTemplat({ jenis: def.value.judul, kolom: def.value.kolom, contoh: def.value.contoh, petunjuk: def.value.petunjuk }).catch((e) => notif.kabari(e.message, 'galat'))
   const contoh = jenis.value === 'pegawai'
     ? [{ nama: 'Nama Contoh', gelar: 'S.Pd.', nip: '199001012015031001', jenis_kelamin: 'L', tanggal_lahir: '01/01/1990', status_kepegawaian: 'PNS', golongan: 'III/b', jabatan: 'Guru IPA', terima_tpg: 'Ya', no_wa: '081234567890', bank: 'Bank Sulselbar', no_rekening: '1234567890', atas_nama_rekening: 'Nama Contoh' }]
     : [{ nama_usaha: 'Toko Contoh', pemilik: 'Nama Pemilik', bentuk_usaha: 'Orang Pribadi', npwp: '01.234.567.8-805.000', status_pkp: 'Tidak', alamat: 'Jl. Contoh No. 1, Makassar', no_wa: '081234567890', bank: 'BRI', no_rekening: '0123456789', atas_nama_rekening: 'Nama Pemilik' }]
@@ -172,7 +184,7 @@ const gayaStatus = {
 
     <!-- 1. Unggah -->
     <template v-if="langkah === 1">
-      <div class="grid gap-3 sm:grid-cols-2">
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <button v-for="(d, k) in JENIS_IMPOR" :key="k" type="button" @click="jenis = k; router.replace({ query: { jenis: k } })"
                 :class="['kartu flex items-center gap-4 p-4 text-left transition', jenis === k ? 'ring-2 ring-biru' : 'hover:shadow-md']">
           <span :class="['grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br text-white shadow', d.warna]"><Ikon :nama="d.ikon" :ukuran="22" /></span>
@@ -193,7 +205,7 @@ const gayaStatus = {
 
       <div class="kartu flex flex-wrap items-center gap-3 p-4">
         <span class="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"><Ikon nama="FileSpreadsheet" :ukuran="20" /></span>
-        <p class="min-w-0 flex-1 text-sm">Belum punya berkasnya? Unduh templat {{ def.judul.toLowerCase() }} — kolom NIP/NIK/rekening sudah berformat teks.</p>
+        <p class="min-w-0 flex-1 text-sm">Belum punya berkasnya? Unduh templat {{ def.judul.toLowerCase() }} {{ jenis === 'standar_harga' ? '— lengkap dengan petunjuk pengisian.' : '— kolom NIP/NIK/rekening sudah berformat teks.' }}</p>
         <button class="tombol-garis" @click="templat"><Ikon nama="FileDown" :ukuran="17" class="text-emerald-600" /> Unduh templat</button>
       </div>
     </template>
@@ -301,7 +313,7 @@ const gayaStatus = {
       <h2 class="text-xl font-bold">Impor {{ def.judul.toLowerCase() }} selesai</h2>
       <p class="text-slate-500"><b class="text-emerald-600">{{ hasilSimpan?.tambah }}</b> data baru dan <b class="text-biru">{{ hasilSimpan?.ubah }}</b> data diperbarui. Tercatat di log aktivitas.</p>
       <div class="mt-2 flex flex-wrap justify-center gap-2">
-        <RouterLink :to="jenis === 'pegawai' ? '/pegawai' : '/rekanan'" class="tombol-utama"><Ikon :nama="def.ikon" :ukuran="17" /> Lihat {{ def.judul.toLowerCase() }}</RouterLink>
+        <RouterLink :to="def.ke || (jenis === 'pegawai' ? '/pegawai' : '/rekanan')" class="tombol-utama"><Ikon :nama="def.ikon" :ukuran="17" /> Lihat {{ def.judul.toLowerCase() }}</RouterLink>
         <button class="tombol-garis" @click="ulang"><Ikon nama="FileUp" :ukuran="17" /> Impor lagi</button>
       </div>
     </section>
