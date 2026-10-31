@@ -62,6 +62,39 @@ const kolomRekanan = [
 const kolom = computed(() => (mode.value === 'orang' ? kolomOrang : kolomRekanan))
 const baris = computed(() => (mode.value === 'orang' ? hasilOrang.value : hasilRekanan.value))
 const judul = computed(() => (mode.value === 'orang' ? 'Rekap Honor, Transpor dan PPh 21 per Penerima' : 'Rekap Belanja dan Pajak per Rekanan'))
+/* ---------- Bahan bukti potong (Coretax) per masa ---------- */
+const masa = ref(new Date().getMonth() === 0 ? 11 : new Date().getMonth() - 1)
+const KATEGORI_LABEL = { pns_final: 'PNS final (PP 80/2010)', pegawai_tetap: 'Pegawai tetap (TER)', tidak_tetap_bulanan: 'Tidak tetap bulanan (TER)', tidak_tetap_harian: 'Tidak tetap harian', bukan_pegawai: 'Bukan pegawai', peserta_kegiatan: 'Peserta kegiatan', bukan_objek: 'Bukan objek' }
+const bahanBupot = computed(() => {
+  const awal = `${kas.tahun}-${String(masa.value + 1).padStart(2, '0')}`
+  const hasil = []
+  belanja.daftar.filter((b) => b.status === 'lunas' && String(b.tgl_lunas).startsWith(awal)).forEach((b) => {
+    if (b.jenis === 'honor') {
+      ;(b.penerima || []).filter((p) => p.bruto && (p.kategori_pph21_hasil || '') !== 'bukan_objek').forEach((p) => hasil.push({
+        dokumen: 'BP21', tanggal: b.tgl_lunas, nama: p.nama, identitas: p.nip || p.npwp || '', status: [p.status_kepegawaian, p.golongan].filter(Boolean).join(' '),
+        perlakuan: KATEGORI_LABEL[p.kategori_pph21_hasil] || '', kegiatan: b.nama_pekerjaan, bruto: p.bruto, tarif: p.tarif_efektif ?? p.tarif_pph21, pajak: p.pph21 || 0,
+        kap: p.kategori_pph21_hasil === 'pns_final' ? '411121-402' : '411121-100',
+      }))
+    } else {
+      kas.kewajiban.filter((k) => k.id_belanja === b.id && ['PPh 21', 'PPh 23', 'PPh 4(2)', 'PPh Final UMKM'].includes(k.jenis) && k.cara !== 'mitra').forEach((k) => hasil.push({
+        dokumen: k.jenis === 'PPh 21' ? 'BP21' : 'BPPU', tanggal: b.tgl_lunas, nama: b.rekanan?.nama_usaha || '', identitas: b.rekanan?.npwp || '', status: b.rekanan?.bentuk_usaha === 'badan' ? 'Badan' : 'Orang pribadi',
+        perlakuan: `${k.jenis}${k.ket ? ' — ' + k.ket : ''}`, kegiatan: b.nama_pekerjaan, bruto: k.dasar, tarif: k.tarif, pajak: k.nilai, kap: `${k.kap}-${k.kjs}`,
+      }))
+    }
+  })
+  return hasil.sort((a, b) => a.dokumen.localeCompare(b.dokumen) || String(a.tanggal).localeCompare(String(b.tanggal)))
+})
+async function excelBupot() {
+  try {
+    await eksporExcel({ judul: `Bahan Bukti Potong ${NAMA_BULAN[masa.value]} ${kas.tahun}`, namaBerkas: `Bahan Bukti Potong ${NAMA_BULAN[masa.value]} ${kas.tahun}`, baris: bahanBupot.value, kolom: [
+      { kunci: 'dokumen', judul: 'Dokumen', lebar: 9 }, { judul: 'Tanggal', lebar: 12, nilai: (r) => tanggalPendek(r.tanggal) }, { kunci: 'nama', judul: 'Nama penerima', lebar: 30 },
+      { kunci: 'identitas', judul: 'NIP/NPWP/NIK', lebar: 22 }, { kunci: 'status', judul: 'Status', lebar: 14 }, { kunci: 'perlakuan', judul: 'Perlakuan', lebar: 30 },
+      { kunci: 'kegiatan', judul: 'Kegiatan', lebar: 45 }, { kunci: 'bruto', judul: 'Bruto/DPP', lebar: 15, jenis: 'uang' }, { kunci: 'tarif', judul: 'Tarif %', lebar: 9 },
+      { kunci: 'pajak', judul: 'Pajak dipotong', lebar: 15, jenis: 'uang' }, { kunci: 'kap', judul: 'KAP-KJS', lebar: 13 },
+    ] })
+  } catch (e) { notif.kabari(e.message, 'galat') }
+}
+
 async function excel() {
   try { await eksporExcel({ judul: `${judul.value} ${kas.tahun}`.slice(0, 80), namaBerkas: `${judul.value} ${kas.tahun}`, baris: baris.value, kolom: kolomExcel(kolom.value) }) } catch (e) { notif.kabari(e.message, 'galat') }
 }
@@ -77,6 +110,12 @@ async function excel() {
       <div class="relative min-w-[12rem] flex-1"><Ikon nama="Search" :ukuran="17" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input v-model="cari" class="masukan pl-9" placeholder="Cari nama, NIP, NPWP…" /></div>
       <button class="tombol-garis" @click="excel"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> <span class="hidden sm:inline">Excel</span></button>
       <button class="tombol-garis" @click="cetak = true"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> <span class="hidden sm:inline">Cetak</span></button>
+    </div>
+    <div class="kartu flex flex-wrap items-center gap-2 p-3">
+      <span class="grid h-9 w-9 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="FileCheck" :ukuran="17" /></span>
+      <div class="min-w-[12rem] flex-1"><p class="text-sm font-semibold">Bahan bukti potong Coretax (BP21 & BPPU)</p><p class="text-xs text-slate-500">{{ bahanBupot.length }} baris pada masa terpilih — untuk mengisi e-Bupot di Coretax</p></div>
+      <select v-model.number="masa" class="masukan w-auto flex-1 py-2 sm:flex-none" aria-label="Masa pajak"><option v-for="(n, i) in NAMA_BULAN" :key="n" :value="i">{{ n }}</option></select>
+      <button class="tombol-garis" :disabled="!bahanBupot.length" @click="excelBupot"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Excel</button>
     </div>
     <GridStat :daftar="statistik" :memuat="kas.memuat" :bisa-klik="false" />
 

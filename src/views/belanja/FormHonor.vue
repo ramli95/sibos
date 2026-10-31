@@ -166,11 +166,11 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
     <template v-else>
       <section class="kartu space-y-4 p-4 sm:p-5">
         <h2 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip"><Ikon nama="Wallet" :ukuran="17" /></span> Jenis &amp; kegiatan</h2>
-        <div class="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <div class="grid grid-cols-[repeat(2,minmax(0,1fr))] gap-2 lg:grid-cols-[repeat(3,minmax(0,1fr))]">
           <button v-for="(j, k) in JENIS_HONOR" :key="k" type="button" @click="gantiJenis(k)"
                   :class="['rounded-xl border p-3 text-left', f.jenis_honor === k ? 'border-biru bg-biru/5 dark:bg-blue-950/30' : 'border-slate-300 dark:border-slate-600']">
             <span class="flex items-center gap-2 font-bold"><Ikon :nama="j.ikon" :ukuran="17" class="text-biru" /> {{ j.label }}</span>
-            <span class="mt-0.5 block text-xs text-slate-500">{{ j.ket }}</span>
+            <span class="mt-0.5 block break-words text-xs text-slate-500">{{ j.ket }}</span>
           </button>
         </div>
         <div><label class="label" for="nk">Nama kegiatan / pembayaran <span class="text-merah">*</span></label><input id="nk" v-model="f.nama_pekerjaan" class="masukan" placeholder="Contoh: Honor Narasumber Workshop Kurikulum" /></div>
