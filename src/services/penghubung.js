@@ -26,7 +26,10 @@ export async function panggilPenghubung(aksi, data = {}, { url } = {}) {
   if (!r.ok) throw new Error(`Penghubung tidak menjawab (kode ${r.status}).`)
   let j
   try { j = await r.json() } catch { throw new Error('Jawaban penghubung tidak dikenali. Pastikan URL berakhiran /exec.') }
-  if (!j.ok) throw new Error(j.pesan || 'Penghubung menolak permintaan.')
+  if (!j.ok) {
+    if (/Aksi tidak dikenal/.test(j.pesan || '')) throw new Error('Penghubung Apps Script masih versi lama. Buka Apps Script → Terapkan → Kelola deployment → ✏️ → Versi: "Versi baru" → Terapkan.')
+    throw new Error(j.pesan || 'Penghubung menolak permintaan.')
+  }
   return j
 }
 

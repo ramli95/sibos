@@ -4,7 +4,18 @@ import { computed, ref, onMounted, onUpdated, nextTick } from 'vue'
 import { kopBawaan } from '@/config/sekolahAwal'
 
 const props = defineProps({ profil: { type: Object, required: true } })
-const kop = computed(() => (props.profil.kop?.baris?.length ? props.profil.kop : kopBawaan(props.profil)))
+const kop = computed(() => {
+  const k = props.profil.kop?.baris?.length ? props.profil.kop : kopBawaan(props.profil)
+  return { ...k, garis: ['tunggal', 'ganda', 'tidak'].includes(k.garis) ? k.garis : 'tunggal', tebal_garis: k.tebal_garis || 0.5 }
+})
+// Garis bawah: satu garis setebal pilihan (bawaan 0,5 pt). Ganda: garis tebal di atas garis tipis.
+const t = computed(() => kop.value.tebal_garis)
+const gayaLuar = computed(() => (kop.value.garis === 'ganda' ? { borderBottom: `${t.value}pt solid #000`, paddingBottom: '1.5pt' } : {}))
+const gayaDalam = computed(() => {
+  if (kop.value.garis === 'tunggal') return { borderBottom: `${t.value}pt solid #000`, paddingBottom: '0.15cm' }
+  if (kop.value.garis === 'ganda') return { borderBottom: `${Math.max(t.value * 3, 1.5)}pt solid #000`, paddingBottom: '0.15cm' }
+  return {}
+})
 
 // Setiap baris kop dibuat satu baris: bila terlalu panjang, hurufnya dikecilkan sedikit demi sedikit (min. 6 pt)
 const wadah = ref(null)
@@ -26,8 +37,10 @@ onUpdated(paskan)
 </script>
 
 <template>
-  <div :class="['kop', `garis-${kop.garis}`]" :style="{ fontFamily: `'${kop.huruf}', 'Times New Roman', Times, serif` }">
+  <div class="kop" :style="{ fontFamily: `'${kop.huruf}', 'Times New Roman', Times, serif`, ...gayaLuar }">
+   <div :style="gayaDalam">
     <table>
+      <colgroup><col style="width: 2.6cm" /><col /><col style="width: 2.6cm" /></colgroup>
       <tr>
         <td class="logo"><img v-if="profil.logo_pemkot" :src="profil.logo_pemkot" alt="Logo Pemerintah Kota Makassar" crossorigin="anonymous" /></td>
         <td ref="wadah" class="teks">
@@ -36,18 +49,17 @@ onUpdated(paskan)
         <td class="logo"><img v-if="profil.logo_tutwuri" :src="profil.logo_tutwuri" alt="Logo Tut Wuri Handayani" crossorigin="anonymous" /></td>
       </tr>
     </table>
+   </div>
   </div>
 </template>
 
 <style scoped>
 .kop { color: #000; }
-table { width: 100%; border-collapse: collapse; }
+/* Isi kop dibatasi ±17,5 cm dan diletakkan di tengah: logo tetap dekat dan seimbang dengan teks, juga saat mendatar */
+table { width: 100%; max-width: 17.5cm; margin: 0 auto; border-collapse: collapse; table-layout: fixed; }
 td { vertical-align: middle; padding: 0; }
-.logo { width: 2.5cm; text-align: center; }
-.logo img { max-width: 2.2cm; max-height: 2.5cm; object-fit: contain; }
-.teks { text-align: center; line-height: 1.18; padding: 0 0.1cm; max-width: 0; width: 100%; }
+.logo { width: 2.6cm; text-align: center; }
+.logo img { width: 2.1cm; height: 2.4cm; object-fit: contain; display: block; margin: 0 auto; }
+.teks { text-align: center; line-height: 1.18; padding: 0 0.15cm; }
 .baris { white-space: nowrap; overflow: hidden; }
-.garis-bingkai { border: 1.5px solid #000; padding: 0.2cm 0.25cm; }
-.garis-tunggal { border-bottom: 3px solid #000; padding-bottom: 0.15cm; }
-.garis-ganda { border-bottom: 4px double #000; padding-bottom: 0.15cm; }
 </style>

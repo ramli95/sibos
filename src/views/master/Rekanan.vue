@@ -7,6 +7,7 @@ import { muatRekanan, muatPegawai, simpanRekanan, hapusRekanan } from '@/service
 import { eksporExcel } from '@/utils/excel'
 import { formatWa } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
+import KartuStat from '@/components/KartuStat.vue'
 import FormRekanan from './FormRekanan.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
@@ -43,12 +44,19 @@ const hasil = computed(() => {
     (!q || [r.nama_usaha, r.pemilik, r.npwp, r.alamat].some((v) => String(v || '').toLowerCase().includes(q))))
 })
 
-const statistik = computed(() => [
-  { judul: 'Rekanan', nilai: daftar.value.length, ikon: 'Store', warna: 'from-amber-400 to-orange-500', s: 'semua' },
-  { judul: 'PKP', nilai: daftar.value.filter((r) => r.status_pkp).length, ikon: 'BadgeCheck', warna: 'from-emerald-400 to-teal-600', s: 'pkp' },
-  { judul: 'Non-PKP', nilai: daftar.value.filter((r) => !r.status_pkp).length, ikon: 'ReceiptText', warna: 'from-sky-400 to-blue-600', s: 'nonpkp' },
-  { judul: 'Badan usaha', nilai: daftar.value.filter((r) => r.bentuk_usaha === 'badan').length, ikon: 'Building2', warna: 'from-violet-500 to-fuchsia-500', s: 'badan' },
-])
+const statistik = computed(() => {
+  const d = daftar.value
+  const pr = (x) => (d.length ? Math.round((x / d.length) * 100) : 0)
+  const pkp = d.filter((r) => r.status_pkp).length
+  const badan = d.filter((r) => r.bentuk_usaha === 'badan').length
+  const rek = d.filter((r) => r.no_rekening).length
+  return [
+    { judul: 'Rekanan', nilai: d.length, ikon: 'Store', warna: 'from-amber-400 via-orange-400 to-orange-600', bayangan: 'shadow-orange-500/30', s: 'semua', sub: `${rek} sudah ada rekening`, persen: pr(rek) },
+    { judul: 'PKP', nilai: pkp, ikon: 'BadgeCheck', warna: 'from-emerald-400 via-teal-500 to-teal-600', bayangan: 'shadow-teal-500/30', s: 'pkp', sub: 'Memungut PPN', persen: pr(pkp) },
+    { judul: 'Non-PKP', nilai: d.length - pkp, ikon: 'ReceiptText', warna: 'from-sky-400 via-sky-500 to-blue-600', bayangan: 'shadow-sky-500/30', s: 'nonpkp', sub: 'Tanpa PPN', persen: pr(d.length - pkp) },
+    { judul: 'Badan usaha', nilai: badan, ikon: 'Building2', warna: 'from-violet-500 via-purple-500 to-fuchsia-600', bayangan: 'shadow-fuchsia-500/30', s: 'badan', sub: 'CV, PT, UD, koperasi', persen: pr(badan) },
+  ]
+})
 
 async function simpan(data) {
   if (modePratinjau) { notif.kabari('Mode Pratinjau: data tidak disimpan.', 'info'); terpilih.value = null; return }
@@ -86,13 +94,8 @@ async function ekspor() {
 
 <template>
   <div class="space-y-5">
-    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <button v-for="s in statistik" :key="s.judul" type="button" @click="saring = s.s"
-              :class="['relative overflow-hidden rounded-2xl bg-gradient-to-br p-4 text-left text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md', s.warna, saring === s.s && 'ring-4 ring-white/60 dark:ring-white/20']">
-        <Ikon :nama="s.ikon" :ukuran="44" class="absolute -bottom-1 -right-1 opacity-20" />
-        <p class="text-xs font-semibold uppercase tracking-wide text-white/85">{{ s.judul }}</p>
-        <p class="angka mt-1 text-3xl font-extrabold">{{ memuat ? '…' : s.nilai }}</p>
-      </button>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <KartuStat v-for="s in statistik" :key="s.judul" v-bind="s" :memuat="memuat" :aktif="saring === s.s && s.s !== 'semua'" @klik="saring = s.s" />
     </div>
 
     <div class="kartu flex flex-wrap items-center gap-2 p-3">

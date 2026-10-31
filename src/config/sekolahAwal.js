@@ -49,7 +49,6 @@ export const ID_FOLDER_DRIVE_AWAL = '12G033COl3Cny9yenJOvxgQ16ilwaeM7p'
 // PEMERINTAH KOTA MAKASSAR / NAMA UNIT (tebal) / alamat lengkap / telepon / laman & pos-el
 export const HURUF_KOP = ['Times New Roman', 'Bookman Old Style', 'Arial']
 export const GARIS_KOP = [
-  { nilai: 'bingkai', label: 'Bingkai' },
   { nilai: 'tunggal', label: 'Garis bawah' },
   { nilai: 'ganda', label: 'Garis ganda' },
   { nilai: 'tidak', label: 'Tanpa garis' },
@@ -57,7 +56,8 @@ export const GARIS_KOP = [
 export function kopBawaan(p = {}) {
   return {
     huruf: 'Times New Roman',
-    garis: 'bingkai',
+    garis: 'tunggal',
+    tebal_garis: 0.5, // pt
     baris: [
       { teks: 'PEMERINTAH KOTA MAKASSAR', ukuran: 14, tebal: false },
       { teks: 'UPT SPF SMP NEGERI 19 MAKASSAR', ukuran: 16, tebal: true },

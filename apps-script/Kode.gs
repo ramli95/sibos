@@ -2,7 +2,7 @@
  * SIBOS Penghubung — Google Apps Script
  * Dipasang di akun Bendahara (pemilik proyek Firebase sibos19 dan folder Drive SIBOS).
  * Tugas: unggah berkas ke Drive, reset password pengguna tanpa email, cadangan otomatis,
- * dan notifikasi push (Firebase Cloud Messaging).
+ * notifikasi push (Firebase Cloud Messaging), dan penghapusan log aktivitas lebih dari 6 bulan.
  */
 const KONFIG = {
   PROYEK: 'sibos19',
@@ -10,14 +10,16 @@ const KONFIG = {
   FOLDER_INDUK: '12G033COl3Cny9yenJOvxgQ16ilwaeM7p',
   ZONA: 'Asia/Makassar',
   SIMPAN_JSON: 12,
+  SIMPAN_LOG_BULAN: 6,
 };
+const VERSI = 3;
 const FS = 'https://firestore.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/databases/(default)/documents';
 const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian'];
 
 /* ======================= PINTU MASUK ======================= */
 
 function doGet() {
-  return balas({ ok: true, layanan: 'SIBOS Penghubung', versi: 2 });
+  return balas({ ok: true, layanan: 'SIBOS Penghubung', versi: VERSI });
 }
 
 function doPost(e) {
@@ -31,6 +33,7 @@ function doPost(e) {
           folder: DriveApp.getFolderById(KONFIG.FOLDER_INDUK).getName(),
           pemilik: Session.getEffectiveUser().getEmail(),
           pengguna: p.nama,
+          versi: VERSI,
         });
       case 'unggah':
         return balas(unggah(m, p));
@@ -126,6 +129,32 @@ function buatSandi() {
 function cadanganHarian() {
   const minggu = Number(Utilities.formatDate(new Date(), KONFIG.ZONA, 'u')) === 7;
   cadangkan(minggu ? 'mingguan' : 'harian', 'otomatis');
+  // Setelah data tercadang, log aktivitas yang lebih tua dari 6 bulan dihapus
+  try { hapusLogLama(); } catch (e) { kabariAdmin('Pembersihan log gagal', String(e.message || e)); }
+}
+
+/* ======================= PEMBERSIHAN LOG ======================= */
+
+// Menghapus log_aktivitas yang waktunya lebih lama dari KONFIG.SIMPAN_LOG_BULAN bulan
+function hapusLogLama() {
+  const batas = new Date();
+  batas.setMonth(batas.getMonth() - KONFIG.SIMPAN_LOG_BULAN);
+  let total = 0;
+  for (let putaran = 0; putaran < 50; putaran++) {
+    const q = { structuredQuery: {
+      from: [{ collectionId: 'log_aktivitas' }],
+      where: { fieldFilter: { field: { fieldPath: 'waktu' }, op: 'LESS_THAN', value: { timestampValue: batas.toISOString() } } },
+      limit: 400,
+    } };
+    const docs = (panggilGoogle(FS + ':runQuery', 'post', q) || []).filter(function (x) { return x.document; });
+    if (!docs.length) break;
+    panggilGoogle(FS + ':commit', 'post', { writes: docs.map(function (x) { return { delete: x.document.name }; }) });
+    total += docs.length;
+    if (docs.length < 400) break;
+  }
+  tulisDok('sistem/cadangan', { log_dihapus_terakhir: total, log_dibersihkan: new Date(), log_batas: batas });
+  Logger.log('Log dihapus: ' + total + ' (sebelum ' + batas.toISOString() + ')');
+  return total;
 }
 
 function cadangkan(jenis, oleh) {

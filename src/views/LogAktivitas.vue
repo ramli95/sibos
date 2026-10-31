@@ -96,13 +96,16 @@ function ekspor() {
 
 <template>
   <div class="mx-auto max-w-5xl space-y-5">
+    <p class="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2.5 text-sm text-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+      <Ikon nama="Clock" :ukuran="16" class="text-biru" /> Log yang lebih tua dari <b>6 bulan</b> dihapus otomatis setiap malam setelah cadangan harian (salinannya tetap ada di cadangan JSON).
+    </p>
     <div class="kartu flex flex-wrap items-center gap-2 p-3">
       <div class="relative min-w-[14rem] flex-1">
         <Ikon nama="Search" :ukuran="17" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input v-model="cari" class="masukan pl-9" placeholder="Cari keterangan atau nama pengguna…" />
       </div>
       <select v-model="jenis" class="masukan w-auto"><option value="semua">Semua aksi</option><option v-for="a in jenisAda" :key="a" :value="a">{{ gaya(a).label }}</option></select>
-      <select v-model.number="hari" class="masukan w-auto" @change="muat"><option :value="7">7 hari</option><option :value="30">30 hari</option><option :value="90">90 hari</option><option :value="365">1 tahun</option></select>
+      <select v-model.number="hari" class="masukan w-auto" @change="muat"><option :value="7">7 hari</option><option :value="30">30 hari</option><option :value="90">90 hari</option><option :value="183">6 bulan</option></select>
       <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
     </div>
 

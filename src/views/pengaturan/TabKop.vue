@@ -23,6 +23,8 @@ const ujiCetak = ref(false)
 onMounted(async () => {
   profil.value = await muatProfilSekolah()
   kop.value = JSON.parse(JSON.stringify(profil.value.kop?.baris?.length ? profil.value.kop : kopBawaan(profil.value)))
+  if (!['tunggal', 'ganda', 'tidak'].includes(kop.value.garis)) kop.value.garis = 'tunggal'
+  kop.value.tebal_garis ??= 0.5
 })
 
 const LOGO = [
@@ -132,9 +134,15 @@ async function simpanKop() {
         </div>
         <div>
           <span class="label">Garis kop</span>
-          <div class="grid grid-cols-4 gap-1.5">
+          <div class="grid grid-cols-3 gap-1.5">
             <button v-for="g in GARIS_KOP" :key="g.nilai" type="button" @click="kop.garis = g.nilai"
                     :class="['rounded-lg border px-1 py-2 text-xs font-semibold', kop.garis === g.nilai ? 'border-biru bg-biru/10 text-biru' : 'border-slate-300 dark:border-slate-600']">{{ g.label }}</button>
+          </div>
+          <div v-if="kop.garis !== 'tidak'" class="mt-2 flex items-center gap-2">
+            <label class="text-xs font-semibold text-slate-500" for="tg">Tebal garis</label>
+            <select id="tg" v-model.number="kop.tebal_garis" class="masukan w-28 py-1.5 text-sm">
+              <option v-for="t in [0.5, 0.75, 1, 1.5, 2.25, 3]" :key="t" :value="t">{{ String(t).replace('.', ',') }} pt</option>
+            </select>
           </div>
         </div>
       </div>

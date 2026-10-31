@@ -8,6 +8,7 @@ import { JENIS_IMPOR, tebakPemetaan, cariBarisJudul, normalJudul } from '@/confi
 import { bacaBerkas, unduhTemplat } from '@/utils/excel'
 import { useNotifikasi } from '@/stores/notifikasi'
 import Ikon from '@/components/Ikon.vue'
+import KartuStat from '@/components/KartuStat.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -251,14 +252,14 @@ const gayaStatus = {
 
     <!-- 3. Pratinjau -->
     <template v-else-if="langkah === 3">
-      <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <button v-for="[k, j, w, ik] in [['baru', 'Data baru', 'from-emerald-400 to-teal-600', 'Plus'], [mode, mode === 'perbarui' ? 'Diperbarui' : 'Dilewati', 'from-sky-400 to-blue-600', mode === 'perbarui' ? 'RefreshCw' : 'SkipForward'], ['galat', 'Galat', 'from-rose-400 to-red-500', 'CircleX'], ['peringatan', 'Peringatan', 'from-amber-400 to-orange-500', 'TriangleAlert']]" :key="j"
-                type="button" @click="saringPratinjau = saringPratinjau === k ? 'semua' : k"
-                :class="['relative overflow-hidden rounded-2xl bg-gradient-to-br p-4 text-left text-white shadow-sm', w, saringPratinjau === k && 'ring-4 ring-white/60 dark:ring-white/20']">
-          <Ikon :nama="ik" :ukuran="40" class="absolute -bottom-1 -right-1 opacity-20" />
-          <p class="text-xs font-semibold uppercase tracking-wide text-white/85">{{ j }}</p>
-          <p class="angka mt-1 text-3xl font-extrabold">{{ hitung[k] }}</p>
-        </button>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KartuStat v-for="[k, j, w, b, ik, sub] in [
+                     ['baru', 'Data baru', 'from-emerald-400 via-teal-500 to-teal-600', 'shadow-teal-500/30', 'Plus', 'Akan ditambahkan'],
+                     [mode, mode === 'perbarui' ? 'Diperbarui' : 'Dilewati', 'from-sky-400 via-sky-500 to-blue-600', 'shadow-sky-500/30', mode === 'perbarui' ? 'RefreshCw' : 'SkipForward', 'Sudah ada di SIBOS'],
+                     ['galat', 'Galat', 'from-rose-400 via-rose-500 to-red-600', 'shadow-rose-500/30', 'CircleX', 'Tidak ikut disimpan'],
+                     ['peringatan', 'Peringatan', 'from-amber-400 via-orange-400 to-orange-600', 'shadow-orange-500/30', 'TriangleAlert', 'Tetap disimpan, mohon dicek']]" :key="j"
+                   :judul="j" :nilai="hitung[k]" :ikon="ik" :warna="w" :bayangan="b" :sub="sub" :persen="pratinjau.length ? Math.round((hitung[k] / pratinjau.length) * 100) : 0"
+                   :aktif="saringPratinjau === k" @klik="saringPratinjau = saringPratinjau === k ? 'semua' : k" />
       </div>
 
       <div class="kartu flex flex-wrap items-center gap-3 p-4">

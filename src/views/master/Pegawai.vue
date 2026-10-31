@@ -7,6 +7,7 @@ import { muatPegawai, simpanPegawai, hapusPegawai } from '@/services/master'
 import { eksporExcel } from '@/utils/excel'
 import { formatNip, formatWa, STATUS_KEPEGAWAIAN } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
+import KartuStat from '@/components/KartuStat.vue'
 import FormPegawai from './FormPegawai.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
@@ -52,12 +53,15 @@ const warnaStatus = {
 const statistik = computed(() => {
   const d = daftar.value.filter((p) => p.aktif !== false)
   const n = (s) => d.filter((p) => p.status_kepegawaian === s).length
+  const pr = (x) => (d.length ? Math.round((x / d.length) * 100) : 0)
+  const tpg = d.filter((p) => p.terima_tpg).length
+  const l = d.filter((p) => p.jenis_kelamin === 'L').length
   return [
-    { judul: 'Pegawai aktif', nilai: d.length, ikon: 'Users', warna: 'from-blue-500 to-indigo-600', saring: 'Semua' },
-    { judul: 'PNS', nilai: n('PNS'), ikon: 'BadgeCheck', warna: 'from-sky-400 to-blue-600', saring: 'PNS' },
-    { judul: 'PPPK', nilai: n('PPPK'), ikon: 'Briefcase', warna: 'from-teal-400 to-emerald-600', saring: 'PPPK' },
-    { judul: 'Honorer', nilai: n('Honorer'), ikon: 'UserRound', warna: 'from-amber-400 to-orange-500', saring: 'Honorer' },
-    { judul: 'Penerima TPG', nilai: d.filter((p) => p.terima_tpg).length, ikon: 'Sparkles', warna: 'from-violet-500 to-fuchsia-500', saring: null },
+    { judul: 'Pegawai aktif', nilai: d.length, ikon: 'Users', warna: 'from-blue-500 via-indigo-500 to-indigo-700', bayangan: 'shadow-indigo-500/30', saring: 'Semua', sub: `${l} laki-laki · ${d.length - l} perempuan` },
+    { judul: 'PNS', nilai: n('PNS'), ikon: 'BadgeCheck', warna: 'from-sky-400 via-sky-500 to-blue-600', bayangan: 'shadow-sky-500/30', saring: 'PNS', sub: `${pr(n('PNS'))}% dari pegawai`, persen: pr(n('PNS')) },
+    { judul: 'PPPK', nilai: n('PPPK'), ikon: 'Briefcase', warna: 'from-emerald-400 via-teal-500 to-teal-600', bayangan: 'shadow-teal-500/30', saring: 'PPPK', sub: `${pr(n('PPPK'))}% dari pegawai`, persen: pr(n('PPPK')) },
+    { judul: 'Honorer', nilai: n('Honorer'), ikon: 'UserRound', warna: 'from-amber-400 via-orange-400 to-orange-600', bayangan: 'shadow-orange-500/30', saring: 'Honorer', sub: `${pr(n('Honorer'))}% dari pegawai`, persen: pr(n('Honorer')) },
+    { judul: 'Penerima TPG', nilai: tpg, ikon: 'Sparkles', warna: 'from-violet-500 via-purple-500 to-fuchsia-600', bayangan: 'shadow-fuchsia-500/30', saring: null, sub: 'Tidak boleh menerima honor BOS', persen: pr(tpg) },
   ]
 })
 
@@ -118,13 +122,8 @@ async function ekspor() {
 <template>
   <div class="space-y-5">
     <!-- Statistik -->
-    <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-      <button v-for="s in statistik" :key="s.judul" type="button" :disabled="!s.saring" @click="s.saring && (saring = s.saring)"
-              :class="['relative overflow-hidden rounded-2xl bg-gradient-to-br p-4 text-left text-white shadow-sm transition enabled:hover:-translate-y-0.5 enabled:hover:shadow-md', s.warna]">
-        <Ikon :nama="s.ikon" :ukuran="44" class="absolute -bottom-1 -right-1 opacity-20" />
-        <p class="text-xs font-semibold uppercase tracking-wide text-white/85">{{ s.judul }}</p>
-        <p class="angka mt-1 text-3xl font-extrabold">{{ memuat ? '…' : s.nilai }}</p>
-      </button>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <KartuStat v-for="s in statistik" :key="s.judul" v-bind="s" :memuat="memuat" :bisa-klik="!!s.saring" :aktif="!!s.saring && saring === s.saring && s.saring !== 'Semua'" @klik="saring = s.saring" />
     </div>
 
     <!-- Alat -->

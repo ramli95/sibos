@@ -95,7 +95,8 @@ const susunan = [
       <div v-if="uji" :class="['flex gap-3 rounded-xl p-3.5 text-sm', uji.ok ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200' : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200']">
         <Ikon :nama="uji.ok ? 'CircleCheck' : 'TriangleAlert'" :ukuran="19" />
         <div v-if="uji.ok">
-          <b>Tersambung.</b> Folder induk: <b>{{ uji.folder }}</b> · pemilik penghubung: {{ uji.pemilik }}.
+          <b>Tersambung.</b> Folder induk: <b>{{ uji.folder }}</b> · pemilik penghubung: {{ uji.pemilik }} · versi {{ uji.versi || 1 }}.
+          <span v-if="(uji.versi || 1) < 3" class="block font-semibold text-amber-700 dark:text-amber-300">Penghubung belum versi terbaru (3). Perbarui Kode.gs lalu Terapkan → Kelola deployment → Versi baru.</span>
           <span class="block text-xs opacity-80">Jangan lupa klik Simpan bila URL baru.</span>
         </div>
         <div v-else><b>Gagal.</b> {{ uji.pesan }}</div>
