@@ -1,6 +1,6 @@
 rules_version = '2';
 // ================================================================
-//  Aturan akses Firestore SIBOS — Fase 2
+//  Aturan akses Firestore SIBOS — Fase 3 (Belanja & Dokumen SPJ)
 //  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
 //  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
 //  Peralihan bendahara: Bendahara aktif, atau Kepala Sekolah bila bendahara berhalangan.
@@ -144,6 +144,33 @@ service cloud.firestore {
         allow read: if aktif();
         allow write: if admin();
       }
+    }
+
+    // ---------- belanja & dokumen SPJ (Fase 3) ----------
+    // Transaksi belanja/honor + foto dokumentasi versi cetak. Semua peran melihat; hanya Bendahara mengubah.
+    match /belanja/{id} {
+      allow read: if aktif();
+      allow write: if admin();
+      match /foto/{idFoto} {
+        allow read: if aktif();
+        allow write: if admin();
+      }
+    }
+    // Penghitung nomor surat/kwitansi/invoice per tahun: tidak pernah dihapus agar nomor tidak dipakai ulang
+    match /penomoran/{id} {
+      allow read: if aktif();
+      allow create, update: if admin();
+      allow delete: if false;
+    }
+    // Buku agenda surat (nomor dari belanja & surat manual)
+    match /agenda_surat/{id} {
+      allow read: if aktif();
+      allow write: if admin();
+    }
+    // Penerima honor/transpor dari luar sekolah (narasumber, pengawas, juri)
+    match /orang_luar/{id} {
+      allow read: if salahSatu(['bendahara', 'tim_bos', 'kepala_sekolah']);
+      allow write: if admin();
     }
 
     // ---------- notifikasi, log, impor ----------

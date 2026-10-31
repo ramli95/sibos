@@ -66,3 +66,58 @@ export function rupiahRingkas(n) {
 
 /** 14,42% */
 export const persen = (n, d = 2) => `${new Intl.NumberFormat('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }).format(Number(n) || 0)}%`
+
+/* ---------------- Dokumen SPJ ---------------- */
+
+const SATUAN = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas']
+function eja(n) {
+  n = Math.floor(n)
+  if (n < 12) return SATUAN[n]
+  if (n < 20) return `${eja(n - 10)} belas`
+  if (n < 100) return `${eja(n / 10)} puluh${n % 10 ? ' ' + eja(n % 10) : ''}`
+  if (n < 200) return `seratus${n - 100 ? ' ' + eja(n - 100) : ''}`
+  if (n < 1000) return `${eja(n / 100)} ratus${n % 100 ? ' ' + eja(n % 100) : ''}`
+  if (n < 2000) return `seribu${n - 1000 ? ' ' + eja(n - 1000) : ''}`
+  if (n < 1e6) return `${eja(n / 1000)} ribu${n % 1000 ? ' ' + eja(n % 1000) : ''}`
+  if (n < 1e9) return `${eja(n / 1e6)} juta${n % 1e6 ? ' ' + eja(n % 1e6) : ''}`
+  if (n < 1e12) return `${eja(n / 1e9)} miliar${n % 1e9 ? ' ' + eja(n % 1e9) : ''}`
+  return `${eja(n / 1e12)} triliun${n % 1e12 ? ' ' + eja(n % 1e12) : ''}`
+}
+
+/** 2510000 → "Dua juta lima ratus sepuluh ribu rupiah" */
+export function terbilang(n, { rupiah: pakaiRupiah = true } = {}) {
+  const x = Math.round(Math.abs(Number(n) || 0))
+  const s = x === 0 ? 'nol' : eja(x)
+  const t = `${Number(n) < 0 ? 'minus ' : ''}${s}${pakaiRupiah ? ' rupiah' : ''}`
+  return t.charAt(0).toUpperCase() + t.slice(1)
+}
+
+/** Angka kecil dalam kata: 3 → "tiga" */
+export const kata = (n) => (Number(n) ? eja(Number(n)) : 'nol')
+
+const ROMAWI = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII']
+/** Bulan 1–12 → Romawi */
+export const romawi = (bulan) => ROMAWI[(Number(bulan) || 1) - 1]
+
+export const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+
+/** 'yyyy-mm-dd' → Date lokal (tanpa geser zona waktu) */
+export function dariIso(s) {
+  if (!s) return null
+  if (s instanceof Date) return s
+  const [y, m, d] = String(s).slice(0, 10).split('-').map(Number)
+  return y ? new Date(y, (m || 1) - 1, d || 1) : null
+}
+
+/** Date → 'yyyy-mm-dd' (zona lokal) */
+export function keIso(d = new Date()) {
+  const x = d instanceof Date ? d : new Date(d)
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`
+}
+
+/** "Sabtu tanggal tiga puluh satu bulan Oktober tahun dua ribu dua puluh enam" (berita acara) */
+export function tanggalKata(iso) {
+  const d = dariIso(iso)
+  if (!d) return '……'
+  return `${NAMA_HARI[d.getDay()]} tanggal ${eja(d.getDate())} bulan ${BULAN[d.getMonth()]} tahun ${eja(d.getFullYear())}`
+}

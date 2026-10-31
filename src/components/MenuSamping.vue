@@ -14,7 +14,7 @@ const emit = defineEmits(['pilih'])
 const route = useRoute()
 const auth = useAuth()
 const tampilan = useTampilan()
-const terbuka = ref({ RKAS: true, Kepegawaian: true, 'Master Data': true })
+const terbuka = ref({ RKAS: true, 'Belanja & Dokumen': true, Kepegawaian: true, 'Master Data': true })
 
 const terlihat = (m) => !m.peran || auth.punyaPeran(...m.peran)
 const aktif = (ke) => ke && route.path.startsWith(ke)
@@ -62,7 +62,8 @@ const grupAktif = (m) => m.anak?.some((a) => aktif(a.ke))
             </button>
             <div v-show="terbuka[m.judul] && !props.ringkas" class="ml-7 mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
               <template v-for="a in m.anak" :key="a.judul">
-                <RouterLink v-if="a.ke" :to="a.ke" @click="emit('pilih')"
+                <template v-if="!terlihat(a)" />
+                <RouterLink v-else-if="a.ke" :to="a.ke" @click="emit('pilih')"
                             :class="['flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition',
                                      aktif(a.ke) ? 'bg-biru font-semibold text-white' : 'text-blue-50/80 hover:bg-white/10 hover:text-white']">
                   <Ikon :nama="a.ikon" :ukuran="15" /> {{ a.judul }}

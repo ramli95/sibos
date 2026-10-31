@@ -10,7 +10,7 @@ import {
   UserPlus, Copy, UserCog, Power, Repeat, ArrowDown, CircleAlert, Link,
   Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
   PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
-  ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus,
+  ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus, Camera, CirclePlus, ExternalLink, Hash,
 } from 'lucide-vue-next'
 
 const DAFTAR = {
@@ -23,7 +23,7 @@ const DAFTAR = {
   UserPlus, Copy, UserCog, Power, Repeat, ArrowDown, CircleAlert, Link,
   Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
   PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
-  ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus,
+  ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus, Camera, CirclePlus, ExternalLink, Hash,
 }
 
 const props = defineProps({ nama: { type: String, required: true }, ukuran: { type: [Number, String], default: 18 } })

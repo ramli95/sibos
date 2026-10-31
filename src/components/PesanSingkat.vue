@@ -6,6 +6,7 @@ const notif = useNotifikasi()
 const gaya = {
   sukses: { ikon: 'CircleCheck', kelas: 'border-hijau/30 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' },
   galat: { ikon: 'TriangleAlert', kelas: 'border-merah/30 bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-200' },
+  peringatan: { ikon: 'CircleAlert', kelas: 'border-kuning/40 bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200' },
   info: { ikon: 'Info', kelas: 'border-biru/30 bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-200' },
 }
 </script>

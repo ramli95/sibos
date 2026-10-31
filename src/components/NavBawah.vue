@@ -11,7 +11,7 @@ const auth = useAuth()
 const daftar = computed(() => [
   { judul: 'Dasbor', ikon: 'LayoutDashboard', ke: '/dasbor', awal: '/dasbor' },
   { judul: 'RKAS', ikon: 'ClipboardList', ke: '/rkas/ringkasan', awal: '/rkas' },
-  { judul: 'Harga', ikon: 'Tags', ke: '/standar-harga', awal: '/standar-harga' },
+  { judul: 'Belanja', ikon: 'ShoppingCart', ke: '/belanja/daftar', awal: '/belanja' },
   auth.punyaPeran('bendahara', 'tim_bos', 'kepala_sekolah')
     ? { judul: 'Pegawai', ikon: 'Users', ke: '/pegawai', awal: '/pegawai' }
     : { judul: 'Rekanan', ikon: 'Store', ke: '/rekanan', awal: '/rekanan' },

@@ -87,15 +87,16 @@ export function hargaContoh() {
     ['Transpor', 'Transportasi-Dalam Daerah', 'orang / hari', 50000, '5.1.02.04.01.0003', 'transpor'],
     ['Honor', 'Honorarium Narasumber-Pejabat Eselon II / S2', 'orang / jam', 700000, '5.1.02.02.01.0003', 'honor'],
     ['Jasa', 'Tenaga Tukang-7 Jam/hari', 'orang / hari', 175000, '5.1.02.02.01.0016', 'jasa'],
+    ['Jasa', 'Jasa Service AC Split 1–1,5 PK', 'unit', 135000, '5.1.02.03.02.0121', 'jasa', 150000],
     ['Bahan Bangunan', 'Semen PC-Ukuran 40 kg', 'zak', 70000, '5.1.02.01.01.0001', 'barang'],
     ['ATK', 'Kertas HVS F4 75Gsm', 'rim', 73000, '5.1.02.01.01.0012', 'barang'],
     ['Administrasi', 'Biaya Admin Transfer Antar Bank', 'kali', 2900, '5.1.02.01.01.0012', 'administrasi'],
     ['Peralatan & Mesin', 'Komputer PC AIO', 'unit', 12100000, '5.2.02.10.01.0001', 'barang'],
     ['Buku', 'Interactive English SMP/MTs Kelas 3/IX', 'buku', 125000, '5.2.05.01.01.0002', 'barang'],
-  ].map(([kelompok, nama_item, satuan, harga, kode_rekening, jenis], i) => ({
+  ].map(([kelompok, nama_item, satuan, harga, kode_rekening, jenis, harga_ssh = 0], i) => ({
     id: 'h' + i, kode_item: `SH-${String(i + 1).padStart(4, '0')}`, kelompok, nama_item, spesifikasi: '', satuan, harga, jenis, kode_rekening,
     kategori: kode_rekening.startsWith('5.2.02') ? 'alat_mesin' : kode_rekening.startsWith('5.2.05') ? 'aset_lain' : 'operasional',
     pajak_bawaan: jenis === 'konsumsi' || jenis === 'jasa' ? 'PPh 23' : jenis === 'honor' ? 'PPh 21' : jenis === 'barang' ? 'PPN' : '', tahun: 2026, aktif: true, sumber: 'RKAS 2026 Perubahan',
-    riwayat: [{ tahun: 2026, harga, tanggal: '2026-07-14' }],
+    riwayat: [{ tahun: 2026, harga, tanggal: '2026-07-14' }], harga_ssh, sumber_ssh: harga_ssh ? 'pemkot-makassar-2026' : '',
   }))
 }

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRkas } from '@/stores/rkas'
+import { useBelanja } from '@/stores/belanja'
 import { KATEGORI } from '@/utils/arkas'
 import { ringkasan, proporsiJuknis, matriksSnpKomponen, jenisBelanja } from '@/utils/rkasPohon'
 import { KOMPONEN_ARKAS } from '@/config/kodeArkas'
@@ -14,15 +15,19 @@ const rkas = useRkas()
 const router = useRouter()
 const r = computed(() => ringkasan(rkas.uraian))
 const pagu = computed(() => rkas.versi?.pagu || r.value.jumlah)
-// Realisasi diisi dari transaksi belanja (Fase 3). Untuk sekarang nol.
-const realisasi = computed(() => Array(12).fill(0))
+// Realisasi = transaksi belanja berstatus Lunas pada tahun RKAS (bulan tanggal lunas)
+const belanja = useBelanja()
+belanja.muat({ tahun: rkas.tahun }).catch(() => {})
+const realisasi = computed(() => (belanja.tahun === rkas.tahun ? belanja.realisasiBulanan : Array(12).fill(0)))
+const realKat = (k) => (belanja.tahun === rkas.tahun ? belanja.realisasiKategori[k] || 0 : 0)
 const totalRealisasi = computed(() => realisasi.value.reduce((a, b) => a + b, 0))
 
 const kartu = computed(() => [
   { judul: 'Total RKAS', nilai: rupiahRingkas(r.value.jumlah), ikon: 'Sigma', nada: 'gelap', sub: rupiah(r.value.jumlah), persen: pagu.value ? (r.value.jumlah / pagu.value) * 100 : 0 },
   ...['operasional', 'alat_mesin', 'aset_lain'].map((k) => ({
     judul: KATEGORI[k].nama, nilai: rupiahRingkas(r.value.kategori[k]), ikon: KATEGORI[k].ikon, nada: 'primer',
-    sub: `Realisasi Rp 0 · sisa ${rupiahRingkas(r.value.kategori[k])}`, persen: 0,
+    sub: `Realisasi ${rupiahRingkas(realKat(k))} · sisa ${rupiahRingkas(r.value.kategori[k] - realKat(k))}`,
+    persen: r.value.kategori[k] ? (realKat(k) / r.value.kategori[k]) * 100 : 0,
   })),
 ])
 const proporsi = computed(() => proporsiJuknis(rkas.uraian, pagu.value))

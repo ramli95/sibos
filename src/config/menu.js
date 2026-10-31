@@ -14,7 +14,15 @@ export const MENU = [
       { judul: 'Versi & Impor', ikon: 'GitCompareArrows', ke: '/rkas/versi', fase: 2 },
     ],
   },
-  { judul: 'Belanja & Dokumen', ikon: 'ShoppingCart', warna: '', fase: 3 },
+  {
+    judul: 'Belanja & Dokumen', ikon: 'ShoppingCart', warna: '', fase: 3,
+    anak: [
+      { judul: 'Daftar Belanja', ikon: 'ListChecks', ke: '/belanja/daftar', fase: 3 },
+      { judul: 'Belanja Baru', ikon: 'CirclePlus', ke: '/belanja/baru', fase: 3, peran: ['bendahara'] },
+      { judul: 'Honor & Transpor', ikon: 'Wallet', ke: '/belanja/honor', fase: 3 },
+      { judul: 'Arsip & Kelengkapan', ikon: 'Archive', ke: '/belanja/arsip', fase: 3 },
+    ],
+  },
   { judul: 'Pajak', ikon: 'ReceiptText', warna: '', fase: 4 },
   { judul: 'Buku Kas', ikon: 'BookOpenText', warna: '', fase: 4 },
   { judul: 'Laporan', ikon: 'FileBarChart', warna: '', fase: 5 },
@@ -37,7 +45,7 @@ export const MENU = [
       { judul: 'Standar Harga', ikon: 'Tags', ke: '/standar-harga', fase: 2 },
     ],
   },
-  { judul: 'Agenda Surat', ikon: 'Mailbox', warna: '', fase: 3 },
+  { judul: 'Agenda Surat', ikon: 'Mailbox', ke: '/agenda-surat/daftar', warna: '', fase: 3 },
   { judul: 'Impor Data', ikon: 'FileUp', ke: '/impor', warna: '', fase: 1, peran: ['bendahara'] },
   { judul: 'Log Aktivitas', ikon: 'History', ke: '/log', warna: '', fase: 1, peran: ['bendahara', 'kepala_sekolah'] },
   { judul: 'Pengaturan', ikon: 'Settings', ke: '/pengaturan', warna: '', fase: 1, peran: ['bendahara'] },
@@ -62,4 +70,17 @@ export const TAB_RKAS = [
   { kunci: 'per-tahap', judul: 'Per Tahap', ikon: 'Layers', warna: '' },
   { kunci: 'pergeseran', judul: 'Pergeseran', ikon: 'ArrowRightLeft', warna: '' },
   { kunci: 'versi', judul: 'Versi & Impor', ikon: 'GitCompareArrows', warna: '' },
+]
+
+// Tab halaman Belanja (rute /belanja/:tab)
+export const TAB_BELANJA = [
+  { kunci: 'daftar', judul: 'Daftar Belanja', ikon: 'ListChecks' },
+  { kunci: 'honor', judul: 'Honor & Transpor', ikon: 'Wallet' },
+  { kunci: 'arsip', judul: 'Arsip & Kelengkapan', ikon: 'Archive' },
+]
+
+// Tab halaman Agenda Surat (rute /agenda-surat/:tab)
+export const TAB_AGENDA = [
+  { kunci: 'daftar', judul: 'Buku Agenda', ikon: 'Mailbox' },
+  { kunci: 'pola', judul: 'Pola Penomoran', ikon: 'Hash' },
 ]

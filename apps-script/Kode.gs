@@ -12,9 +12,9 @@ const KONFIG = {
   SIMPAN_JSON: 12,
   SIMPAN_LOG_BULAN: 6,
 };
-const VERSI = 5;
+const VERSI = 6;
 const FS = 'https://firestore.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/databases/(default)/documents';
-const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian', 'potong'];
+const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian', 'potong', 'foto'];
 
 /* ======================= PINTU MASUK ======================= */
 
@@ -169,14 +169,17 @@ function cadangkan(jenis, oleh) {
     const semua = {};
     let jumlah = 0;
     koleksi.forEach(function (id) {
-      const docs = ambilSemua(id);
+      let docs = ambilSemua(id);
       if (!docs.length) return;
+      // Foto belanja: gambarnya sudah diarsipkan di Drive, cadangan cukup keterangan & tautan (tanpa isi gambar)
+      if (id === 'foto') docs = docs.map(function (d) { const x = {}; Object.keys(d.data).forEach(function (k) { if (k !== 'data') x[k] = d.data[k]; }); return { jalur: d.jalur, data: x, diperbarui: d.diperbarui }; });
       semua[id] = docs;
       jumlah += docs.length;
       // RKAS disimpan per SNP (rkas/{versi}/bagian/{snp}.butir) → di Sheets satu baris per uraian
       if (id === 'bagian') tulisLembar(ss, 'rkas_uraian', ratakanButir(docs));
       // SSH disimpan per potong (ssh/{sumber}/potong/{n}.butir) → di Sheets satu baris per item
       else if (id === 'potong') tulisLembar(ss, 'ssh_item', ratakanButir(docs));
+      else if (id === 'foto') tulisLembar(ss, 'belanja_foto', docs);
       else tulisLembar(ss, id, docs);
     });
     tulisRingkasan(ss, semua, mulai, jenis, oleh);

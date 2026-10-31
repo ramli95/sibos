@@ -5,6 +5,7 @@ import { useAuth } from '@/stores/auth'
 import { db, modePratinjau } from '@/services/firebase'
 import { sapaan, tanggalPanjang, rupiah, rupiahRingkas, persen as fPersen } from '@/utils/format'
 import { useRkas } from '@/stores/rkas'
+import { useBelanja } from '@/stores/belanja'
 import { ringkasan, proporsiJuknis } from '@/utils/rkasPohon'
 import Ikon from '@/components/Ikon.vue'
 import GridStat from '@/components/GridStat.vue'
@@ -14,14 +15,22 @@ const namaDepan = computed(() => (auth.pengguna?.nama || '').split(',')[0])
 
 // Ringkasan RKAS versi berlaku
 const rkas = useRkas()
-onMounted(() => rkas.muat().catch(() => {}))
+const belanja = useBelanja()
+onMounted(() => { rkas.muat().catch(() => {}); belanja.muat().catch(() => {}) })
+const belumLengkap = computed(() => belanja.daftar.filter((b) => (b.persen_lengkap || 0) < 100).length)
 const rk = computed(() => ringkasan(rkas.uraian))
 const proporsi = computed(() => proporsiJuknis(rkas.uraian, rkas.versi?.pagu || rk.value.jumlah))
 const kartuRkas = computed(() => [
   { judul: 'Pagu RKAS', nilai: rupiahRingkas(rk.value.jumlah), ikon: 'ClipboardList', nada: 'gelap', sub: rupiah(rk.value.jumlah) },
   { judul: 'Tahap I', nilai: rupiahRingkas(rk.value.tahap1), ikon: 'Flag', nada: 'primer', sub: 'Januari – Juni' },
   { judul: 'Tahap II', nilai: rupiahRingkas(rk.value.tahap2), ikon: 'Target', nada: 'primer', sub: 'Juli – Desember' },
-  { judul: 'Dibelanjakan', nilai: 'Rp 0', ikon: 'ShoppingCart', nada: 'sukses', sub: 'Terisi mulai Fase 3', persen: 0 },
+  { judul: 'Dibelanjakan', nilai: rupiahRingkas(belanja.totalRealisasi), ikon: 'ShoppingCart', nada: 'sukses', sub: `${fPersen(rk.value.jumlah ? (belanja.totalRealisasi / rk.value.jumlah) * 100 : 0, 1)} dari RKAS · ${belanja.lunas.length} lunas`, persen: rk.value.jumlah ? (belanja.totalRealisasi / rk.value.jumlah) * 100 : 0, ke: '/belanja/daftar' },
+])
+
+const pintasBelanja = computed(() => [
+  ...(auth.isAdmin ? [{ judul: 'Belanja baru', ket: 'Paket dokumen SPJ otomatis', ikon: 'CirclePlus', chip: 'ikon-chip', ke: '/belanja/baru' }] : []),
+  { judul: 'Belum lengkap', ket: belumLengkap.value ? `${belumLengkap.value} transaksi perlu arsip/foto/BNU` : 'Semua transaksi lengkap', ikon: 'ListChecks', chip: belumLengkap.value ? 'ikon-chip-peringatan' : 'ikon-chip-sukses', ke: '/belanja/arsip' },
+  { judul: 'Agenda surat', ket: 'Nomor surat & kwitansi', ikon: 'Mailbox', chip: 'ikon-chip', ke: '/agenda-surat/daftar' },
 ])
 
 // Daftar persiapan Fase 1 & 2 — status dibaca langsung dari database
@@ -73,12 +82,19 @@ const persen = computed(() => Math.round((jumlahSelesai.value / persiapan.value.
       </div>
       <p class="flex items-center gap-2 text-sm text-blue-100"><Ikon nama="CalendarDays" :ukuran="16" /> {{ tanggalPanjang(new Date()) }}</p>
       <h2 class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ sapaan() }}, {{ namaDepan }}</h2>
-      <p class="mt-1 max-w-xl text-blue-100">SIBOS memasuki <b>Fase 2 — Perencanaan</b>: RKAS, standar harga, dan proporsi juknis. Selesaikan daftar persiapan di bawah.</p>
+      <p class="mt-1 max-w-xl text-blue-100">SIBOS memasuki <b>Fase 3 — Belanja &amp; Dokumen SPJ</b>: catat belanja sekali, paket dokumen dan realisasi RKAS terisi otomatis.</p>
     </section>
 
     <!-- RKAS -->
     <section v-if="rkas.versi" class="space-y-4">
       <GridStat :daftar="kartuRkas" ringkas :bisa-klik="false" />
+      <div class="grid gap-3 sm:grid-cols-3">
+        <RouterLink v-for="x in pintasBelanja" :key="x.ke" :to="x.ke" class="kartu flex items-center gap-3 p-4 transition hover:shadow-md">
+          <span :class="['grid h-10 w-10 place-items-center rounded-xl', x.chip]"><Ikon :nama="x.ikon" :ukuran="19" /></span>
+          <div class="min-w-0 flex-1"><p class="font-bold">{{ x.judul }}</p><p class="truncate text-xs text-slate-500">{{ x.ket }}</p></div>
+          <Ikon nama="ChevronRight" class="text-slate-400" />
+        </RouterLink>
+      </div>
       <RouterLink to="/rkas/ringkasan" class="kartu flex flex-wrap items-center gap-4 p-4 transition hover:shadow-md">
         <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip"><Ikon nama="Scale" :ukuran="19" /></span>
         <div class="min-w-[10rem] flex-1"><p class="font-bold">Proporsi juknis</p><p class="text-xs text-slate-500">{{ rkas.versi.nama }} · Pasal 42</p></div>
