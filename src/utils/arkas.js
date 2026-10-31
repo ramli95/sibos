@@ -222,12 +222,13 @@ export function uraiKertasKerjaBulan(halaman) {
   const semua = bersihkan(halaman.join('\n'))
   const tahun = Number((semua.match(/TAHUN\s*ANGGARAN\s*:\s*(\d{4})/i) || [])[1]) || null
   const pagu = keAngka((semua.match(/Total\s*Penerimaan\s*([\d.]+)/i) || [])[1] || 0)
-  const bagian = semua.split(/RINCIAN\s+KERTAS\s+KERJA\s+PER\s*BULAN/i).slice(1)
+  let bagian = semua.split(/RINCIAN\s+KERTAS\s+KERJA\s+PER\s*BULAN/i).slice(1)
+  if (!bagian.length && /Bulan\s*:/i.test(semua)) bagian = [semua] // satu berkas = satu bulan
   const reBulan = new RegExp(`\\b(${BULAN.join('|')})\\s+(20\\d{2})\\b`, 'i')
   const hasil = []
   const galat = []
   for (const teks of bagian) {
-    const mb = teks.match(reBulan)
+    const mb = teks.match(new RegExp(`Bulan\\s*:?\\s*(${BULAN.join('|')})\\s+(20\\d{2})`, 'i')) || teks.match(reBulan)
     if (!mb) continue
     const bulan = BULAN.indexOf(mb[1].toLowerCase()) + 1
     const tok = keToken(teks)

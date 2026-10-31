@@ -67,15 +67,16 @@ function tebakJenis(nama, hasil) {
 }
 
 async function bacaBerkas(jenis, e) {
-  const file = e.target.files?.[0]
+  const daftar = [...(e.target.files || [])]
   e.target.value = ''
-  if (!file) return
+  if (!daftar.length) return
   membaca.value = jenis
   try {
     const { bacaTeksPdf } = await import('@/utils/bacaPdf')
-    const { halaman } = await bacaTeksPdf(file)
     const I = impor.value
     if (jenis === 'tahap') {
+      const file = daftar[0]
+      const { halaman } = await bacaTeksPdf(file)
       const h = uraiKertasKerjaTahap(halaman)
       if (!h.uraian.length) throw new Error('Berkas ini bukan Kertas Kerja RKAS per Tahap dari ARKAS, atau teksnya tidak terbaca.')
       I.berkasTahap = file.name; I.hasilTahap = h
@@ -88,9 +89,23 @@ async function bacaBerkas(jenis, e) {
       I.meta.nama = `${JENIS_VERSI[I.meta.jenis].nama}${bln ? ` (${bln})` : ''}`
       I.meta.berlaku = I.meta.jenis !== 'murni'
     } else {
-      const h = uraiKertasKerjaBulan(halaman)
-      if (!h.bulan.length) throw new Error('Berkas ini bukan Rincian Kertas Kerja Perbulan dari ARKAS, atau teksnya tidak terbaca.')
-      I.berkasBulan = file.name; I.hasilBulan = h
+      // Rincian per bulan: boleh satu berkas berisi 12 bulan, atau 12 berkas (satu per bulan) sekaligus.
+      // Berkas yang dipilih menambah/mengganti bulan yang sudah terbaca.
+      const gabung = I.hasilBulan ? { ...I.hasilBulan, bulan: [...I.hasilBulan.bulan], galat: [...I.hasilBulan.galat] } : { jenis: 'bulan', bulan: [], galat: [], total: 0 }
+      const nama = new Set(I.berkasBulan ? I.berkasBulan.split(', ') : [])
+      for (const file of daftar) {
+        membaca.value = `bulan:${file.name}`
+        const { halaman } = await bacaTeksPdf(file)
+        const h = uraiKertasKerjaBulan(halaman)
+        if (!h.bulan.length) throw new Error(`${file.name} bukan Rincian Kertas Kerja Perbulan dari ARKAS, atau teksnya tidak terbaca.`)
+        for (const b of h.bulan) { gabung.bulan = gabung.bulan.filter((x) => x.bulan !== b.bulan); gabung.bulan.push(b) }
+        gabung.galat.push(...h.galat)
+        gabung.tahun = gabung.tahun || h.tahun
+        nama.add(file.name)
+      }
+      gabung.bulan.sort((a, b) => a.bulan - b.bulan)
+      gabung.total = gabung.bulan.reduce((s, b) => s + b.jumlah_uraian, 0)
+      I.berkasBulan = [...nama].join(', '); I.hasilBulan = gabung
     }
     await hitungPasangan()
   } catch (err) { notif.kabari(err.message, 'galat') } finally { membaca.value = '' }
@@ -239,9 +254,9 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
             <input type="file" accept="application/pdf,.pdf" class="sr-only" @change="bacaBerkas('tahap', $event)" />
           </label>
           <label :class="['flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed p-4 transition hover:border-biru', impor.berkasBulan ? 'border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-slate-300 dark:border-slate-600']">
-            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white"><Ikon :nama="membaca === 'bulan' ? 'RefreshCw' : impor.berkasBulan ? 'CircleCheck' : 'CalendarDays'" :ukuran="20" :class="membaca === 'bulan' && 'animate-spin'" /></span>
-            <span class="min-w-0 flex-1"><b class="block text-sm">{{ impor.hanyaBulan ? '' : '2. ' }}Rincian Kertas Kerja Perbulan <span class="font-normal text-slate-500">{{ impor.hanyaBulan ? '' : '(disarankan)' }}</span></b><span class="block truncate text-xs text-slate-500">{{ impor.berkasBulan || 'PDF dari ARKAS → Cetak → Rincian Kertas Kerja Perbulan' }}</span></span>
-            <input type="file" accept="application/pdf,.pdf" class="sr-only" @change="bacaBerkas('bulan', $event)" />
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white"><Ikon :nama="membaca.startsWith('bulan') ? 'RefreshCw' : impor.berkasBulan ? 'CircleCheck' : 'CalendarDays'" :ukuran="20" :class="membaca.startsWith('bulan') && 'animate-spin'" /></span>
+            <span class="min-w-0 flex-1"><b class="block text-sm">{{ impor.hanyaBulan ? '' : '2. ' }}Rincian Kertas Kerja Perbulan <span class="font-normal text-slate-500">{{ impor.hanyaBulan ? '' : '(disarankan)' }}</span></b><span class="block truncate text-xs text-slate-500">{{ membaca.startsWith('bulan:') ? 'Membaca ' + membaca.slice(6) + '…' : impor.hasilBulan ? `${impor.hasilBulan.bulan.length} bulan terbaca (${impor.hasilBulan.bulan.map((b) => NAMA_BULAN[b.bulan - 1].slice(0, 3)).join(', ')})` : 'PDF dari ARKAS, boleh pilih 12 berkas sekaligus' }}</span></span>
+            <input type="file" accept="application/pdf,.pdf" multiple class="sr-only" @change="bacaBerkas('bulan', $event)" />
           </label>
         </div>
 
