@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import { muatDaftarVersi, muatUraian } from '@/services/rkas'
 import { muatReferensi } from '@/services/referensi'
 import { pencariNama } from '@/utils/rkasPohon'
+import { useTahun } from './tahun'
 
 export const useRkas = defineStore('rkas', () => {
   const tahun = ref(2026)
@@ -23,8 +24,10 @@ export const useRkas = defineStore('rkas', () => {
     nama.value = pencariNama(keg.butir, rek.butir)
   }
 
+  let tahunDiatur = false
   async function muat({ segar = false } = {}) {
     if (dimuat && !segar) return
+    if (!tahunDiatur) { const ta = useTahun(); if (ta.siap) { tahun.value = ta.aktif; tahunDiatur = true } }
     memuat.value = true
     galat.value = ''
     try {
@@ -41,7 +44,7 @@ export const useRkas = defineStore('rkas', () => {
     uraian.value = id ? await muatUraian(id, { segar }) : []
   }
 
-  async function gantiTahun(t) { tahun.value = Number(t); dimuat = false; idVersi.value = null; await muat() }
+  async function gantiTahun(t) { tahunDiatur = true; tahun.value = Number(t); dimuat = false; idVersi.value = null; await muat() }
 
   return { tahun, daftarVersi, idVersi, versi, versiBerlaku, uraian, memuat, galat, nama, muat, muatNama, pilihVersi, gantiTahun }
 })

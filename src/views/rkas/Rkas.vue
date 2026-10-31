@@ -7,6 +7,8 @@ import { useAuth } from '@/stores/auth'
 import { JENIS_VERSI } from '@/services/rkas'
 import { rupiah } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
+import PilihTahun from '@/components/PilihTahun.vue'
+import PitaArsip from '@/components/PitaArsip.vue'
 import TabRingkasan from './TabRingkasan.vue'
 import TabKertasKerja from './TabKertasKerja.vue'
 import TabPerBulan from './TabPerBulan.vue'
@@ -23,7 +25,6 @@ const komponen = { ringkasan: TabRingkasan, 'kertas-kerja': TabKertasKerja, 'per
 const tab = computed(() => TAB_RKAS.find((t) => t.kunci === aktif.value) || TAB_RKAS[0])
 onMounted(() => rkas.muat())
 
-const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return [t - 1, t, t + 1] })
 const v = computed(() => rkas.versi)
 const cocokPagu = computed(() => v.value && v.value.pagu && v.value.total === v.value.pagu)
 </script>
@@ -51,10 +52,7 @@ const cocokPagu = computed(() => v.value && v.value.pagu && v.value.total === v.
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <label class="sr-only" for="tahun-rkas">Tahun anggaran</label>
-          <select id="tahun-rkas" class="masukan w-auto py-2" :value="rkas.tahun" @change="rkas.gantiTahun($event.target.value)">
-            <option v-for="t in tahunPilihan" :key="t" :value="t">TA {{ t }}</option>
-          </select>
+          <PilihTahun id="tahun-rkas" :model-value="rkas.tahun" @update:model-value="rkas.gantiTahun($event)" />
         </div>
       </div>
       <div v-if="rkas.daftarVersi.length" class="relative mt-4 flex gap-2 overflow-x-auto pb-1">
@@ -77,6 +75,8 @@ const cocokPagu = computed(() => v.value && v.value.pagu && v.value.total === v.
         <Ikon :nama="t.ikon" :ukuran="17" :class="aktif === t.kunci ? 'text-white' : 'text-slate-400'" /> {{ t.judul }}
       </button>
     </div>
+
+    <PitaArsip :tahun="rkas.tahun" />
 
     <div v-if="rkas.memuat && !rkas.daftarVersi.length" class="kartu p-10 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="inline animate-spin" /> Memuat RKAS…</div>
     <div v-else-if="rkas.galat" class="kartu flex items-center gap-3 p-5 text-sm text-rose-600"><Ikon nama="CircleAlert" /> {{ rkas.galat }}</div>

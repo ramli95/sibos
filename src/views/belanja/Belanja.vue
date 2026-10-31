@@ -6,6 +6,8 @@ import { useBelanja } from '@/stores/belanja'
 import { useAuth } from '@/stores/auth'
 import { rupiah } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
+import PilihTahun from '@/components/PilihTahun.vue'
+import PitaArsip from '@/components/PitaArsip.vue'
 import TabDaftar from './TabDaftar.vue'
 import TabArsip from './TabArsip.vue'
 
@@ -15,7 +17,6 @@ const belanja = useBelanja()
 const auth = useAuth()
 const aktif = computed(() => route.params.tab || 'daftar')
 onMounted(() => belanja.muat())
-const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return [t - 1, t, t + 1] })
 </script>
 
 <template>
@@ -31,10 +32,7 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <label class="sr-only" for="tahun-belanja">Tahun anggaran</label>
-        <select id="tahun-belanja" class="masukan w-auto py-2" :value="belanja.tahun" @change="belanja.muat({ tahun: $event.target.value })">
-          <option v-for="t in tahunPilihan" :key="t" :value="t">TA {{ t }}</option>
-        </select>
+        <PilihTahun id="tahun-belanja" :model-value="belanja.tahun" @update:model-value="belanja.muat({ tahun: $event })" />
         <template v-if="auth.isAdmin">
           <RouterLink to="/belanja/honor/baru" class="tombol-garis"><Ikon nama="Wallet" :ukuran="17" class="text-biru" /> <span class="hidden sm:inline">Honor/Transpor</span><span class="sm:hidden">Honor</span></RouterLink>
           <RouterLink to="/belanja/baru" class="tombol-utama"><Ikon nama="CirclePlus" :ukuran="17" /> Belanja Baru</RouterLink>
@@ -50,6 +48,8 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
         <Ikon :nama="t.ikon" :ukuran="17" :class="aktif === t.kunci ? 'text-white' : 'text-slate-400'" /> {{ t.judul }}
       </button>
     </div>
+
+    <PitaArsip :tahun="belanja.tahun" />
 
     <div v-if="belanja.galat" class="kartu flex items-center gap-3 p-5 text-sm text-rose-600"><Ikon nama="CircleAlert" /> {{ belanja.galat }}</div>
     <TabArsip v-else-if="aktif === 'arsip'" />

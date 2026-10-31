@@ -177,3 +177,53 @@ export async function bacaBerkas(file, { tersembunyi = false } = {}) {
     return { nama: ws.name, baris }
   })
 }
+
+/**
+ * Templat standar migrasi SIBOS: lembar "Buku Kas", "Pajak", "Penerima" dan "Petunjuk".
+ * Judul kolom sama dengan yang dikenali otomatis oleh menu Migrasi, sehingga data dari format apa pun
+ * cukup disalin ke templat ini bila pengenalan kolom pada berkas aslinya kurang pas.
+ */
+export async function unduhTemplatMigrasi(tahun) {
+  const ExcelJS = await muatExcel()
+  const wb = new ExcelJS.Workbook()
+  const lembar = [
+    ['Buku Kas', ['Lunas Bayar', 'Tanggal Transaksi', 'No. Bukti', 'Kode Kegiatan', 'Kode Rekening', 'Kegiatan', 'Penerima', 'Pemasukan', 'Pengeluaran', 'PPN', 'PPh 21', 'PPh 23', 'Keterangan'],
+      [[`${tahun}-01-20`, `${tahun}-01-20`, '', '', '', `Transfer Dana BOSP Tahap 1`, '', 590700000, 0, '', '', '', ''],
+        [`${tahun}-01-21`, `${tahun}-01-20`, 'BNU 01', '06.03.01', '5.1.02.02.01.0061', 'Bayar langganan listrik sekolah Januari', 'PLN', 0, 3581800, '', '', '', '']], [0, 1]],
+    ['Pajak', ['Tanggal', 'Kegiatan', 'Keyword', 'Cek Up', 'Harga/biaya', 'PPN', 'PPh 21', 'PPh 23', 'Keterangan'],
+      [[`${tahun}-02-14`, 'Biaya konsumsi kombel sekolah', 'Konsumsi', true, 2925000, 0, 0, 58500, 'Dibayar Rekanan']], [0]],
+    ['Penerima', ['Kode Transaksi', 'Lunas Bayar', 'Kegiatan', 'Jenis', 'Nama Penerima', 'NIP', 'Gol', 'Status', 'Jabatan', 'Jumlah', 'Vol', 'Besaran', 'Pot. PPh 21'],
+      [['1.1', `${tahun}-01-30`, 'Honor PTT bulan Januari', 'Honor', 'Nama Penerima', '', '', 'Honorer', 'Satpam', 1500000, 1, 1500000, 0]], [1]],
+  ]
+  lembar.forEach(([nama, kepala, contoh, kolTanggal]) => {
+    const ws = wb.addWorksheet(nama)
+    kepala.forEach((j, i) => {
+      const c = ws.getCell(1, i + 1)
+      c.value = j
+      c.font = { name: HURUF, bold: true, color: { argb: 'FFFFFFFF' } }
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }
+      c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
+      ws.getColumn(i + 1).width = Math.max(14, j.length + 6)
+    })
+    contoh.forEach((r, ri) => r.forEach((v, i) => {
+      const c = ws.getCell(ri + 2, i + 1)
+      c.value = kolTanggal.includes(i) && v ? new Date(`${v}T00:00:00Z`) : v
+      if (kolTanggal.includes(i)) c.numFmt = 'dd/mm/yyyy'
+      if (typeof v === 'number') c.numFmt = '#,##0'
+      c.font = { name: HURUF, italic: true, color: { argb: 'FF5B6578' } }
+    }))
+    ws.views = [{ state: 'frozen', ySplit: 1 }]
+  })
+  const wp = wb.addWorksheet('Petunjuk')
+  wp.getColumn(1).width = 110
+  ;['TEMPLAT MIGRASI TRANSAKSI — SIBOS', '',
+    'Buku Kas: satu baris per transaksi. Isi Pemasukan untuk penerimaan dana (Tahap I/II, bunga), Pengeluaran untuk belanja. Tanggal memakai format tanggal Excel atau dd/mm/yyyy.',
+    'Kolom PPN / PPh 21 / PPh 23 di Buku Kas boleh berisi nilai rupiah atau centang (TRUE). Nilai rinci sebaiknya di lembar Pajak.',
+    'Pajak: Keterangan menentukan perlakuan — "Belanja SIPLAH" (dipungut mitra), "Dibayar Rekanan" (dipungut/dipotong Bendahara lewat rekening BOSP), "Dibayar Sekolah" (disetor dari luar rekening BOSP). Cek Up TRUE = sudah disetor.',
+    'Penerima: rincian honor/transpor per orang. Angka sebelum titik pada Kode Transaksi mengelompokkan orang dalam satu pembayaran (1.1, 1.2 → transaksi 1). Besaran = jumlah bruto per orang (atau Jumlah × Vol).',
+    'Lembar & kolom tidak harus bernama sama: di menu Migrasi semua lembar dan kolom bisa dipilih manual.',
+    'Hapus baris contoh (huruf miring) sebelum mengimpor.',
+  ].forEach((t, i) => { const c = wp.getCell(i + 1, 1); c.value = t; c.font = { name: HURUF, size: i === 0 ? 13 : 11, bold: i === 0 }; c.alignment = { wrapText: true } })
+  const buf = await wb.xlsx.writeBuffer()
+  unduhBlob(buf, `Templat Migrasi SIBOS ${tahun}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+}

@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuth } from '@/stores/auth'
+import { useTahun } from '@/stores/tahun'
 
 // Hash history (#/dasbor) supaya semua halaman tetap terbuka di GitHub Pages tanpa error 404.
 const routes = [
@@ -54,6 +55,8 @@ router.beforeEach(async (ke) => {
   if (!auth.pengguna) return { path: '/masuk', query: { lanjut: ke.fullPath } }
   if (auth.pengguna.wajib_ganti_password && ke.name !== 'buat-password') return '/buat-password'
   if (ke.meta.peran && !auth.punyaPeran(...ke.meta.peran)) return '/dasbor'
+  const tahun = useTahun()
+  if (!tahun.siap) await tahun.muat()
   return true
 })
 

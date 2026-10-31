@@ -11,6 +11,9 @@ import { isiPola } from '@/utils/belanja'
 import { tanggalPendek, NAMA_BULAN, keIso, dariIso } from '@/utils/format'
 import { eksporExcel } from '@/utils/excel'
 import Ikon from '@/components/Ikon.vue'
+import PilihTahun from '@/components/PilihTahun.vue'
+import PitaArsip from '@/components/PitaArsip.vue'
+import { useTahun } from '@/stores/tahun'
 import GridStat from '@/components/GridStat.vue'
 import Laci from '@/components/Laci.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
@@ -21,7 +24,8 @@ const auth = useAuth()
 const notif = useNotifikasi()
 const aktif = computed(() => route.params.tab || 'daftar')
 
-const tahun = ref(new Date().getFullYear() >= 2026 ? new Date().getFullYear() : 2026)
+const ta = useTahun()
+const tahun = ref(ta.aktif)
 const daftar = ref([])
 const pola = ref({ ...POLA_NOMOR_AWAL })
 const penghitung = ref({})
@@ -110,7 +114,6 @@ const contoh = (p) => isiPola(p, { urut: 12, tanggal: keIso(), rekanan: 'Toko Se
 async function simpanPola() {
   try { await simpanPolaNomor({ ...polaUbah }); pola.value = { ...polaUbah }; notif.kabari('Pola penomoran tersimpan. Berlaku untuk nomor berikutnya.') } catch (e) { notif.kabari(e.message, 'galat') }
 }
-const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return [t - 1, t, t + 1] })
 </script>
 
 <template>
@@ -123,7 +126,7 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
         <p class="text-xs text-slate-500">Nomor dari belanja tercatat otomatis; surat lain bisa mengambil nomor di sini.</p>
       </div>
       <div class="flex w-full gap-2 sm:w-auto">
-        <select v-model.number="tahun" class="masukan w-auto py-2" aria-label="Tahun"><option v-for="t in tahunPilihan" :key="t" :value="t">{{ t }}</option></select>
+        <PilihTahun id="tahun-agenda" v-model="tahun" />
         <button v-if="auth.isAdmin" class="tombol-utama flex-1 sm:flex-none" @click="suratBaru"><Ikon nama="CirclePlus" :ukuran="17" /> Ambil nomor</button>
       </div>
     </div>
@@ -135,6 +138,8 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
         <Ikon :nama="t.ikon" :ukuran="17" :class="aktif === t.kunci ? 'text-white' : 'text-slate-400'" /> {{ t.judul }}
       </button>
     </div>
+
+    <PitaArsip :tahun="tahun" />
 
     <template v-if="aktif === 'daftar'">
       <GridStat :daftar="statistik" :memuat="memuat" :bisa-klik="false" />

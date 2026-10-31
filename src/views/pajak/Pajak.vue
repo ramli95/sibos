@@ -6,6 +6,8 @@ import { useKas } from '@/stores/kas'
 import { useBelanja } from '@/stores/belanja'
 import { rupiah } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
+import PilihTahun from '@/components/PilihTahun.vue'
+import PitaArsip from '@/components/PitaArsip.vue'
 import TabTerutang from './TabTerutang.vue'
 import TabBukuPajak from './TabBukuPajak.vue'
 import TabPenerima from './TabPenerima.vue'
@@ -17,7 +19,6 @@ const kas = useKas()
 const belanja = useBelanja()
 const aktif = computed(() => route.params.tab || 'terutang')
 onMounted(() => kas.muat())
-const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return [t - 1, t, t + 1] })
 </script>
 
 <template>
@@ -33,10 +34,7 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
         </p>
       </div>
       <div class="flex w-full items-center gap-2 sm:w-auto">
-        <label class="sr-only" for="tahun-pajak">Tahun anggaran</label>
-        <select id="tahun-pajak" class="masukan flex-1 py-2 sm:w-auto sm:flex-none" :value="belanja.tahun" @change="kas.muat({ tahun: Number($event.target.value) })">
-          <option v-for="t in tahunPilihan" :key="t" :value="t">TA {{ t }}</option>
-        </select>
+        <PilihTahun id="tahun-pajak" :model-value="belanja.tahun" @update:model-value="kas.muat({ tahun: $event })" />
         <button class="tombol-garis" :disabled="kas.memuat" aria-label="Muat ulang" @click="kas.segarkan()"><Ikon nama="RefreshCw" :ukuran="17" :class="['text-biru', kas.memuat && 'animate-spin']" /></button>
       </div>
     </div>
@@ -48,6 +46,8 @@ const tahunPilihan = computed(() => { const t = new Date().getFullYear(); return
         <Ikon :nama="t.ikon" :ukuran="17" :class="aktif === t.kunci ? 'text-white' : 'text-slate-400'" /> {{ t.judul }}
       </button>
     </div>
+
+    <PitaArsip :tahun="belanja.tahun" />
 
     <div v-if="kas.galat" class="kartu flex items-center gap-3 p-5 text-sm text-rose-600"><Ikon nama="CircleAlert" /> {{ kas.galat }}</div>
     <TabBukuPajak v-else-if="aktif === 'buku'" />

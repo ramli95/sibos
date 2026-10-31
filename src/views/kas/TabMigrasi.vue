@@ -8,7 +8,7 @@ import { useAuth } from '@/stores/auth'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { simpanMigrasi, hapusMigrasi } from '@/services/kas'
 import { modePratinjau } from '@/services/firebase'
-import { bacaBerkas } from '@/utils/excel'
+import { bacaBerkas, unduhTemplatMigrasi } from '@/utils/excel'
 import { BIDANG_TRANSAKSI, BIDANG_PAJAK, BIDANG_PENERIMA, kenaliKolom, ambilBaris, susunMigrasi, angkaRingkasan, keIsoTanggal, keAngka } from '@/utils/migrasi'
 import { TARGET_SEMESTER_1, WARNA_PAJAK } from '@/config/pajak'
 import { rupiah, tanggalPendek, NAMA_BULAN } from '@/utils/format'
@@ -50,6 +50,7 @@ async function pilihBerkas(e) {
     namaBerkas.value = f.name
     trx.lembar = cariLembar(/simakda/i) || cariLembar(/arkas/i) || cariLembar(/db.?_?sampul/i) || lembar.value[0]?.nama || ''
     kenali(trx, BIDANG_TRANSAKSI)
+    buka.trx = Object.keys(trx.peta).length < 4 // format tak dikenal → tampilkan pemetaan kolom
     pjk.lembar = cariLembar(/\btax\b|pajak/i)
     pjk.aktif = !!pjk.lembar
     if (pjk.lembar) kenali(pjk, BIDANG_PAJAK)
@@ -112,12 +113,13 @@ const pratinjau = computed(() => barisTrx.value.slice(0, 5))
     <section class="kartu flex flex-wrap items-center gap-3 p-4 sm:p-5">
       <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl ikon-chip-tosca"><Ikon nama="DatabaseZap" :ukuran="24" /></span>
       <div class="min-w-0 flex-1">
-        <h2 class="font-bold">Migrasi transaksi {{ kas.tahun }} dari Jurnal Dana BOS</h2>
-        <p class="text-sm text-slate-500">Google Sheets → File → Download → Microsoft Excel (.xlsx). Lembar tersembunyi (mis. X ARKAS) ikut terbaca. Tidak ada yang tersimpan sebelum Bapak menekan “Simpan migrasi”.</p>
+        <h2 class="font-bold">Migrasi / impor transaksi TA {{ kas.tahun }} dari luar SIBOS</h2>
+        <p class="text-sm text-slate-500">Berkas .xlsx/.csv format apa pun (Jurnal Dana BOS, ekspor ARKAS/SIMAKDA, buku kas buatan sendiri). Lembar & kolom dikenali otomatis dan selalu bisa dipilih manual; lembar tersembunyi ikut terbaca. Bila formatnya sangat berbeda, salin datanya ke templat SIBOS. Tidak ada yang tersimpan sebelum “Simpan migrasi”.</p>
         <p v-if="jumlahMigrasi" class="mt-1 text-xs font-semibold text-[#167A6C] dark:text-[#5FD3C0]">{{ jumlahMigrasi }} belanja hasil migrasi sudah ada di SIBOS.</p>
       </div>
       <template v-if="auth.isAdmin">
         <input ref="masukan" type="file" accept=".xlsx,.csv" class="hidden" @change="pilihBerkas" />
+        <button class="tombol-garis" @click="unduhTemplatMigrasi(kas.tahun).catch((e) => notif.kabari(e.message, 'galat'))"><Ikon nama="FileDown" :ukuran="16" class="text-emerald-600" /> <span class="hidden sm:inline">Templat SIBOS</span></button>
         <button v-if="jumlahMigrasi || modePratinjau" class="tombol-garis text-rose-600" @click="hapusSemua"><Ikon nama="Trash2" :ukuran="16" /> <span class="hidden sm:inline">Hapus migrasi</span></button>
         <button class="tombol-utama" :disabled="membaca" @click="masukan.click()"><Ikon :nama="membaca ? 'RefreshCw' : 'FileUp'" :ukuran="17" :class="membaca && 'animate-spin'" /> {{ membaca ? 'Membaca…' : namaBerkas ? 'Ganti berkas' : 'Pilih berkas .xlsx' }}</button>
       </template>

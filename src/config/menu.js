@@ -73,6 +73,7 @@ export const MENU = [
 // Tab halaman Pengaturan
 export const TAB_PENGATURAN = [
   { kunci: 'profil', judul: 'Profil Sekolah', ikon: 'School', warna: '' },
+  { kunci: 'tahun', judul: 'Tahun Anggaran', ikon: 'CalendarRange', warna: '' },
   { kunci: 'kop', judul: 'Kop & Logo', ikon: 'Image', warna: '' },
   { kunci: 'pejabat', judul: 'Pejabat per Periode', ikon: 'UserCheck', warna: '' },
   { kunci: 'pengguna', judul: 'Pengguna & Peran', ikon: 'UsersRound', warna: '' },

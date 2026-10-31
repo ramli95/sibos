@@ -6,6 +6,7 @@ import { ref, computed } from 'vue'
 import { muatDaftarBelanja } from '@/services/belanja'
 import { kunciUraian, tanggalRealisasi } from '@/utils/belanja'
 import { dariIso } from '@/utils/format'
+import { useTahun } from './tahun'
 
 export const useBelanja = defineStore('belanja', () => {
   const tahun = ref(2026)
@@ -15,6 +16,7 @@ export const useBelanja = defineStore('belanja', () => {
   let dimuat = null
 
   async function muat({ segar = false, tahun: t } = {}) {
+    if (!t && dimuat == null && !daftar.value.length) { const ta = useTahun(); if (ta.siap) tahun.value = ta.aktif }
     if (t && Number(t) !== tahun.value) { tahun.value = Number(t); dimuat = null }
     if (dimuat === tahun.value && !segar) return
     memuat.value = true
