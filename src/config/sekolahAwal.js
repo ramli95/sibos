@@ -44,3 +44,26 @@ export const PEMILIK_AWAL = {
 
 // Folder induk SIBOS di Google Drive (bisa diganti di Pengaturan → Drive & Cadangan)
 export const ID_FOLDER_DRIVE_AWAL = '12G033COl3Cny9yenJOvxgQ16ilwaeM7p'
+
+// Kop surat dinas mengikuti tata naskah Pemerintah Kota Makassar:
+// PEMERINTAH KOTA MAKASSAR / NAMA UNIT (tebal) / alamat lengkap / telepon / laman & pos-el
+export const HURUF_KOP = ['Times New Roman', 'Bookman Old Style', 'Arial']
+export const GARIS_KOP = [
+  { nilai: 'bingkai', label: 'Bingkai' },
+  { nilai: 'tunggal', label: 'Garis bawah' },
+  { nilai: 'ganda', label: 'Garis ganda' },
+  { nilai: 'tidak', label: 'Tanpa garis' },
+]
+export function kopBawaan(p = {}) {
+  return {
+    huruf: 'Times New Roman',
+    garis: 'bingkai',
+    baris: [
+      { teks: 'PEMERINTAH KOTA MAKASSAR', ukuran: 14, tebal: false },
+      { teks: 'UPT SPF SMP NEGERI 19 MAKASSAR', ukuran: 16, tebal: true },
+      { teks: 'Jalan Tamangapa Raya III Nomor 35, Bangkala, Manggala, Kota Makassar, Sulawesi Selatan, Kode Pos 90235,', ukuran: 7.5, tebal: false },
+      { teks: `Telpon ${p.telepon || '(0411) 492912'}`, ukuran: 11, tebal: false },
+      { teks: `Pos-el ${p.email || 'smpn.19@gmail.com'}`, ukuran: 10, tebal: false },
+    ],
+  }
+}

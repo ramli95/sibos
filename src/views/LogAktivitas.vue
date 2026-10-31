@@ -7,6 +7,7 @@ import { useNotifikasi } from '@/stores/notifikasi'
 import { tanggalPendek } from '@/utils/format'
 import { eksporExcel } from '@/utils/excel'
 import Ikon from '@/components/Ikon.vue'
+import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
 const notif = useNotifikasi()
 const log = ref([])
@@ -70,6 +71,15 @@ const kelompok = computed(() => {
 })
 const jam = (d) => (d ? d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Makassar' }) : '')
 
+const cetakTerbuka = ref(false)
+const kolomCetak = [
+  { judul: 'Tanggal', nilai: (l) => (l.waktu ? tanggalPendek(l.waktu) : ''), lebar: '2.2cm', rata: 'tengah' },
+  { judul: 'Jam', nilai: (l) => jam(l.waktu), lebar: '1.4cm', rata: 'tengah' },
+  { judul: 'Pengguna', nilai: (l) => nama.value[l.uid] || '', lebar: '5cm' },
+  { judul: 'Aksi', nilai: (l) => gaya(l.aksi).label, lebar: '2.6cm' },
+  { judul: 'Keterangan', nilai: (l) => l.keterangan },
+]
+
 function ekspor() {
   eksporExcel({
     judul: 'Log Aktivitas', namaBerkas: 'Log Aktivitas SIBOS', baris: hasil.value,
@@ -93,9 +103,11 @@ function ekspor() {
       </div>
       <select v-model="jenis" class="masukan w-auto"><option value="semua">Semua aksi</option><option v-for="a in jenisAda" :key="a" :value="a">{{ gaya(a).label }}</option></select>
       <select v-model.number="hari" class="masukan w-auto" @change="muat"><option :value="7">7 hari</option><option :value="30">30 hari</option><option :value="90">90 hari</option><option :value="365">1 tahun</option></select>
-      <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Ekspor</button>
+      <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
     </div>
 
+    <CetakDaftar v-if="cetakTerbuka" judul="Log Aktivitas" :subjudul="`${hari} hari terakhir`" :kolom="kolomCetak" :baris="hasil" :tanda-tangan="false" excel
+                 @tutup="cetakTerbuka = false" @excel="ekspor" />
     <div v-if="memuat" class="kartu p-10 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="inline animate-spin" /> Memuat log…</div>
     <div v-else-if="!hasil.length" class="kartu p-10 text-center text-sm text-slate-500">Tidak ada aktivitas pada rentang ini.</div>
     <div v-else class="space-y-5">

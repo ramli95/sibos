@@ -8,6 +8,7 @@ import { eksporExcel } from '@/utils/excel'
 import { formatNip, formatWa, STATUS_KEPEGAWAIAN } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
 import FormPegawai from './FormPegawai.vue'
+import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
 const auth = useAuth()
 const notif = useNotifikasi()
@@ -77,6 +78,18 @@ async function hapus() {
   try { await hapusPegawai(p); notif.kabari('Data pegawai dihapus.'); terpilih.value = null; await muat() } catch (e) { notif.kabari(e.message, 'galat') }
 }
 
+const cetakTerbuka = ref(false)
+const kolomCetak = [
+  { judul: 'Nama', nilai: namaLengkap, lebar: '5.5cm' },
+  { judul: 'NIP', nilai: (p) => formatNip(p.nip), lebar: '4cm' },
+  { judul: 'L/P', nilai: (p) => p.jenis_kelamin, lebar: '1cm', rata: 'tengah' },
+  { judul: 'Status', nilai: (p) => p.status_kepegawaian, lebar: '1.8cm', rata: 'tengah' },
+  { judul: 'Gol.', nilai: (p) => p.golongan, lebar: '1.3cm', rata: 'tengah' },
+  { judul: 'Pangkat', nilai: (p) => p.pangkat, lebar: '4cm' },
+  { judul: 'Jabatan', nilai: (p) => p.jabatan },
+  { judul: 'TPG', nilai: (p) => (p.terima_tpg ? 'Ya' : '-'), lebar: '1.2cm', rata: 'tengah' },
+]
+
 async function ekspor() {
   const kolom = [
     { judul: 'Nama', lebar: 30, nilai: namaLengkap },
@@ -126,7 +139,7 @@ async function ekspor() {
       </div>
       <label class="flex items-center gap-1.5 px-1 text-xs text-slate-500"><input v-model="tampilNonaktif" type="checkbox" class="accent-biru" /> Tampilkan nonaktif</label>
       <div class="ml-auto flex flex-wrap gap-2">
-        <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Ekspor Excel</button>
+        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
         <template v-if="auth.isAdmin">
           <RouterLink to="/impor?jenis=pegawai" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-tosca" /> Impor</RouterLink>
           <button class="tombol-utama" @click="terpilih = {}"><Ikon nama="UserPlus" :ukuran="17" /> Tambah</button>
@@ -180,6 +193,8 @@ async function ekspor() {
       </template>
     </div>
 
+    <CetakDaftar v-if="cetakTerbuka" judul="Daftar Pegawai" :subjudul="saring === 'Semua' ? null : `Status ${saring}`" :kolom="kolomCetak" :baris="hasil" excel
+                 @tutup="cetakTerbuka = false" @excel="ekspor" />
     <FormPegawai v-if="terpilih" :pegawai="terpilih.id ? terpilih : null" :boleh-ubah="auth.isAdmin" :lihat-rahasia="auth.isAdmin" :menyimpan="menyimpan"
                  @tutup="terpilih = null" @simpan="simpan" @hapus="hapus" />
   </div>

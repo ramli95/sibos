@@ -8,6 +8,7 @@ import { eksporExcel } from '@/utils/excel'
 import { formatWa } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
 import FormRekanan from './FormRekanan.vue'
+import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
 const auth = useAuth()
 const notif = useNotifikasi()
@@ -60,6 +61,17 @@ async function hapus() {
   try { await hapusRekanan(terpilih.value); notif.kabari('Rekanan dihapus.'); terpilih.value = null; await muat() } catch (e) { notif.kabari(e.message, 'galat') }
 }
 
+const cetakTerbuka = ref(false)
+const kolomCetak = [
+  { judul: 'Nama Usaha', nilai: (r) => r.nama_usaha, lebar: '5cm' },
+  { judul: 'Pemilik', nilai: (r) => r.pemilik, lebar: '4cm' },
+  { judul: 'Bentuk', nilai: (r) => (r.bentuk_usaha === 'badan' ? 'Badan' : 'Orang pribadi'), lebar: '2.4cm' },
+  { judul: 'NPWP', nilai: (r) => r.npwp, lebar: '4.2cm' },
+  { judul: 'PKP', nilai: (r) => (r.status_pkp ? 'Ya' : 'Tidak'), lebar: '1.3cm', rata: 'tengah' },
+  { judul: 'Alamat', nilai: (r) => r.alamat },
+  { judul: 'Rekening', nilai: (r) => [r.bank, r.no_rekening].filter(Boolean).join(' '), lebar: '4cm' },
+]
+
 async function ekspor() {
   const kolom = [
     { kunci: 'nama_usaha', judul: 'Nama Usaha', lebar: 28 }, { kunci: 'pemilik', judul: 'Pemilik', lebar: 22 }, { kunci: 'jabatan_pemilik', judul: 'Jabatan', lebar: 14 },
@@ -89,7 +101,7 @@ async function ekspor() {
         <input v-model="cari" class="masukan pl-9" placeholder="Cari nama usaha, pemilik, NPWP…" />
       </div>
       <div class="ml-auto flex flex-wrap gap-2">
-        <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Ekspor Excel</button>
+        <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-merah" /> Cetak / Unduh</button>
         <template v-if="auth.isAdmin">
           <RouterLink to="/impor?jenis=rekanan" class="tombol-garis"><Ikon nama="FileUp" :ukuran="17" class="text-tosca" /> Impor</RouterLink>
           <button class="tombol bg-orange-500 text-white hover:bg-orange-600" @click="terpilih = {}"><Ikon nama="Plus" :ukuran="17" /> Tambah</button>
@@ -124,6 +136,7 @@ async function ekspor() {
       </button>
     </div>
 
+    <CetakDaftar v-if="cetakTerbuka" judul="Daftar Rekanan" :kolom="kolomCetak" :baris="hasil" excel @tutup="cetakTerbuka = false" @excel="ekspor" />
     <FormRekanan v-if="terpilih" :rekanan="terpilih.id ? terpilih : null" :boleh-ubah="auth.isAdmin" :menyimpan="menyimpan" :pegawai="pegawai" :semua-rekanan="daftar"
                  @tutup="terpilih = null" @simpan="simpan" @hapus="hapus" />
   </div>

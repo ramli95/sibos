@@ -11,6 +11,7 @@ import LoncengNotifikasi from '@/components/LoncengNotifikasi.vue'
 import TombolPasang from '@/components/TombolPasang.vue'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { dengarkanPushDepan } from '@/services/push'
+import { useTampilan } from '@/stores/tampilan'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,6 +23,13 @@ onMounted(() => {
 })
 onBeforeUnmount(() => notif.hentikan())
 const laciTerbuka = ref(false)
+
+// Sidebar desktop: 'tetap' atau 'otomatis' (ikon saja, melebar saat kursor di atasnya)
+const tampilan = useTampilan()
+const otomatis = computed(() => tampilan.sidebar === 'otomatis')
+const melebar = ref(false)
+let jeda
+const sentuhSidebar = (masuk) => { clearTimeout(jeda); jeda = setTimeout(() => (melebar.value = masuk), masuk ? 120 : 280) }
 const menuAkun = ref(false)
 const wadahAkun = ref(null)
 onClickOutside(wadahAkun, () => (menuAkun.value = false))
@@ -35,9 +43,13 @@ async function keluar() {
 </script>
 
 <template>
-  <div class="min-h-dvh lg:grid lg:grid-cols-[272px_minmax(0,1fr)]">
+  <div :class="['min-h-dvh lg:grid', otomatis ? 'lg:grid-cols-[76px_minmax(0,1fr)]' : 'lg:grid-cols-[272px_minmax(0,1fr)]']">
     <!-- Sidebar desktop -->
-    <aside class="tanpa-cetak sticky top-0 hidden h-dvh lg:block"><MenuSamping /></aside>
+    <aside class="tanpa-cetak sticky top-0 z-40 hidden h-dvh lg:block" @mouseenter="otomatis && sentuhSidebar(true)" @mouseleave="otomatis && sentuhSidebar(false)">
+      <div :class="['h-dvh overflow-hidden transition-[width,box-shadow] duration-200 ease-out', otomatis ? (melebar ? 'absolute left-0 top-0 w-[272px] shadow-2xl shadow-black/40' : 'w-[76px]') : 'w-full']">
+        <MenuSamping :ringkas="otomatis && !melebar" tombol-semat @pilih="melebar = false" />
+      </div>
+    </aside>
 
     <!-- Laci menu ponsel -->
     <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" enter-active-class="transition" leave-active-class="transition">

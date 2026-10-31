@@ -9,6 +9,7 @@ import { eksporExcel, bacaBerkas } from '@/utils/excel'
 import { normalJudul } from '@/config/impor'
 import { normalBool } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
+import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
 const auth = useAuth()
 const notif = useNotifikasi()
@@ -66,6 +67,11 @@ async function pasangAwal() {
   catch (e) { notif.kabari(e.message, 'galat') }
 }
 
+const cetakTerbuka = ref(false)
+const kolomCetak = computed(() => def.value.kolom.map((k) => ({
+  judul: k.j, nilai: (b) => (k.bool ? (b[k.k] ? 'Aktif' : 'Nonaktif') : b[k.k] ?? ''), lebar: k.k === 'nama' ? null : '3cm', rata: k.k === 'nama' ? '' : 'tengah',
+})))
+
 function ekspor() {
   eksporExcel({
     judul: `Referensi ${def.value.singkat}`, namaBerkas: `Referensi ${def.value.singkat} SIBOS`, landscape: false, baris: data.value.butir,
@@ -104,6 +110,8 @@ async function impor(e) {
 </script>
 
 <template>
+  <CetakDaftar v-if="cetakTerbuka" :judul="def.judul" :kolom="kolomCetak" :baris="data.butir" orientasi="portrait" :tanda-tangan="false" excel
+               @tutup="cetakTerbuka = false" @excel="ekspor" />
   <div class="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
     <!-- Daftar tabel -->
     <nav class="kartu flex gap-1 overflow-x-auto p-2 lg:h-fit lg:flex-col lg:overflow-visible" aria-label="Tabel referensi">
@@ -132,7 +140,7 @@ async function impor(e) {
           </div>
           <div class="flex flex-wrap gap-2">
             <template v-if="!ubah">
-              <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="16" class="text-emerald-600" /> Ekspor</button>
+              <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="16" class="text-merah" /> Cetak / Unduh</button>
               <template v-if="auth.isAdmin">
                 <label class="tombol-garis cursor-pointer"><Ikon nama="FileUp" :ukuran="16" class="text-tosca" /> Impor<input type="file" accept=".xlsx,.csv" class="sr-only" @change="impor" /></label>
                 <button class="tombol-utama" @click="mulaiUbah"><Ikon nama="Pencil" :ukuran="16" /> Ubah</button>

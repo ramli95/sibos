@@ -9,6 +9,7 @@ import {
   FileSpreadsheet, Construction, ArrowLeft, CalendarDays, Banknote, PiggyBank, Building2, Smartphone, RefreshCw,
   UserPlus, Copy, UserCog, Power, Repeat, ArrowDown, CircleAlert, Link,
   Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
+  PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
 } from 'lucide-vue-next'
 
 const DAFTAR = {
@@ -20,6 +21,7 @@ const DAFTAR = {
   FileSpreadsheet, Construction, ArrowLeft, CalendarDays, Banknote, PiggyBank, Building2, Smartphone, RefreshCw,
   UserPlus, Copy, UserCog, Power, Repeat, ArrowDown, CircleAlert, Link,
   Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
+  PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
 }
 
 const props = defineProps({ nama: { type: String, required: true }, ukuran: { type: [Number, String], default: 18 } })

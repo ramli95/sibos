@@ -4,10 +4,12 @@ import { modePratinjau } from '@/services/firebase'
 import { muatCetak, simpanCetak, CETAK_AWAL } from '@/services/cetak'
 import { useNotifikasi } from '@/stores/notifikasi'
 import Ikon from '@/components/Ikon.vue'
+import JendelaUjiCetak from '@/components/cetak/JendelaUjiCetak.vue'
 
 const notif = useNotifikasi()
 const c = ref(null)
 const menyimpan = ref(false)
+const uji = ref(false)
 onMounted(async () => { c.value = await muatCetak() })
 
 const SISI = [['atas', 'Atas'], ['bawah', 'Bawah'], ['kiri', 'Kiri'], ['kanan', 'Kanan']]
@@ -82,8 +84,9 @@ function kembalikan() { c.value = structuredClone(CETAK_AWAL) }
         </div>
       </div>
       <p class="text-center text-xs text-slate-500">F4 tegak · kiri {{ c.portrait.kiri }} cm, sisi lain {{ c.portrait.atas }}/{{ c.portrait.kanan }}/{{ c.portrait.bawah }} cm</p>
-      <RouterLink to="/cetak/uji" class="tombol w-full bg-merah text-white hover:brightness-95"><Ikon nama="Printer" :ukuran="17" /> Uji cetak kop di F4</RouterLink>
+      <button class="tombol w-full bg-merah text-white hover:brightness-95" @click="uji = true"><Ikon nama="Printer" :ukuran="17" /> Uji cetak kop di F4</button>
       <p class="text-xs text-slate-500">Saat dialog cetak terbuka, pilih ukuran kertas <b>F4/Folio</b> (atau 215 × 330 mm) dan skala <b>100% / Ukuran sebenarnya</b>.</p>
     </aside>
+    <JendelaUjiCetak v-if="uji" @tutup="uji = false" />
   </div>
 </template>

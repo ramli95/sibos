@@ -57,6 +57,23 @@
   @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
 }
 
+/* Penggulir tipis & transparan: muncul samar saat kursor di atas area */
+@utility gulir-halus {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  &:hover { scrollbar-color: rgb(255 255 255 / 0.28) transparent; }
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: transparent; border-radius: 999px; }
+  &:hover::-webkit-scrollbar-thumb { background: rgb(255 255 255 / 0.28); }
+  &::-webkit-scrollbar-thumb:hover { background: rgb(255 255 255 / 0.5); }
+}
+/* Penggulir halaman: tipis, warna lembut */
+@layer base {
+  html { scrollbar-width: thin; scrollbar-color: rgb(100 116 139 / 0.35) transparent; }
+  html.dark { scrollbar-color: rgb(148 163 184 / 0.3) transparent; }
+}
+
 /* Dokumen cetak: F4 215 × 330 mm, Times New Roman, hitam di atas putih */
 @page { size: 215mm 330mm; margin: 2cm 2cm 2cm 3cm; }
 @page landscape { size: 330mm 215mm; margin: 2cm; }

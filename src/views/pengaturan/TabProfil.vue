@@ -6,7 +6,6 @@ import { catatAktivitas } from '@/services/log'
 import { SEKOLAH_AWAL } from '@/config/sekolahAwal'
 import { useNotifikasi } from '@/stores/notifikasi'
 import Ikon from '@/components/Ikon.vue'
-import KopSurat from '@/components/cetak/KopSurat.vue'
 
 const notif = useNotifikasi()
 const f = reactive({ ...SEKOLAH_AWAL, kop_baris: [...SEKOLAH_AWAL.kop_baris] })
@@ -39,7 +38,6 @@ async function simpan() {
   menyimpan.value = true
   try {
     const data = JSON.parse(JSON.stringify(f))
-    data.kop_baris = data.kop_baris.map((b) => b.trim()).filter(Boolean)
     await setDoc(doc(db, 'sekolah', 'profil'), { ...data, diperbarui: serverTimestamp() }, { merge: true })
     const berubah = Object.keys(data).filter((k) => JSON.stringify(data[k]) !== JSON.stringify(asli[k]))
     await catatAktivitas('ubah', `Memperbarui profil sekolah${berubah.length ? ': ' + berubah.join(', ') : ''}`, {
@@ -55,7 +53,7 @@ async function simpan() {
 
 <template>
   <div v-if="memuat" class="kartu p-8 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="inline animate-spin" /> Memuat profil…</div>
-  <div v-else class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+  <div v-else class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
     <div class="space-y-5">
       <section v-for="k in kelompok" :key="k.judul" class="kartu p-5">
         <h3 class="mb-4 flex items-center gap-2.5 font-bold">
@@ -69,37 +67,21 @@ async function simpan() {
         </div>
       </section>
 
-      <section class="kartu p-5">
-        <h3 class="mb-4 flex items-center gap-2.5 font-bold">
-          <span class="grid h-8 w-8 place-items-center rounded-lg bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300"><Ikon nama="FileSignature" :ukuran="17" /></span>Baris kop surat
-        </h3>
-        <div class="space-y-2">
-          <div v-for="(b, i) in f.kop_baris" :key="i" class="flex gap-2">
-            <span class="grid h-10 w-8 shrink-0 place-items-center text-sm font-bold text-slate-400">{{ i + 1 }}</span>
-            <input v-model="f.kop_baris[i]" class="masukan" />
-            <button type="button" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40" title="Hapus baris" @click="f.kop_baris.splice(i, 1)"><Ikon nama="X" :ukuran="17" /></button>
-          </div>
-          <button type="button" class="tombol-garis" @click="f.kop_baris.push('')"><Ikon nama="Plus" :ukuran="16" /> Tambah baris</button>
-        </div>
-      </section>
     </div>
 
-    <!-- Pratinjau kop surat F4 -->
-    <section class="kartu h-fit p-5 xl:sticky xl:top-24">
-      <h3 class="mb-3 flex items-center gap-2.5 font-bold">
-        <span class="grid h-8 w-8 place-items-center rounded-lg bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300"><Ikon nama="Printer" :ukuran="17" /></span>
-        Pratinjau kop surat
+    <!-- Simpan -->
+    <section class="kartu h-fit space-y-3 p-5 xl:sticky xl:top-24">
+      <h3 class="flex items-center gap-2.5 font-bold">
+        <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"><Ikon nama="Save" :ukuran="17" /></span>
+        Simpan perubahan
       </h3>
-      <div class="overflow-hidden rounded-lg bg-white p-3 shadow-inner ring-1 ring-slate-200">
-        <div style="zoom: 0.42; width: 195mm"><KopSurat :profil="f" /></div>
-      </div>
-      <p class="mt-3 flex gap-2 text-xs text-slate-500 dark:text-slate-400">
-        <Ikon nama="Info" :ukuran="14" class="mt-0.5" /> Logo Pemkot & Tut Wuri diunggah di tab
-        <RouterLink to="/pengaturan/kop" class="font-semibold text-biru hover:underline">Kop & Logo</RouterLink>.
-      </p>
-      <button class="tombol-utama mt-4 w-full" :disabled="menyimpan" @click="simpan">
+      <p class="text-sm text-slate-500">Data ini dipakai di dokumen SPJ, laporan, dan panduan input ARKAS & SIMAKDA.</p>
+      <button class="tombol-utama w-full" :disabled="menyimpan" @click="simpan">
         <Ikon :nama="menyimpan ? 'RefreshCw' : 'CircleCheck'" :ukuran="17" :class="menyimpan && 'animate-spin'" /> Simpan profil
       </button>
+      <RouterLink to="/pengaturan/kop" class="flex items-center gap-1.5 text-sm font-semibold text-biru hover:underline">
+        <Ikon nama="FileSignature" :ukuran="15" /> Atur kop surat & logo
+      </RouterLink>
     </section>
   </div>
 </template>
