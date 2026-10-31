@@ -1,6 +1,7 @@
 // Validasi & normalisasi data kepegawaian dan rekanan
 
-export const STATUS_KEPEGAWAIAN = ['PNS', 'PPPK', 'Honorer', 'PTT']
+// Pegawai tidak tetap (guru maupun tenaga kependidikan) disebut Honorer
+export const STATUS_KEPEGAWAIAN = ['PNS', 'PPPK', 'Honorer']
 
 // Golongan PNS → pangkat
 export const PANGKAT_PNS = {
@@ -121,8 +122,7 @@ export function normalStatus(v) {
   const s = String(v ?? '').trim().toLowerCase()
   if (!s) return ''
   if (s.includes('pppk') || s.includes('p3k')) return 'PPPK'
-  if (s.includes('ptt') || s.includes('tenaga') || s.includes('tendik non')) return 'PTT'
-  if (s.includes('honor') || s.includes('gtt') || s.includes('non asn') || s.includes('non-asn') || s.includes('kontrak')) return 'Honorer'
+  if (s.includes('honor') || s.includes('ptt') || s.includes('tidak tetap') || s.includes('tendik non') || s.includes('gtt') || s.includes('non asn') || s.includes('non-asn') || s.includes('kontrak')) return 'Honorer'
   if (s.includes('pns') || s.includes('cpns') || s === 'asn') return 'PNS'
   return ''
 }

@@ -119,7 +119,7 @@ const judul = computed(() => props.pegawai?.id ? (props.bolehUbah ? 'Ubah data p
       <template v-else-if="tab === 'kepegawaian'">
         <div>
           <span class="label">Status kepegawaian</span>
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div class="grid grid-cols-3 gap-2">
             <label v-for="(s, i) in STATUS_KEPEGAWAIAN" :key="s"
                    :class="['flex cursor-pointer items-center justify-center rounded-xl border px-2 py-2.5 text-sm font-bold',
                             f.status_kepegawaian === s ? ['border-biru bg-biru text-white', 'border-tosca bg-tosca text-white', 'border-kuning bg-kuning text-arang', 'border-merah bg-merah text-white'][i] : 'border-slate-300 dark:border-slate-600']">
@@ -148,7 +148,7 @@ const judul = computed(() => props.pegawai?.id ? (props.bolehUbah ? 'Ubah data p
           <span><b class="block text-sm">Masih aktif bertugas</b><span class="text-xs text-slate-500">Matikan untuk pegawai yang pindah/pensiun; datanya tetap tersimpan.</span></span>
         </label>
         <div v-if="!asn && wajibHonorer.length && props.lihatRahasia" class="flex gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
-          <Ikon nama="TriangleAlert" :ukuran="17" class="mt-0.5" /><span>Honorer/PTT wajib dilengkapi: <b>{{ wajibHonorer.join(', ') }}</b>.</span>
+          <Ikon nama="TriangleAlert" :ukuran="17" class="mt-0.5" /><span>Honorer wajib dilengkapi: <b>{{ wajibHonorer.join(', ') }}</b>.</span>
         </div>
       </template>
 

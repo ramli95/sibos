@@ -84,9 +84,9 @@ function simpan() {
         <span><b class="block text-sm">Rekanan aktif</b><span class="text-xs text-slate-500">Rekanan nonaktif tidak muncul saat memilih penyedia belanja.</span></span>
       </label>
 
-      <div v-if="konflik.length" class="flex gap-2 rounded-xl bg-rose-50 p-3 text-sm text-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
-        <Ikon nama="TriangleAlert" :ukuran="18" class="mt-0.5" />
-        <span><b>Peringatan konflik kepentingan.</b> Pemilik/NPWP sama dengan pegawai sekolah: {{ konflik.map((p) => p.nama).join(', ') }}. Pengadaan dari usaha milik pegawai sebaiknya dihindari.</span>
+      <div v-if="konflik.length" class="flex gap-2 rounded-xl bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+        <Ikon nama="Info" :ukuran="18" class="mt-0.5 text-biru" />
+        <span><b>Catatan:</b> usaha ini milik pegawai sekolah ({{ konflik.map((p) => p.nama).join(', ') }}). Tetap boleh disimpan dan dipakai; pastikan harga wajar dan dokumen pengadaannya lengkap.</span>
       </div>
       <div v-if="ganda" class="flex gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
         <Ikon nama="CircleAlert" :ukuran="18" class="mt-0.5" /> Rekanan dengan nama dan NPWP yang sama sudah ada.

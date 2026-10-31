@@ -34,6 +34,7 @@ function log(b, aksi, keterangan, koleksi, id, sebelum = null, sesudah = null) {
 export async function muatPegawai({ denganRahasia }) {
   const s = await getDocs(query(collection(db, 'pegawai'), orderBy('nama')))
   const daftar = s.docs.map((d) => ({ id: d.id, ...d.data() }))
+  daftar.forEach((p) => { if (p.status_kepegawaian === 'PTT') p.status_kepegawaian = 'Honorer' })
   if (denganRahasia) {
     await Promise.all(daftar.map(async (p) => {
       const r = await getDoc(doc(db, 'pegawai', p.id, 'rahasia', 'data'))

@@ -7,12 +7,15 @@ import TabProfil from './TabProfil.vue'
 import TabPejabat from './TabPejabat.vue'
 import TabPengguna from './TabPengguna.vue'
 import TabDrive from './TabDrive.vue'
+import TabKop from './TabKop.vue'
+import TabCetak from './TabCetak.vue'
+import TabNotifikasi from './TabNotifikasi.vue'
 import SegeraHadir from '@/views/SegeraHadir.vue'
 
 const route = useRoute()
 const router = useRouter()
 const aktif = computed(() => route.params.tab || 'profil')
-const komponen = { profil: TabProfil, pejabat: TabPejabat, pengguna: TabPengguna, drive: TabDrive }
+const komponen = { profil: TabProfil, kop: TabKop, pejabat: TabPejabat, pengguna: TabPengguna, cetak: TabCetak, notifikasi: TabNotifikasi, drive: TabDrive }
 </script>
 
 <template>

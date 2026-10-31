@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { PERAN } from '@/config/peran'
@@ -9,10 +9,18 @@ import Ikon from '@/components/Ikon.vue'
 import MenuSamping from '@/components/MenuSamping.vue'
 import LoncengNotifikasi from '@/components/LoncengNotifikasi.vue'
 import TombolPasang from '@/components/TombolPasang.vue'
+import { useNotifikasi } from '@/stores/notifikasi'
+import { dengarkanPushDepan } from '@/services/push'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuth()
+const notif = useNotifikasi()
+onMounted(() => {
+  if (auth.pengguna) notif.mulai(auth.pengguna.uid)
+  dengarkanPushDepan((judul, isi) => notif.kabari(`${judul}: ${isi}`, 'info'))
+})
+onBeforeUnmount(() => notif.hentikan())
 const laciTerbuka = ref(false)
 const menuAkun = ref(false)
 const wadahAkun = ref(null)

@@ -61,10 +61,10 @@ service cloud.firestore {
       allow get: if (masuk() && request.auth.uid == uid) || admin() || kepsek();
       allow list: if admin() || kepsek();
       allow create: if (penyiapanAwal() && request.auth.uid == uid) || admin();
-      // Pengguna sendiri: hanya penanda ganti password, tema, dan pengaturan notifikasi
+      // Pengguna sendiri: hanya penanda ganti password, tema, pengaturan & token notifikasi
       allow update: if masuk() && request.auth.uid == uid
-        && hanyaUbah(['wajib_ganti_password', 'password_diubah', 'tema', 'pengaturan_notifikasi'])
-        && request.resource.data.wajib_ganti_password == false;
+        && hanyaUbah(['wajib_ganti_password', 'password_diubah', 'tema', 'pengaturan_notifikasi', 'token_fcm'])
+        && request.resource.data.get('wajib_ganti_password', false) == false;
       allow update: if admin();
       // Kepala Sekolah: boleh mengalihkan peran & status aktif (serah terima darurat)
       allow update: if kepsek() && hanyaUbah(['peran', 'aktif', 'diubah', 'diubah_oleh']);

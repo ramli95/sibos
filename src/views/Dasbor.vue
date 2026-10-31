@@ -10,14 +10,14 @@ const auth = useAuth()
 const namaDepan = computed(() => (auth.pengguna?.nama || '').split(',')[0])
 
 // Daftar persiapan Fase 1 — status dibaca langsung dari database
-const st = reactive({ penghubung: false, profil: false, logo: false, pejabat: 0, pegawai: 0, rekanan: 0, cadangan: false })
+const st = reactive({ penghubung: false, profil: false, logo: false, pejabat: 0, pegawai: 0, rekanan: 0, cadangan: false, referensi: false })
 
 onMounted(async () => {
   if (modePratinjau || !auth.isAdmin) return
   const aman = (p) => p.catch(() => null)
-  const [ph, pr, cd, pj, pg, rk] = await Promise.all([
+  const [ph, pr, cd, pj, pg, rk, rf] = await Promise.all([
     aman(getDoc(doc(db, 'sistem', 'penghubung'))), aman(getDoc(doc(db, 'sekolah', 'profil'))), aman(getDoc(doc(db, 'sistem', 'cadangan'))),
-    aman(getCountFromServer(collection(db, 'pejabat'))), aman(getCountFromServer(collection(db, 'pegawai'))), aman(getCountFromServer(collection(db, 'rekanan'))),
+    aman(getCountFromServer(collection(db, 'pejabat'))), aman(getCountFromServer(collection(db, 'pegawai'))), aman(getCountFromServer(collection(db, 'rekanan'))), aman(getDoc(doc(db, 'referensi', 'snp'))),
   ])
   st.penghubung = !!ph?.data()?.url_apps_script
   st.profil = !!pr?.exists()
@@ -26,14 +26,16 @@ onMounted(async () => {
   st.pejabat = pj?.data().count || 0
   st.pegawai = pg?.data().count || 0
   st.rekanan = rk?.data().count || 0
+  st.referensi = !!rf?.exists()
 })
 
 const persiapan = computed(() => [
   { ikon: 'Database', judul: 'Firebase tersambung', ket: 'Login & database Firestore Jakarta', selesai: !modePratinjau, warna: 'from-orange-400 to-rose-500', ke: null },
   { ikon: 'HardDrive', judul: 'Penghubung Google Drive', ket: st.penghubung ? 'URL Apps Script tersimpan' : 'Apps Script + folder SIBOS', selesai: st.penghubung, warna: 'from-emerald-400 to-teal-500', ke: '/pengaturan/drive' },
   { ikon: 'CloudUpload', judul: 'Cadangan pertama', ket: 'Muncul di Drive: SIBOS/Cadangan', selesai: st.cadangan, warna: 'from-teal-400 to-cyan-600', ke: '/pengaturan/drive' },
-  { ikon: 'School', judul: 'Profil sekolah & kop', ket: st.logo ? 'Profil & logo lengkap' : 'Tinggal unggah logo Pemkot & Tut Wuri', selesai: st.profil && st.logo, warna: 'from-blue-500 to-indigo-600', ke: '/pengaturan/profil' },
-  { ikon: 'UserCheck', judul: 'Pejabat per periode', ket: st.pejabat ? `${st.pejabat} periode tercatat` : 'KS, Bendahara, Komite, Pengurus Barang', selesai: st.pejabat >= 5, warna: 'from-violet-500 to-fuchsia-500', ke: '/pengaturan/pejabat' },
+  { ikon: 'School', judul: 'Profil sekolah & kop', ket: st.logo ? 'Profil & logo lengkap — uji cetak F4' : 'Tinggal unggah logo Pemkot & Tut Wuri', selesai: st.profil && st.logo, warna: 'from-blue-500 to-indigo-600', ke: st.logo ? '/cetak/uji' : '/pengaturan/kop' },
+  { ikon: 'UserCheck', judul: 'Pejabat per periode', ket: st.pejabat ? `${st.pejabat} periode tercatat` : 'KS, Bendahara, Komite, Pengurus Barang', selesai: st.pejabat >= 6, warna: 'from-violet-500 to-fuchsia-500', ke: '/pengaturan/pejabat' },
+  { ikon: 'BookMarked', judul: 'Referensi juknis', ket: st.referensi ? 'Data awal terpasang' : 'Pasang data awal SNP, komponen, dll.', selesai: st.referensi, warna: 'from-lime-400 to-green-600', ke: '/referensi' },
   { ikon: 'Users', judul: 'Impor data pegawai', ket: st.pegawai ? `${st.pegawai} pegawai` : 'Dari sheet dB-SKPG', selesai: st.pegawai > 0, warna: 'from-sky-400 to-blue-600', ke: '/impor' },
   { ikon: 'Store', judul: 'Impor data rekanan', ket: st.rekanan ? `${st.rekanan} rekanan` : 'Dari sheet db_Rekanan', selesai: st.rekanan > 0, warna: 'from-amber-400 to-orange-500', ke: '/impor' },
 ])

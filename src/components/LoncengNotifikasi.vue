@@ -29,14 +29,15 @@ const warna = { info: 'bg-blue-100 text-biru dark:bg-blue-900/50 dark:text-blue-
         <button class="text-xs font-semibold text-biru hover:underline" @click="notif.tandaiSemua()">Tandai semua dibaca</button>
       </div>
       <ul class="max-h-80 overflow-y-auto">
-        <li v-for="n in notif.daftar" :key="n.id" :class="['flex gap-3 px-4 py-3 text-sm', !n.dibaca && 'bg-blue-50/60 dark:bg-blue-950/30']">
-          <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl', warna[n.jenis]]"><Ikon :nama="n.ikon" :ukuran="17" /></span>
+        <li v-for="n in notif.daftar.slice(0, 8)" :key="n.id" :class="['flex cursor-pointer gap-3 px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/40', !n.dibaca && 'bg-blue-50/60 dark:bg-blue-950/30']" @click="notif.tandai(n)">
+          <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl', warna[n.jenis] || warna.info]"><Ikon :nama="n.ikon || 'Bell'" :ukuran="17" /></span>
           <div class="min-w-0">
             <p class="font-semibold">{{ n.judul }}</p>
             <p class="text-slate-500 dark:text-slate-400">{{ n.isi }}</p>
             <p class="mt-0.5 text-xs text-slate-400">{{ formatWaktuRelatif(n.waktu) }}</p>
           </div>
         </li>
+        <li v-if="!notif.daftar.length" class="px-4 py-6 text-center text-sm text-slate-500">Belum ada notifikasi.</li>
       </ul>
       <RouterLink to="/notifikasi" @click="buka = false" class="block border-t border-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-biru hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">
         Lihat semua

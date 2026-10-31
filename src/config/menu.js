@@ -40,5 +40,6 @@ export const TAB_PENGATURAN = [
   { kunci: 'pejabat', judul: 'Pejabat per Periode', ikon: 'UserCheck', warna: 'text-tosca' },
   { kunci: 'pengguna', judul: 'Pengguna & Peran', ikon: 'UsersRound', warna: 'text-ungu' },
   { kunci: 'cetak', judul: 'Pengaturan Cetak', ikon: 'Printer', warna: 'text-kuning' },
+  { kunci: 'notifikasi', judul: 'Notifikasi', ikon: 'BellRing', warna: 'text-ungu' },
   { kunci: 'drive', judul: 'Drive & Cadangan', ikon: 'HardDrive', warna: 'text-hijau' },
 ]

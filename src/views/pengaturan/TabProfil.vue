@@ -6,6 +6,7 @@ import { catatAktivitas } from '@/services/log'
 import { SEKOLAH_AWAL } from '@/config/sekolahAwal'
 import { useNotifikasi } from '@/stores/notifikasi'
 import Ikon from '@/components/Ikon.vue'
+import KopSurat from '@/components/cetak/KopSurat.vue'
 
 const notif = useNotifikasi()
 const f = reactive({ ...SEKOLAH_AWAL, kop_baris: [...SEKOLAH_AWAL.kop_baris] })
@@ -89,19 +90,12 @@ async function simpan() {
         <span class="grid h-8 w-8 place-items-center rounded-lg bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300"><Ikon nama="Printer" :ukuran="17" /></span>
         Pratinjau kop surat
       </h3>
-      <div class="rounded-lg bg-white p-4 text-black shadow-inner ring-1 ring-slate-200" style="font-family: 'Times New Roman', Times, serif">
-        <div class="flex items-center gap-2 border-b-[3px] border-double border-black pb-2">
-          <div class="grid h-12 w-10 shrink-0 place-items-center rounded border border-dashed border-slate-400 text-[8px] text-slate-500">Logo Pemkot</div>
-          <div class="flex-1 text-center leading-tight">
-            <div v-for="(b, i) in f.kop_baris" :key="i" :class="i === f.kop_baris.length - 1 ? 'text-[13px] font-bold' : 'text-[11px] font-bold'">{{ b }}</div>
-            <div class="text-[9px]">{{ f.alamat }} Telp. {{ f.telepon }}</div>
-            <div class="text-[9px]">NPSN {{ f.npsn }} · Email: {{ f.email }}</div>
-          </div>
-          <div class="grid h-12 w-10 shrink-0 place-items-center rounded border border-dashed border-slate-400 text-[8px] text-slate-500">Tut Wuri</div>
-        </div>
+      <div class="overflow-hidden rounded-lg bg-white p-3 shadow-inner ring-1 ring-slate-200">
+        <div style="zoom: 0.42; width: 195mm"><KopSurat :profil="f" /></div>
       </div>
       <p class="mt-3 flex gap-2 text-xs text-slate-500 dark:text-slate-400">
-        <Ikon nama="Info" :ukuran="14" class="mt-0.5" /> Logo Pemkot & Tut Wuri diunggah di tab Kop & Logo.
+        <Ikon nama="Info" :ukuran="14" class="mt-0.5" /> Logo Pemkot & Tut Wuri diunggah di tab
+        <RouterLink to="/pengaturan/kop" class="font-semibold text-biru hover:underline">Kop & Logo</RouterLink>.
       </p>
       <button class="tombol-utama mt-4 w-full" :disabled="menyimpan" @click="simpan">
         <Ikon :nama="menyimpan ? 'RefreshCw' : 'CircleCheck'" :ukuran="17" :class="menyimpan && 'animate-spin'" /> Simpan profil

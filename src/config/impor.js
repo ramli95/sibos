@@ -26,7 +26,7 @@ export const JENIS_IMPOR = {
       { kunci: 'jenis_kelamin', judul: 'Jenis Kelamin (L/P)', sinonim: ['jk', 'l/p', 'jenis kelamin', 'kelamin', 'gender'], normal: normalJk },
       { kunci: 'tempat_lahir', judul: 'Tempat Lahir', sinonim: ['tempat lahir', 'tmp lahir'], normal: teks },
       { kunci: 'tanggal_lahir', judul: 'Tanggal Lahir', sinonim: ['tanggal lahir', 'tgl lahir', 'tgl. lahir', 'tanggal kelahiran'], normal: normalTanggal },
-      { kunci: 'status_kepegawaian', judul: 'Status (PNS/PPPK/Honorer/PTT)', sinonim: ['status', 'status kepegawaian', 'status pegawai', 'jenis ptk', 'kepegawaian'], normal: normalStatus },
+      { kunci: 'status_kepegawaian', judul: 'Status (PNS/PPPK/Honorer)', sinonim: ['status', 'status kepegawaian', 'status pegawai', 'jenis ptk', 'kepegawaian'], normal: normalStatus },
       { kunci: 'golongan', judul: 'Golongan', sinonim: ['gol', 'golongan', 'gol/ruang', 'gol ruang', 'golongan ruang'], normal: normalGolongan },
       { kunci: 'pangkat', judul: 'Pangkat', sinonim: ['pangkat'], normal: teks },
       { kunci: 'jabatan', judul: 'Jabatan', sinonim: ['jabatan', 'tugas', 'jabatan/tugas', 'mapel', 'tugas mengajar'], normal: teks },
@@ -58,9 +58,9 @@ export const JENIS_IMPOR = {
       const npwp = periksaNpwp(d.npwp); if (npwp) peringatan.push(npwp)
       if (!d.status_kepegawaian) d.status_kepegawaian = d.nip ? (nip.pppk ? 'PPPK' : 'PNS') : 'Honorer'
       if (d.status_kepegawaian === 'PNS' && !d.pangkat && PANGKAT_PNS[d.golongan]) d.pangkat = PANGKAT_PNS[d.golongan]
-      if (['Honorer', 'PTT'].includes(d.status_kepegawaian)) {
+      if (d.status_kepegawaian === 'Honorer') {
         const kurang = ['nik', 'npwp', 'no_rekening'].filter((k) => !d[k])
-        if (kurang.length) peringatan.push(`Honorer/PTT belum lengkap: ${kurang.join(', ').toUpperCase()}.`)
+        if (kurang.length) peringatan.push(`Honorer belum lengkap: ${kurang.join(', ').toUpperCase()}.`)
       }
       if (d.terima_tpg === '') d.terima_tpg = false
       return { galat, peringatan }

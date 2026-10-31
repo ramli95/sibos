@@ -1,7 +1,8 @@
 /**
  * SIBOS Penghubung — Google Apps Script
  * Dipasang di akun Bendahara (pemilik proyek Firebase sibos19 dan folder Drive SIBOS).
- * Tugas: unggah berkas ke Drive, reset password pengguna tanpa email, cadangan otomatis.
+ * Tugas: unggah berkas ke Drive, reset password pengguna tanpa email, cadangan otomatis,
+ * dan notifikasi push (Firebase Cloud Messaging).
  */
 const KONFIG = {
   PROYEK: 'sibos19',
@@ -16,7 +17,7 @@ const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian'];
 /* ======================= PINTU MASUK ======================= */
 
 function doGet() {
-  return balas({ ok: true, layanan: 'SIBOS Penghubung', versi: 1 });
+  return balas({ ok: true, layanan: 'SIBOS Penghubung', versi: 2 });
 }
 
 function doPost(e) {
@@ -39,6 +40,8 @@ function doPost(e) {
       case 'reset_password':
         wajibAdmin(p);
         return balas(resetPassword(m.uid, p));
+      case 'uji_push':
+        return balas({ ok: true, terkirim: kirimPush(p.uid, 'Uji notifikasi SIBOS', 'Notifikasi push berhasil diterima di perangkat ini.') });
       default:
         throw new Error('Aksi tidak dikenal: ' + m.aksi);
     }
@@ -317,7 +320,37 @@ function kabariAdmin(judul, isi) {
     panggilGoogle(FS + '/notifikasi', 'post', { fields: keFs({
       uid: uid, jenis: 'galat', ikon: 'CloudUpload', judul: judul, isi: isi, waktu: new Date(), dibaca: false,
     }) });
+    try { kirimPush(uid, judul, isi); } catch (e) { /* abaikan */ }
   });
+}
+
+/* ======================= NOTIFIKASI PUSH (FCM) ======================= */
+
+// Mengirim push ke semua perangkat milik pengguna; token yang sudah tidak berlaku dihapus
+function kirimPush(uid, judul, isi) {
+  const prof = bacaDok('pengguna/' + uid) || {};
+  const token = prof.token_fcm || [];
+  if (!token.length) return 0;
+  const tautan = 'https://ramli95.github.io/sibos/#/notifikasi';
+  let terkirim = 0;
+  const sisa = [];
+  token.forEach(function (t) {
+    const r = UrlFetchApp.fetch('https://fcm.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/messages:send', {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken(), 'X-Goog-User-Project': KONFIG.PROYEK },
+      payload: JSON.stringify({ message: {
+        token: t,
+        notification: { title: judul, body: isi },
+        webpush: { fcm_options: { link: tautan } },
+        data: { link: tautan },
+      } }),
+    });
+    const kode = r.getResponseCode();
+    if (kode === 200) { terkirim++; sisa.push(t); }
+    else if (kode !== 404 && r.getContentText().indexOf('UNREGISTERED') < 0 && r.getContentText().indexOf('INVALID_ARGUMENT') < 0) sisa.push(t);
+  });
+  if (sisa.length !== token.length) tulisDok('pengguna/' + uid, { token_fcm: sisa });
+  return terkirim;
 }
 
 function dariNilai(v) {

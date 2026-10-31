@@ -23,7 +23,7 @@ const CONTOH = [
   { id: 'c1', nama: 'Ramli', gelar: 'S.Pd., M.Pd., Gr.', nip: '199511152020121007', jenis_kelamin: 'L', status_kepegawaian: 'PNS', golongan: 'III/b', pangkat: 'Penata Muda Tingkat I', jabatan: 'Guru BK', terima_tpg: true, no_wa: '6281234567890', aktif: true },
   { id: 'c2', nama: 'Contoh Guru PPPK', gelar: 'S.Pd.', nip: '198803122023212011', jenis_kelamin: 'P', status_kepegawaian: 'PPPK', golongan: 'IX', jabatan: 'Guru Matematika', terima_tpg: false, aktif: true },
   { id: 'c3', nama: 'Contoh Tenaga Honorer', gelar: 'S.Kom.', nip: '', jenis_kelamin: 'L', status_kepegawaian: 'Honorer', jabatan: 'Operator Sekolah', aktif: true },
-  { id: 'c4', nama: 'Contoh Penjaga Sekolah', nip: '', jenis_kelamin: 'L', status_kepegawaian: 'PTT', jabatan: 'Penjaga Sekolah', aktif: true },
+  { id: 'c4', nama: 'Contoh Penjaga Sekolah', nip: '', jenis_kelamin: 'L', status_kepegawaian: 'Honorer', jabatan: 'Penjaga Sekolah', aktif: true },
 ]
 
 async function muat() {
@@ -47,7 +47,6 @@ const warnaStatus = {
   PNS: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
   PPPK: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
   Honorer: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-  PTT: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 }
 const statistik = computed(() => {
   const d = daftar.value.filter((p) => p.aktif !== false)
@@ -56,7 +55,7 @@ const statistik = computed(() => {
     { judul: 'Pegawai aktif', nilai: d.length, ikon: 'Users', warna: 'from-blue-500 to-indigo-600', saring: 'Semua' },
     { judul: 'PNS', nilai: n('PNS'), ikon: 'BadgeCheck', warna: 'from-sky-400 to-blue-600', saring: 'PNS' },
     { judul: 'PPPK', nilai: n('PPPK'), ikon: 'Briefcase', warna: 'from-teal-400 to-emerald-600', saring: 'PPPK' },
-    { judul: 'Honorer & PTT', nilai: n('Honorer') + n('PTT'), ikon: 'UserRound', warna: 'from-amber-400 to-orange-500', saring: 'Honorer' },
+    { judul: 'Honorer', nilai: n('Honorer'), ikon: 'UserRound', warna: 'from-amber-400 to-orange-500', saring: 'Honorer' },
     { judul: 'Penerima TPG', nilai: d.filter((p) => p.terima_tpg).length, ikon: 'Sparkles', warna: 'from-violet-500 to-fuchsia-500', saring: null },
   ]
 })
