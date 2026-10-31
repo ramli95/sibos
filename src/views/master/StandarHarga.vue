@@ -14,6 +14,8 @@ import Ikon from '@/components/Ikon.vue'
 import KartuStat from '@/components/KartuStat.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 import FormHarga from './FormHarga.vue'
+import CariSsh from '@/components/CariSsh.vue'
+import { namaSumber } from '@/services/ssh'
 
 const route = useRoute()
 const auth = useAuth()
@@ -25,6 +27,14 @@ const cari = ref('')
 const kelompok = ref('semua')
 const terpilih = ref(null)
 const menyimpan = ref(false)
+const tab = ref('sekolah') // sekolah | ssh
+// Pakai item SSH: buka formulir standar harga sekolah yang sudah terisi dari SSH
+function pakaiSsh(b) {
+  terpilih.value = {
+    nama_item: b.uraian, spesifikasi: b.spesifikasi, satuan: b.satuan, harga: b.harga, kelompok: b.kelompok || 'Barang Lainnya',
+    sumber: 'SSH ' + namaSumber(b.sumber), sumber_ssh: b.sumber, kode_ssh: b.kode, uraian_ssh: [b.uraian, b.spesifikasi].filter(Boolean).join(' — '), harga_ssh: b.harga,
+  }
+}
 
 async function muat() {
   memuat.value = true
@@ -171,6 +181,17 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
       <KartuStat v-for="s in statistik" :key="s.judul" v-bind="s" :memuat="memuat" :aktif="kelompok === s.k && s.k !== 'semua'" @klik="kelompok = s.k" />
     </div>
 
+    <div class="kartu flex gap-1 p-1.5" role="tablist" aria-label="Jenis standar harga">
+      <button v-for="t in [{ k: 'sekolah', j: 'Harga sekolah', ikon: 'Tags', w: 'text-orange-500' }, { k: 'ssh', j: 'Referensi SSH pemerintah', ikon: 'Landmark', w: 'text-sky-500' }]" :key="t.k" role="tab" :aria-selected="tab === t.k"
+              :class="['flex flex-1 items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition sm:flex-none', tab === t.k ? 'bg-biru text-white shadow' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800']"
+              @click="tab = t.k">
+        <Ikon :nama="t.ikon" :ukuran="17" :class="tab === t.k ? 'text-white' : t.w" /> {{ t.j }}
+      </button>
+    </div>
+
+    <CariSsh v-if="tab === 'ssh'" mode="halaman" :boleh-pakai="auth.isAdmin" @pilih="pakaiSsh" />
+
+    <template v-else>
     <div class="kartu flex flex-wrap items-center gap-2 p-3">
       <div class="relative min-w-[14rem] flex-1">
         <Ikon nama="Search" :ukuran="17" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -243,7 +264,12 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
           <tbody>
             <tr v-for="h in isi" :key="h.id" :class="['cursor-pointer border-b border-slate-100 last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/40', h.aktif === false && 'opacity-50']" @click="terpilih = h">
               <td class="kode w-24 px-4 py-2.5 text-xs text-slate-500">{{ h.kode_item }}</td>
-              <td class="px-2 py-2.5"><p class="font-medium">{{ h.nama_item }}</p><p v-if="h.spesifikasi" class="text-xs text-slate-500">{{ h.spesifikasi }}</p></td>
+              <td class="px-2 py-2.5">
+                <p class="font-medium">{{ h.nama_item }}</p><p v-if="h.spesifikasi" class="text-xs text-slate-500">{{ h.spesifikasi }}</p>
+                <p v-if="h.harga_ssh" class="mt-0.5 flex items-center gap-1 text-[11px]" :class="h.harga > h.harga_ssh ? 'text-rose-600' : 'text-sky-600 dark:text-sky-400'">
+                  <Ikon nama="Landmark" :ukuran="12" /> SSH {{ namaSumber(h.sumber_ssh) }} {{ rupiah(h.harga_ssh) }}<template v-if="h.harga > h.harga_ssh"> · di atas SSH</template>
+                </p>
+              </td>
               <td class="w-36 px-2 py-2.5 text-slate-600 dark:text-slate-300">{{ h.satuan }}</td>
               <td class="angka w-32 px-2 py-2.5 text-right font-bold">{{ rupiah(h.harga) }}</td>
               <td class="w-28 px-2 py-2.5"><span :class="['lencana bg-gradient-to-r text-white', KATEGORI[h.kategori]?.warna]">{{ KATEGORI[h.kategori]?.nama }}</span></td>
@@ -254,8 +280,10 @@ const warnaKelompok = (k) => (WARNA[k] || ['from-slate-400 to-slate-600'])[0]
       </div>
     </section>
 
+    </template>
+
     <CetakDaftar v-if="cetakTerbuka" judul="Standar Harga Satuan" :subjudul="`Tahun Anggaran ${rkas.tahun}`" :kolom="kolomCetak" :baris="hasil" excel @tutup="cetakTerbuka = false" @excel="ekspor" />
-    <FormHarga v-if="terpilih" :item="terpilih.id ? terpilih : null" :boleh-ubah="auth.isAdmin" :menyimpan="menyimpan" :kelompok="daftarKelompok" :semua="daftar"
+    <FormHarga v-if="terpilih" :item="terpilih" :boleh-ubah="auth.isAdmin" :menyimpan="menyimpan" :kelompok="daftarKelompok" :semua="daftar"
                @tutup="terpilih = null" @simpan="simpan" @hapus="hapus" />
   </div>
 </template>

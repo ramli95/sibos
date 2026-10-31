@@ -207,7 +207,7 @@ export async function muatPergeseran(idVersi) {
 
 /* ---------------- Standar Harga ---------------- */
 
-export const KOLOM_HARGA = ['kode_item', 'kelompok', 'nama_item', 'spesifikasi', 'satuan', 'harga', 'jenis', 'kode_rekening', 'kategori', 'pajak_bawaan', 'tahun', 'aktif', 'sumber']
+export const KOLOM_HARGA = ['kode_item', 'kelompok', 'nama_item', 'spesifikasi', 'satuan', 'harga', 'jenis', 'kode_rekening', 'kategori', 'pajak_bawaan', 'tahun', 'aktif', 'sumber', 'sumber_ssh', 'kode_ssh', 'uraian_ssh', 'harga_ssh']
 
 export async function muatStandarHarga() {
   if (modePratinjau) return (await import('./contohRkas')).hargaContoh()
@@ -215,7 +215,7 @@ export async function muatStandarHarga() {
   return s.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
 
-const ambilHarga = (x) => Object.fromEntries(KOLOM_HARGA.map((k) => [k, x[k] ?? (k === 'aktif' ? true : k === 'harga' || k === 'tahun' ? 0 : '')]))
+const ambilHarga = (x) => Object.fromEntries(KOLOM_HARGA.map((k) => [k, x[k] ?? (k === 'aktif' ? true : k === 'harga' || k === 'tahun' || k === 'harga_ssh' ? 0 : '')]))
 
 export async function simpanHarga(id, data, sebelum) {
   const ref = id ? doc(db, 'standar_harga', id) : doc(collection(db, 'standar_harga'))

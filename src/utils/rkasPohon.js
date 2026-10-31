@@ -87,20 +87,52 @@ export function matriksSnpKomponen(uraian) {
   return m
 }
 
-/** Proporsi juknis BOSP (Permendikdasmen 8/2026 Pasal 42) terhadap pagu/alokasi */
+/** Rekening honorarium (jasa tenaga) yang dihitung ARKAS sebagai pembayaran honor */
+export const REKENING_HONOR = ['5.1.02.02.01.0013']
+
+/**
+ * Proporsi juknis BOSP (Permendikdasmen 8/2026 Pasal 42) terhadap pagu/alokasi,
+ * dihitung dengan cara yang sama seperti "Review Kertas Kerja" ARKAS 4.3:
+ *  - buku: komponen 02 kegiatan 03–05 (buku teks utama/pendamping, nonteks)
+ *  - pemeliharaan sarpras: komponen 08 tanpa pengadaan peralatan/perlengkapan sekolah (kegiatan 02 & 04)
+ *    dan tanpa belanja modal (5.2)
+ *  - honor: komponen 12 pada rekening honorarium (5.1.02.02.01.0013)
+ */
 export function proporsiJuknis(uraian, pagu, { negeri = true } = {}) {
   const jml = (f) => uraian.filter(f).reduce((s, u) => s + u.jumlah, 0)
-  const buku = jml((u) => u.komponen === '02' && ['03', '04', '05'].includes(u.kode_kegiatan.split('.')[2]))
+  const keg = (u) => u.kode_kegiatan.split('.')[2]
+  const buku = jml((u) => u.komponen === '02' && ['03', '04', '05'].includes(keg(u)))
   const perpus = jml((u) => u.komponen === '02')
-  const pemeliharaan = jml((u) => u.komponen === '08')
-  const honor = jml((u) => u.komponen === '12')
+  const pemeliharaan = jml((u) => u.komponen === '08' && !['02', '04'].includes(keg(u)) && u.kode_rekening.startsWith('5.1'))
+  const komp08 = jml((u) => u.komponen === '08')
+  const honor = jml((u) => u.komponen === '12' && REKENING_HONOR.includes(u.kode_rekening))
+  const komp12 = jml((u) => u.komponen === '12')
   const persen = (n) => (pagu ? (n / pagu) * 100 : 0)
   const batasHonor = negeri ? 20 : 40
   return [
-    { kunci: 'buku', judul: 'Penyediaan buku', pasal: 'Pasal 42 ayat (2)', jenis: 'min', batas: 10, nilai: buku, persen: persen(buku), ket: `Komponen perpustakaan seluruhnya ${persen(perpus).toFixed(2)}%`, ikon: 'BookCopy', warna: '#10b981' },
-    { kunci: 'pemeliharaan', judul: 'Pemeliharaan sarana & prasarana', pasal: 'Pasal 42 ayat (3)', jenis: 'maks', batas: 20, nilai: pemeliharaan, persen: persen(pemeliharaan), ket: 'Komponen h (kode 08)', ikon: 'Wrench', warna: '#f97316' },
-    { kunci: 'honor', judul: 'Pembayaran honor', pasal: 'Pasal 42 ayat (4)', jenis: 'maks', batas: batasHonor, nilai: honor, persen: persen(honor), ket: `Komponen l (kode 12), batas ${batasHonor}% sekolah ${negeri ? 'negeri' : 'swasta'}`, ikon: 'HeartHandshake', warna: '#e11d48' },
+    { kunci: 'buku', judul: 'Penyediaan buku', pasal: 'Pasal 42 ayat (2)', jenis: 'min', batas: 10, nilai: buku, persen: persen(buku), ket: `Buku teks & nonteks (05.02.03–05). Komponen perpustakaan seluruhnya ${persen(perpus).toFixed(2)}%`, ikon: 'BookCopy', warna: '#10b981' },
+    { kunci: 'pemeliharaan', judul: 'Pemeliharaan sarana & prasarana', pasal: 'Pasal 42 ayat (3)', jenis: 'maks', batas: 20, nilai: pemeliharaan, persen: persen(pemeliharaan), ket: `Seperti ARKAS: tanpa pengadaan peralatan/perlengkapan (05.08.02 & 04) dan belanja modal. Komponen 08 seluruhnya ${persen(komp08).toFixed(2)}%`, ikon: 'Wrench', warna: '#f97316' },
+    { kunci: 'honor', judul: 'Pembayaran honor', pasal: 'Pasal 42 ayat (4)', jenis: 'maks', batas: batasHonor, nilai: honor, persen: persen(honor), ket: `Rekening honorarium pada komponen 12; batas ${batasHonor}% sekolah ${negeri ? 'negeri' : 'swasta'}. Komponen 12 seluruhnya ${persen(komp12).toFixed(2)}%`, ikon: 'HeartHandshake', warna: '#e11d48' },
   ].map((p) => ({ ...p, aman: p.jenis === 'min' ? p.persen >= p.batas : p.persen <= p.batas }))
+}
+
+/** Proporsi antarjenis belanja dari total pagu (seperti grafik ARKAS) */
+export const JENIS_BELANJA = [
+  { kunci: 'honorarium', nama: 'Honorarium', warna: '#7c6fb0', cocok: (r) => REKENING_HONOR.includes(r) },
+  { kunci: 'barang', nama: 'Barang', warna: '#16a34a', cocok: (r) => r.startsWith('5.1.02.01') },
+  { kunci: 'jasa', nama: 'Jasa', warna: '#ea580c', cocok: (r) => r.startsWith('5.1.02.02') },
+  { kunci: 'pemeliharaan', nama: 'Pemeliharaan', warna: '#e11d48', cocok: (r) => r.startsWith('5.1.02.03') },
+  { kunci: 'perjalanan', nama: 'Perjalanan Dinas', warna: '#ca8a04', cocok: (r) => r.startsWith('5.1.02.04') },
+  { kunci: 'modal_pm', nama: 'Modal Peralatan Mesin', warna: '#db2777', cocok: (r) => r.startsWith('5.2.02') },
+  { kunci: 'modal_atl', nama: 'Modal Aset Tetap Lainnya', warna: '#0284c7', cocok: (r) => r.startsWith('5.2.05') },
+]
+export function jenisBelanja(uraian, pagu) {
+  const nilai = Object.fromEntries(JENIS_BELANJA.map((j) => [j.kunci, 0]))
+  for (const u of uraian) {
+    const j = JENIS_BELANJA.find((x) => x.cocok(u.kode_rekening))
+    if (j) nilai[j.kunci] += u.jumlah
+  }
+  return JENIS_BELANJA.map((j) => ({ ...j, nilai: nilai[j.kunci], persen: pagu ? (nilai[j.kunci] / pagu) * 100 : 0 }))
 }
 
 /** Bandingkan dua versi per kegiatan (tingkat 3) */

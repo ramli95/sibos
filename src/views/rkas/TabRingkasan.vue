@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRkas } from '@/stores/rkas'
 import { KATEGORI } from '@/utils/arkas'
-import { ringkasan, proporsiJuknis, matriksSnpKomponen } from '@/utils/rkasPohon'
+import { ringkasan, proporsiJuknis, matriksSnpKomponen, jenisBelanja } from '@/utils/rkasPohon'
 import { KOMPONEN_ARKAS } from '@/config/kodeArkas'
 import { rupiah, rupiahRingkas, persen, NAMA_BULAN } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
@@ -26,6 +26,7 @@ const kartu = computed(() => [
   })),
 ])
 const proporsi = computed(() => proporsiJuknis(rkas.uraian, pagu.value))
+const jenis = computed(() => jenisBelanja(rkas.uraian, pagu.value).filter((j) => j.nilai > 0))
 const matriks = computed(() => matriksSnpKomponen(rkas.uraian))
 const snpAda = computed(() => Object.keys(matriks.value).sort())
 const kompAda = computed(() => [...new Set(rkas.uraian.map((u) => u.komponen))].sort())
@@ -83,6 +84,27 @@ const posisiBatas = (p) => Math.min(100, (p.batas / Math.max(p.batas * 1.6, p.pe
           </p>
         </div>
       </div>
+    </section>
+
+    <!-- Proporsi jenis belanja -->
+    <section class="kartu p-5">
+      <div class="mb-4 flex flex-wrap items-center gap-3">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 text-white shadow"><Ikon nama="ChartPie" :ukuran="19" /></span>
+        <div class="flex-1">
+          <h2 class="font-bold">Proporsi antarjenis belanja</h2>
+          <p class="text-xs text-slate-500">Dari total pagu, dikelompokkan menurut kode rekening seperti grafik "Review Kertas Kerja" ARKAS.</p>
+        </div>
+      </div>
+      <div class="flex h-5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800" role="img" aria-label="Proporsi jenis belanja">
+        <div v-for="j in jenis" :key="j.kunci" class="h-full border-r-2 border-white last:border-r-0 dark:border-[#161D2B]" :style="{ width: j.persen + '%', background: j.warna }" :title="`${j.nama} ${persen(j.persen)}`" />
+      </div>
+      <ul class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <li v-for="j in jenis" :key="j.kunci" class="flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2.5 dark:border-slate-700">
+          <span class="h-3.5 w-3.5 shrink-0 rounded" :style="{ background: j.warna }" />
+          <span class="min-w-0 flex-1"><span class="block truncate text-sm font-semibold">{{ j.nama }}</span><span class="angka text-xs text-slate-500">{{ rupiah(j.nilai) }}</span></span>
+          <b class="angka text-sm">{{ persen(j.persen) }}</b>
+        </li>
+      </ul>
     </section>
 
     <!-- Rencana vs realisasi bulanan -->

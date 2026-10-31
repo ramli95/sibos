@@ -31,40 +31,46 @@ async function masuk() {
 
 <template>
   <TataLetakAkun>
-    <h1 class="text-2xl font-extrabold">Masuk ke SIBOS</h1>
-    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Gunakan username dan password yang diberikan Bendahara.</p>
+    <p class="text-sm font-semibold text-biru dark:text-blue-300">Selamat datang kembali</p>
+    <h1 class="mt-1 text-[1.65rem] font-extrabold leading-tight">Masuk ke akun Anda</h1>
+    <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Gunakan username dan password yang diberikan Bendahara.</p>
 
-    <form class="mt-8 space-y-4" @submit.prevent="masuk">
+    <form class="mt-7 space-y-4" @submit.prevent="masuk">
       <div>
         <label class="label" for="username">Username atau email</label>
-        <div class="relative">
-          <Ikon nama="User" :ukuran="18" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input id="username" v-model="username" class="masukan pl-10" autocomplete="username" autocapitalize="none" required placeholder="mis. ramli" />
+        <div class="group relative">
+          <span class="pointer-events-none absolute left-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-blue-50 text-biru transition group-focus-within:bg-biru group-focus-within:text-white dark:bg-blue-950/50 dark:text-blue-300">
+            <Ikon nama="User" :ukuran="17" />
+          </span>
+          <input id="username" v-model="username" class="masukan h-12 rounded-2xl pl-12 text-base sm:text-sm" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="mis. ramli" />
         </div>
       </div>
       <div>
-        <label class="label" for="password">Password</label>
-        <div class="relative">
-          <Ikon nama="Lock" :ukuran="18" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input id="password" v-model="password" :type="lihat ? 'text' : 'password'" class="masukan px-10" autocomplete="current-password" required />
-          <button type="button" class="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-slate-400 hover:text-slate-600"
+        <div class="flex items-center justify-between">
+          <label class="label" for="password">Password</label>
+          <RouterLink to="/lupa-password" class="mb-1.5 text-xs font-semibold text-biru hover:underline dark:text-blue-300">Lupa password?</RouterLink>
+        </div>
+        <div class="group relative">
+          <span class="pointer-events-none absolute left-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-violet-50 text-violet-600 transition group-focus-within:bg-violet-600 group-focus-within:text-white dark:bg-violet-950/50 dark:text-violet-300">
+            <Ikon nama="Lock" :ukuran="17" />
+          </span>
+          <input id="password" v-model="password" :type="lihat ? 'text' : 'password'" class="masukan h-12 rounded-2xl pl-12 pr-12 text-base sm:text-sm" autocomplete="current-password" required placeholder="••••••••" />
+          <button type="button" class="absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
                   :aria-label="lihat ? 'Sembunyikan password' : 'Tampilkan password'" @click="lihat = !lihat">
             <Ikon :nama="lihat ? 'EyeOff' : 'Eye'" :ukuran="18" />
           </button>
         </div>
       </div>
 
-      <p v-if="galat" class="flex items-center gap-2 rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
+      <p v-if="galat" class="flex items-center gap-2 rounded-2xl bg-rose-50 px-3.5 py-3 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
         <Ikon nama="TriangleAlert" :ukuran="16" /> {{ galat }}
       </p>
 
-      <button type="submit" class="tombol-utama w-full py-3" :disabled="memuat">
-        <Ikon :nama="memuat ? 'RefreshCw' : 'LogOut'" :ukuran="18" :class="memuat ? 'animate-spin' : 'rotate-180'" />
+      <button type="submit" :disabled="memuat"
+              class="tombol mt-2 h-12 w-full rounded-2xl bg-gradient-to-r from-biru via-blue-600 to-indigo-600 text-base text-white shadow-lg shadow-biru/30 transition hover:brightness-110 active:scale-[0.99]">
+        <Ikon :nama="memuat ? 'RefreshCw' : 'LogOut'" :ukuran="19" :class="memuat ? 'animate-spin' : 'rotate-180'" />
         {{ memuat ? 'Memeriksa…' : 'Masuk' }}
       </button>
-      <RouterLink to="/lupa-password" class="flex items-center justify-center gap-1.5 text-sm font-semibold text-biru hover:underline">
-        <Ikon nama="KeyRound" :ukuran="15" /> Lupa password?
-      </RouterLink>
     </form>
   </TataLetakAkun>
 </template>
