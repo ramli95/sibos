@@ -8,6 +8,7 @@ import {
   Mail, Info, Sparkles, CircleCheck, TriangleAlert, Download, Upload, Search, Plus, CloudUpload, WifiOff,
   FileSpreadsheet, Construction, ArrowLeft, CalendarDays, Banknote, PiggyBank, Building2, Smartphone, RefreshCw,
   UserPlus, Copy, UserCog, Power, Repeat, ArrowDown, CircleAlert, Link,
+  Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
 } from 'lucide-vue-next'
 
 const DAFTAR = {
@@ -18,6 +19,7 @@ const DAFTAR = {
   Mail, Info, Sparkles, CircleCheck, TriangleAlert, Download, Upload, Search, Plus, CloudUpload, WifiOff,
   FileSpreadsheet, Construction, ArrowLeft, CalendarDays, Banknote, PiggyBank, Building2, Smartphone, RefreshCw,
   UserPlus, Copy, UserCog, Power, Repeat, ArrowDown, CircleAlert, Link,
+  Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
 }
 
 const props = defineProps({ nama: { type: String, required: true }, ukuran: { type: [Number, String], default: 18 } })
