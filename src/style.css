@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* Mode gelap dikendalikan kelas .dark di <html> (Terang / Gelap / Sistem) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Palet SIBOS (mengikuti ARKAS) */
+@theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --color-navy: #1E3A8A;
+  --color-navy-tua: #172E6E;
+  --color-navy-lembut: #2C4BA0;
+  --color-biru: #1A62E8;
+  --color-biru-muda: #8DD3F7;
+  --color-arang: #2B2B2B;
+  --color-hijau: #1E7A46;
+  --color-hijau-muda: #A8E6C1;
+  --color-kuning: #F5B21B;
+  --color-merah: #E8455A;
+  --color-tosca: #2BB5A0;
+  --color-langit: #4F8BFF;
+  --color-ungu: #7C5CFA;
+}
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    @apply bg-slate-50 text-slate-800 font-sans antialiased dark:bg-[#0E131D] dark:text-slate-100;
+  }
+  .angka, .kode { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+}
+
+@utility kartu {
+  @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/60 dark:bg-[#161D2B];
+}
+@utility tombol {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-biru disabled:opacity-50 disabled:cursor-not-allowed;
+}
+@utility tombol-utama {
+  @apply tombol bg-biru text-white hover:bg-blue-700 shadow-sm shadow-biru/30;
+}
+@utility tombol-garis {
+  @apply tombol border border-slate-300 bg-white text-slate-700 hover:bg-slate-50
+    dark:border-slate-600 dark:bg-transparent dark:text-slate-200 dark:hover:bg-slate-800;
+}
+@utility masukan {
+  @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition
+    placeholder:text-slate-400 focus:border-biru focus:ring-4 focus:ring-biru/15
+    dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100;
+}
+@utility label {
+  @apply mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300;
+}
+@utility lencana {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
+
+/* Dokumen cetak: F4 215 × 330 mm, Times New Roman, hitam di atas putih */
+@page { size: 215mm 330mm; margin: 2cm 2cm 2cm 3cm; }
+@page landscape { size: 330mm 215mm; margin: 2cm; }
+@media print {
+  html.dark { color-scheme: light; }
+  body { background: #fff !important; color: #000 !important; font-family: "Times New Roman", Times, serif !important; font-size: 12pt; }
+  .tanpa-cetak { display: none !important; }
+  .cetak-landscape { page: landscape; }
+}

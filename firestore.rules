@@ -1,0 +1,142 @@
+rules_version = '2';
+// ================================================================
+//  Aturan akses Firestore SIBOS — Fase 1
+//  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
+//  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
+//  Peralihan bendahara: Bendahara aktif, atau Kepala Sekolah bila bendahara berhalangan.
+// ================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- fungsi bantu ----------
+    function masuk() { return request.auth != null; }
+    function profil() { return get(/databases/$(database)/documents/pengguna/$(request.auth.uid)).data; }
+    function aktif() { return masuk() && exists(/databases/$(database)/documents/pengguna/$(request.auth.uid)) && profil().aktif == true; }
+    function punya(p) { return aktif() && p in profil().peran; }
+    function admin() { return punya('bendahara'); }
+    function kepsek() { return punya('kepala_sekolah'); }
+    function salahSatu(daftar) { return aktif() && profil().peran.hasAny(daftar); }
+    function hanyaUbah(kolom) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(kolom); }
+
+    // Penyiapan Awal: hanya email pemilik pertama, hanya sekali, dan semua dalam satu batch
+    // bersama pembuatan sistem/penyiapan.
+    function penyiapanAwal() {
+      return masuk()
+        && request.auth.token.email == 'ramli51@guru.sma.belajar.id'
+        && !exists(/databases/$(database)/documents/sistem/penyiapan)
+        && existsAfter(/databases/$(database)/documents/sistem/penyiapan);
+    }
+
+    // ---------- sistem ----------
+    match /sistem/penyiapan {
+      allow read: if masuk();
+      allow create: if masuk()
+        && request.auth.token.email == 'ramli51@guru.sma.belajar.id'
+        && !exists(/databases/$(database)/documents/sistem/penyiapan);
+      allow update, delete: if false;   // terkunci selamanya
+    }
+    match /sistem/pemilik {
+      allow read: if aktif();
+      allow create: if penyiapanAwal();
+      allow update: if admin() || kepsek();   // serah terima bendahara
+      allow delete: if false;
+    }
+    match /sistem/{id} {
+      allow read: if aktif();
+      allow create: if id != 'penyiapan' && id != 'pemilik' && (penyiapanAwal() || admin());
+      allow update: if id != 'penyiapan' && id != 'pemilik' && admin();
+      allow delete: if false;
+    }
+
+    // ---------- akun ----------
+    // Pemetaan username → email untuk login. Hanya bisa dibaca per username (tidak bisa didaftar).
+    match /akun_login/{username} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if penyiapanAwal() || admin();
+      allow update, delete: if admin();
+    }
+
+    match /pengguna/{uid} {
+      allow get: if (masuk() && request.auth.uid == uid) || admin() || kepsek();
+      allow list: if admin() || kepsek();
+      allow create: if (penyiapanAwal() && request.auth.uid == uid) || admin();
+      // Pengguna sendiri: hanya penanda ganti password, tema, dan pengaturan notifikasi
+      allow update: if masuk() && request.auth.uid == uid
+        && hanyaUbah(['wajib_ganti_password', 'password_diubah', 'tema', 'pengaturan_notifikasi'])
+        && request.resource.data.wajib_ganti_password == false;
+      allow update: if admin();
+      // Kepala Sekolah: boleh mengalihkan peran & status aktif (serah terima darurat)
+      allow update: if kepsek() && hanyaUbah(['peran', 'aktif', 'diubah', 'diubah_oleh']);
+      allow delete: if false;   // akun tidak dihapus, cukup dinonaktifkan
+    }
+
+    match /serah_terima/{id} {
+      allow read: if admin() || kepsek();
+      allow create: if (admin() || kepsek()) && request.resource.data.oleh == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---------- pengaturan ----------
+    match /sekolah/{id} {
+      allow read: if aktif();
+      allow create: if penyiapanAwal() || admin();
+      allow update: if admin();
+      allow delete: if false;
+    }
+
+    // Pejabat penanda tangan per periode
+    match /pejabat/{id} {
+      allow read: if aktif();
+      allow create: if penyiapanAwal() || admin()
+        || (kepsek() && request.resource.data.jabatan in ['bendahara_bosp', 'bendahara_gaji']);
+      allow update: if admin()
+        || (kepsek() && resource.data.jabatan in ['bendahara_bosp', 'bendahara_gaji'] && hanyaUbah(['sampai', 'diubah']));
+      allow delete: if admin();
+    }
+
+    // ---------- master data ----------
+    // Pegawai: data umum untuk Tim BOS & Kepala Sekolah; data sensitif di subkoleksi rahasia
+    match /pegawai/{id} {
+      allow read: if salahSatu(['bendahara', 'tim_bos', 'kepala_sekolah']);
+      allow write: if admin();
+      // NIK, NPWP pribadi, rekening, status keluarga, gaji → hanya Bendahara
+      match /rahasia/{doc} {
+        allow read, write: if admin();
+      }
+    }
+
+    match /rekanan/{id} {
+      allow read: if aktif();
+      allow write: if admin();
+    }
+
+    match /referensi/{jenis}/{rest=**} {
+      allow read: if aktif();
+      allow write: if admin();
+    }
+
+    // ---------- notifikasi, log, impor ----------
+    match /notifikasi/{id} {
+      allow read: if masuk() && resource.data.uid == request.auth.uid;
+      allow update: if masuk() && resource.data.uid == request.auth.uid && hanyaUbah(['dibaca']);
+      allow create, delete: if admin();
+    }
+
+    // Log aktivitas: hanya bisa ditambah oleh pelakunya sendiri; tidak bisa diubah/dihapus
+    match /log_aktivitas/{id} {
+      allow create: if masuk() && request.resource.data.uid == request.auth.uid;
+      allow read: if salahSatu(['bendahara', 'kepala_sekolah']);
+      allow update, delete: if false;
+    }
+
+    match /pemetaan_impor/{id} {
+      allow read, write: if admin();
+    }
+
+    // Selain yang disebut di atas: tertutup
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
