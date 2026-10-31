@@ -12,9 +12,9 @@ const KONFIG = {
   SIMPAN_JSON: 12,
   SIMPAN_LOG_BULAN: 6,
 };
-const VERSI = 3;
+const VERSI = 4;
 const FS = 'https://firestore.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/databases/(default)/documents';
-const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian'];
+const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian'];
 
 /* ======================= PINTU MASUK ======================= */
 
@@ -173,7 +173,9 @@ function cadangkan(jenis, oleh) {
       if (!docs.length) return;
       semua[id] = docs;
       jumlah += docs.length;
-      tulisLembar(ss, id, docs);
+      // RKAS disimpan per SNP (rkas/{versi}/bagian/{snp}.butir) → di Sheets satu baris per uraian
+      if (id === 'bagian') tulisLembar(ss, 'rkas_uraian', ratakanButir(docs));
+      else tulisLembar(ss, id, docs);
     });
     tulisRingkasan(ss, semua, mulai, jenis, oleh);
 
@@ -254,6 +256,14 @@ function tulisLembar(ss, nama, docs) {
   sh.getRange(1, 1, 1, header.length).setValues([header]).setFontWeight('bold').setBackground('#1E3A8A').setFontColor('#FFFFFF');
   if (baris.length) sh.getRange(2, 1, baris.length, header.length).setNumberFormat('@').setValues(baris);
   sh.setFrozenRows(1);
+}
+
+function ratakanButir(docs) {
+  const hasil = [];
+  docs.forEach(function (d) {
+    (d.data.butir || []).forEach(function (b, i) { hasil.push({ jalur: d.jalur + '#' + (i + 1), data: b, diperbarui: d.diperbarui }); });
+  });
+  return hasil;
 }
 
 function keSel(v) {

@@ -13,6 +13,7 @@ const props = defineProps({
   aktif: Boolean,
   memuat: Boolean,
   bisaKlik: { type: Boolean, default: true },
+  ringkas: Boolean, // nilai panjang (rupiah): huruf lebih kecil, satu baris
 })
 const emit = defineEmits(['klik'])
 </script>
@@ -34,7 +35,7 @@ const emit = defineEmits(['klik'])
         <Ikon :nama="props.ikon" :ukuran="21" />
       </span>
     </div>
-    <p class="angka mt-auto text-[2.4rem] font-extrabold leading-none tracking-tight drop-shadow-sm">
+    <p :class="['angka mt-auto font-extrabold leading-none tracking-tight drop-shadow-sm', props.ringkas ? 'whitespace-nowrap text-[1.7rem] sm:text-[1.85rem]' : 'text-[2.4rem]']">
       <span v-if="props.memuat" class="inline-block h-9 w-14 animate-pulse rounded-lg bg-white/25 align-middle" />
       <template v-else>{{ props.nilai }}</template>
     </p>

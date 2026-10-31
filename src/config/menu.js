@@ -3,7 +3,17 @@
 // `peran` kosong = semua peran boleh melihat.
 export const MENU = [
   { judul: 'Dasbor', ikon: 'LayoutDashboard', ke: '/dasbor', warna: 'text-langit', fase: 1 },
-  { judul: 'RKAS', ikon: 'ClipboardList', warna: 'text-kuning', fase: 2 },
+  {
+    judul: 'RKAS', ikon: 'ClipboardList', warna: 'text-kuning', fase: 2,
+    anak: [
+      { judul: 'Ringkasan & Proporsi', ikon: 'ChartPie', ke: '/rkas/ringkasan', fase: 2 },
+      { judul: 'Kertas Kerja', ikon: 'ListTree', ke: '/rkas/kertas-kerja', fase: 2 },
+      { judul: 'Per Bulan', ikon: 'CalendarDays', ke: '/rkas/per-bulan', fase: 2 },
+      { judul: 'Per Tahap', ikon: 'Layers', ke: '/rkas/per-tahap', fase: 2 },
+      { judul: 'Pergeseran', ikon: 'ArrowRightLeft', ke: '/rkas/pergeseran', fase: 2 },
+      { judul: 'Versi & Impor', ikon: 'GitCompareArrows', ke: '/rkas/versi', fase: 2 },
+    ],
+  },
   { judul: 'Belanja & Dokumen', ikon: 'ShoppingCart', warna: 'text-merah', fase: 3 },
   { judul: 'Pajak', ikon: 'ReceiptText', warna: 'text-tosca', fase: 4 },
   { judul: 'Buku Kas', ikon: 'BookOpenText', warna: 'text-langit', fase: 4 },
@@ -24,7 +34,7 @@ export const MENU = [
     anak: [
       { judul: 'Rekanan', ikon: 'Store', ke: '/rekanan', fase: 1 },
       { judul: 'Referensi Juknis', ikon: 'BookMarked', ke: '/referensi', fase: 1 },
-      { judul: 'Standar Harga', ikon: 'Tags', fase: 2 },
+      { judul: 'Standar Harga', ikon: 'Tags', ke: '/standar-harga', fase: 2 },
     ],
   },
   { judul: 'Agenda Surat', ikon: 'Mailbox', warna: 'text-merah', fase: 3 },
@@ -42,4 +52,14 @@ export const TAB_PENGATURAN = [
   { kunci: 'cetak', judul: 'Pengaturan Cetak', ikon: 'Printer', warna: 'text-kuning' },
   { kunci: 'notifikasi', judul: 'Notifikasi', ikon: 'BellRing', warna: 'text-ungu' },
   { kunci: 'drive', judul: 'Drive & Cadangan', ikon: 'HardDrive', warna: 'text-hijau' },
+]
+
+// Tab halaman RKAS (rute /rkas/:tab)
+export const TAB_RKAS = [
+  { kunci: 'ringkasan', judul: 'Ringkasan & Proporsi', ikon: 'ChartPie', warna: 'text-ungu' },
+  { kunci: 'kertas-kerja', judul: 'Kertas Kerja', ikon: 'ListTree', warna: 'text-biru' },
+  { kunci: 'per-bulan', judul: 'Per Bulan', ikon: 'CalendarDays', warna: 'text-tosca' },
+  { kunci: 'per-tahap', judul: 'Per Tahap', ikon: 'Layers', warna: 'text-kuning' },
+  { kunci: 'pergeseran', judul: 'Pergeseran', ikon: 'ArrowRightLeft', warna: 'text-merah' },
+  { kunci: 'versi', judul: 'Versi & Impor', ikon: 'GitCompareArrows', warna: 'text-hijau' },
 ]

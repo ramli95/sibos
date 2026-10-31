@@ -83,3 +83,17 @@
   .tanpa-cetak { display: none !important; }
   .cetak-landscape { page: landscape; }
 }
+
+/* Warna grafik (divalidasi untuk buta warna, terang & gelap): kategori anggaran + rencana/realisasi */
+@layer base {
+  :root {
+    --viz-operasional: #2563eb; --viz-alat: #f97316; --viz-aset: #0d9488;
+    --viz-rencana: #2563eb; --viz-realisasi: #0d9488; --viz-grid: #e2e8f0; --viz-teks: #64748b;
+    --viz-aman: #15803d; --viz-waspada: #b45309; --viz-lewat: #dc2626;
+  }
+  html.dark {
+    --viz-operasional: #3b82f6; --viz-alat: #de6a1c; --viz-aset: #0f9f8f;
+    --viz-rencana: #3b82f6; --viz-realisasi: #0f9f8f; --viz-grid: #273247; --viz-teks: #94a3b8;
+    --viz-aman: #4ade80; --viz-waspada: #fbbf24; --viz-lewat: #f87171;
+  }
+}

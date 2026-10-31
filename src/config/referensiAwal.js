@@ -16,7 +16,7 @@ export const JENIS_REFERENSI = [
   {
     kunci: 'komponen', judul: '12 Komponen BOS Reguler (Pasal 42)', singkat: 'Komponen', ikon: 'ListChecks', warna: 'from-teal-400 to-emerald-600',
     ket: 'Batas proporsi dihitung dari keseluruhan alokasi BOS Reguler yang diterima. Batas honor 20% untuk sekolah negeri.',
-    kolom: [{ k: 'kode', j: 'Huruf', lebar: 'w-16' }, { k: 'nama', j: 'Komponen' }, { k: 'batas', j: 'Batas', lebar: 'w-44' }],
+    kolom: [{ k: 'kode', j: 'Huruf', lebar: 'w-16' }, { k: 'kode_arkas', j: 'Kode ARKAS', lebar: 'w-24' }, { k: 'nama', j: 'Komponen' }, { k: 'batas', j: 'Batas', lebar: 'w-44' }],
     awal: [
       ['a', 'Penerimaan Murid baru'],
       ['b', 'Pengembangan perpustakaan', 'Minimal 10% untuk penyediaan buku (wajib)', 'min', 10],
@@ -30,7 +30,7 @@ export const JENIS_REFERENSI = [
       ['j', 'Penyelenggaraan kegiatan peningkatan kompetensi keahlian'],
       ['k', 'Penyelenggaraan kegiatan dalam mendukung keterserapan lulusan'],
       ['l', 'Pembayaran honor', 'Maksimal 20% (negeri)', 'maks', 20],
-    ].map(([kode, nama, batas = '', jenis_batas = '', persen = '']) => ({ kode, nama, batas, jenis_batas, persen })),
+    ].map(([kode, nama, batas = '', jenis_batas = '', persen = ''], i) => ({ kode, kode_arkas: String(i + 1).padStart(2, '0'), nama, batas, jenis_batas, persen })),
   },
   {
     kunci: 'kategori', judul: '3 Kategori Anggaran', singkat: 'Kategori', ikon: 'Boxes', warna: 'from-amber-400 to-orange-500',
@@ -54,7 +54,7 @@ export const JENIS_REFERENSI = [
   },
   {
     kunci: 'kegiatan_arkas', judul: 'Kode Kegiatan ARKAS', singkat: 'Kegiatan ARKAS', ikon: 'ClipboardList', warna: 'from-sky-400 to-blue-600',
-    ket: 'Diisi dengan impor Excel dari ARKAS. Akan terisi otomatis juga saat RKAS diimpor (Fase 2).',
+    ket: 'Terisi otomatis saat RKAS diimpor dari PDF ARKAS; bisa juga diubah atau diimpor dari Excel.',
     kolom: [{ k: 'kode', j: 'Kode', lebar: 'w-40' }, { k: 'nama', j: 'Kegiatan' }, { k: 'snp', j: 'SNP', lebar: 'w-16' }, { k: 'komponen', j: 'Komp.', lebar: 'w-16' }],
     awal: [],
   },

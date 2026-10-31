@@ -52,3 +52,17 @@ export function sapaan() {
   if (jam < 18) return 'Selamat sore'
   return 'Selamat malam'
 }
+
+/** Rp 1,18 M · Rp 573,4 jt · Rp 860 rb — untuk angka besar di kartu */
+export function rupiahRingkas(n) {
+  const x = Math.round(Number(n) || 0)
+  const a = Math.abs(x)
+  const f = (v, d) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: d }).format(v)
+  if (a >= 1e9) return `Rp ${f(x / 1e9, 2)} M`
+  if (a >= 1e6) return `Rp ${f(x / 1e6, 1)} jt`
+  if (a >= 1e3) return `Rp ${f(x / 1e3, 0)} rb`
+  return `Rp ${f(x, 0)}`
+}
+
+/** 14,42% */
+export const persen = (n, d = 2) => `${new Intl.NumberFormat('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }).format(Number(n) || 0)}%`

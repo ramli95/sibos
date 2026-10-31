@@ -1,6 +1,6 @@
 rules_version = '2';
 // ================================================================
-//  Aturan akses Firestore SIBOS — Fase 1
+//  Aturan akses Firestore SIBOS — Fase 2
 //  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
 //  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
 //  Peralihan bendahara: Bendahara aktif, atau Kepala Sekolah bila bendahara berhalangan.
@@ -112,6 +112,27 @@ service cloud.firestore {
     }
 
     match /referensi/{jenis}/{rest=**} {
+      allow read: if aktif();
+      allow write: if admin();
+    }
+
+    // ---------- perencanaan (Fase 2) ----------
+    // RKAS per versi (murni/pergeseran/perubahan) + uraian per SNP. Semua peran melihat; hanya Bendahara mengubah.
+    match /rkas/{versi} {
+      allow read: if aktif();
+      allow write: if admin();
+      match /bagian/{snp} {
+        allow read: if aktif();
+        allow write: if admin();
+      }
+    }
+    // Catatan pergeseran: hanya ditambah, tidak diubah/dihapus
+    match /rkas_pergeseran/{id} {
+      allow read: if aktif();
+      allow create: if admin() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+    match /standar_harga/{id} {
       allow read: if aktif();
       allow write: if admin();
     }
