@@ -11,7 +11,7 @@ import {
   Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
   PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
   ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus, Camera, CirclePlus, ExternalLink, Hash, HandCoins, Scissors, CalendarCheck, FileSearch, DatabaseZap, ArrowDownLeft, ArrowUpRight, Unlink, Ban, LockOpen, Check,
-  ClipboardCheck, QrCode, DoorOpen, Warehouse, PackagePlus, PackageMinus, CircleHelp, Route, Compass, MapPin, Lightbulb, Play, Tag, Armchair, PackageSearch, CalendarClock, Split, ListOrdered, MousePointerClick, Footprints, ShieldAlert, Award, Barcode,
+  ClipboardCheck, QrCode, DoorOpen, Warehouse, PackagePlus, PackageMinus, CircleHelp, Route, Compass, MapPin, Lightbulb, Play, Tag, Armchair, PackageSearch, CalendarClock, Split, ListOrdered, MousePointerClick, Footprints, ShieldAlert, Award, Barcode, Eraser,
 } from 'lucide-vue-next'
 
 const DAFTAR = {
@@ -25,7 +25,7 @@ const DAFTAR = {
   Pencil, Trash2, Save, Filter, ListChecks, FileDown, Phone, Landmark, BadgeCheck, CircleX, ArrowRight, Table2, Columns3, Wand2, UserRound, HeartHandshake, Briefcase, ScrollText, SkipForward, Clock, ChevronLeft,
   PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
   ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus, Camera, CirclePlus, ExternalLink, Hash, HandCoins, Scissors, CalendarCheck, FileSearch, DatabaseZap, ArrowDownLeft, ArrowUpRight, Unlink, Ban, LockOpen, Check,
-  ClipboardCheck, QrCode, DoorOpen, Warehouse, PackagePlus, PackageMinus, CircleHelp, Route, Compass, MapPin, Lightbulb, Play, Tag, Armchair, PackageSearch, CalendarClock, Split, ListOrdered, MousePointerClick, Footprints, ShieldAlert, Award, Barcode,
+  ClipboardCheck, QrCode, DoorOpen, Warehouse, PackagePlus, PackageMinus, CircleHelp, Route, Compass, MapPin, Lightbulb, Play, Tag, Armchair, PackageSearch, CalendarClock, Split, ListOrdered, MousePointerClick, Footprints, ShieldAlert, Award, Barcode, Eraser,
 }
 
 const props = defineProps({ nama: { type: String, required: true }, ukuran: { type: [Number, String], default: 18 } })

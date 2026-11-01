@@ -64,7 +64,6 @@ export const MENU = [
       { judul: 'Persediaan', ikon: 'Warehouse', ke: '/barang/persediaan', fase: 5 },
     ],
   },
-  { judul: 'Panduan Input', ikon: 'Compass', ke: '/panduan', warna: 'text-kuning', fase: 5 },
   {
     judul: 'Kepegawaian', ikon: 'IdCard', warna: 'text-biru-muda', fase: 1, peran: ['bendahara', 'tim_bos', 'kepala_sekolah'],
     anak: [
@@ -84,7 +83,7 @@ export const MENU = [
     ],
   },
   { judul: 'Agenda Surat', ikon: 'Mailbox', ke: '/agenda-surat/daftar', warna: 'text-[#5FD3C0]', fase: 3 },
-  { judul: 'Impor Data', ikon: 'FileUp', ke: '/impor', warna: 'text-biru-muda', fase: 1, peran: ['bendahara'] },
+  { judul: 'Ekspor & Impor', ikon: 'ArrowDownUp', ke: '/data', warna: 'text-biru-muda', fase: 1, peran: ['bendahara'] },
   { judul: 'Log Aktivitas', ikon: 'History', ke: '/log', warna: 'text-kuning', fase: 1, peran: ['bendahara', 'kepala_sekolah'] },
   { judul: 'Pengaturan', ikon: 'Settings', ke: '/pengaturan', warna: 'text-biru-muda', fase: 1, peran: ['bendahara'] },
 ]
@@ -99,6 +98,7 @@ export const TAB_PENGATURAN = [
   { kunci: 'cetak', judul: 'Pengaturan Cetak', ikon: 'Printer', warna: '' },
   { kunci: 'notifikasi', judul: 'Notifikasi', ikon: 'BellRing', warna: '' },
   { kunci: 'drive', judul: 'Drive & Cadangan', ikon: 'HardDrive', warna: '' },
+  { kunci: 'panduan', judul: 'Panduan Input', ikon: 'Compass', warna: '' },
 ]
 
 // Tab halaman RKAS (rute /rkas/:tab)

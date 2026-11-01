@@ -12,11 +12,12 @@ import TabKop from './TabKop.vue'
 import TabCetak from './TabCetak.vue'
 import TabNotifikasi from './TabNotifikasi.vue'
 import SegeraHadir from '@/views/SegeraHadir.vue'
+import Panduan from '@/views/Panduan.vue'
 
 const route = useRoute()
 const router = useRouter()
 const aktif = computed(() => route.params.tab || 'profil')
-const komponen = { profil: TabProfil, kop: TabKop, pejabat: TabPejabat, pengguna: TabPengguna, cetak: TabCetak, notifikasi: TabNotifikasi, drive: TabDrive, tahun: TabTahun }
+const komponen = { profil: TabProfil, kop: TabKop, pejabat: TabPejabat, pengguna: TabPengguna, cetak: TabCetak, notifikasi: TabNotifikasi, drive: TabDrive, tahun: TabTahun, panduan: Panduan }
 </script>
 
 <template>

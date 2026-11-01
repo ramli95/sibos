@@ -43,7 +43,7 @@ const inisial = computed(() => (auth.pengguna?.nama || '?').split(',')[0].split(
 // Tombol bantuan: putar tur halaman ini, atau buka daftar Panduan Input
 const panduan = usePanduan()
 const turHalaman = computed(() => turUntukRute(route.path))
-function bantuan() { if (turHalaman.value && route.path !== '/panduan') panduan.mulai(turHalaman.value); else router.push('/panduan') }
+function bantuan() { if (turHalaman.value && !route.path.endsWith('/panduan')) panduan.mulai(turHalaman.value); else router.push(auth.isAdmin ? '/pengaturan/panduan' : '/panduan') }
 
 async function keluar() {
   await auth.keluar()

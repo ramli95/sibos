@@ -1,4 +1,7 @@
-// Tabel gaji pokok (disalin dari lampiran peraturan di Project, diperiksa terhadap sheet dB-SKPG).
+// Tabel gaji pokok BAWAAN (disalin dari lampiran peraturan di Project, diperiksa terhadap sheet dB-SKPG).
+// Tabel yang dipakai menghitung bisa diubah Bendahara (sekolah/tabel_gaji) bila ada peraturan gaji baru —
+// lihat pasangTabelGaji(). Selama belum diubah, tabel bawaan di bawah ini yang berlaku.
+import { shallowRef } from 'vue'
 // PNS  : PP 5/2024 (perubahan ke-19 PP 7/1977), berlaku 1 Januari 2024.
 // PPPK : Perpres 11/2024 (perubahan Perpres 98/2020), berlaku 1 Januari 2024.
 // Bentuk: { golongan: { mkg: gajiPokok } }. MKG = masa kerja golongan (tahun).
@@ -45,9 +48,44 @@ export const GAJI_PPPK = {
   XVII: baris(0, 2, [4462500, 4603000, 4748000, 4897500, 5051800, 5210900, 5375000, 5544300, 5718900, 5899000, 6084800, 6276400, 6474100, 6678000, 6888300, 7105300, 7329000]),
 }
 
+export const DASAR_BAWAAN = { PNS: 'PP 5/2024', PPPK: 'Perpres 11/2024', berlaku: '2024-01-01' }
+
+// Tabel yang sedang berlaku (reaktif: perhitungan di layar ikut berubah saat tabel disimpan)
+const aktif = shallowRef({ PNS: GAJI_PNS, PPPK: GAJI_PPPK, dasar: { ...DASAR_BAWAAN }, ubahan: false })
+export const tabelAktif = () => aktif.value
+
+/** Tabel → baris { jenis, golongan, mkg, gaji_pokok } (bentuk penyimpanan & ekspor Excel) */
+export function keBaris(t = aktif.value) {
+  const hasil = []
+  ;['PNS', 'PPPK'].forEach((jenis) => Object.entries(t[jenis]).forEach(([golongan, isi]) =>
+    Object.entries(isi).forEach(([mkg, gp]) => hasil.push({ jenis, golongan, mkg: Number(mkg), gaji_pokok: Number(gp) }))))
+  return hasil
+}
+/** Baris → tabel { PNS: { gol: { mkg: gp } }, PPPK: … } */
+export function dariBaris(baris = []) {
+  const t = { PNS: {}, PPPK: {} }
+  baris.forEach((b) => {
+    const j = String(b.jenis || '').toUpperCase() === 'PPPK' ? 'PPPK' : 'PNS'
+    const g = String(b.golongan || '').trim()
+    const gp = Number(b.gaji_pokok) || 0
+    if (!g || gp <= 0 || b.mkg === '' || b.mkg == null) return
+    ;(t[j][g] ||= {})[Number(b.mkg)] = gp
+  })
+  return t
+}
+/** Dipanggil saat data gaji dimuat: dok sekolah/tabel_gaji { baris, dasar_pns, dasar_pppk, berlaku } atau null (= bawaan) */
+export function pasangTabelGaji(dok) {
+  if (!dok?.baris?.length) { aktif.value = { PNS: GAJI_PNS, PPPK: GAJI_PPPK, dasar: { ...DASAR_BAWAAN }, ubahan: false }; return }
+  const t = dariBaris(dok.baris)
+  aktif.value = {
+    PNS: Object.keys(t.PNS).length ? t.PNS : GAJI_PNS, PPPK: Object.keys(t.PPPK).length ? t.PPPK : GAJI_PPPK,
+    dasar: { PNS: dok.dasar_pns || DASAR_BAWAAN.PNS, PPPK: dok.dasar_pppk || DASAR_BAWAAN.PPPK, berlaku: dok.berlaku || '' }, ubahan: true,
+  }
+}
+
 /** Gaji pokok menurut tabel: MKG dibulatkan ke bawah ke baris terdekat yang tersedia. null bila golongan tak dikenal. */
 export function gajiPokokTabel(status, golongan, mkg) {
-  const t = (status === 'PPPK' ? GAJI_PPPK : GAJI_PNS)[golongan]
+  const t = aktif.value[status === 'PPPK' ? 'PPPK' : 'PNS'][golongan]
   if (!t) return null
   const kunci = Object.keys(t).map(Number).sort((a, b) => a - b)
   const pakai = kunci.filter((k) => k <= Math.max(0, Number(mkg) || 0)).pop() ?? kunci[0]
@@ -56,7 +94,7 @@ export function gajiPokokTabel(status, golongan, mkg) {
 
 /** MKG berikutnya yang menaikkan gaji pokok (untuk KGB): baris tabel berikutnya setelah MKG sekarang */
 export function mkgBerikut(status, golongan, mkg) {
-  const t = (status === 'PPPK' ? GAJI_PPPK : GAJI_PNS)[golongan]
+  const t = aktif.value[status === 'PPPK' ? 'PPPK' : 'PNS'][golongan]
   if (!t) return null
   const k = Object.keys(t).map(Number).sort((a, b) => a - b).find((x) => x > (Number(mkg) || 0))
   return k === undefined ? null : { mkg: k, gaji_pokok: t[k] }

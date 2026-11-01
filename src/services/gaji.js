@@ -6,6 +6,7 @@
 //   kgb/{id}                 → riwayat KGB: usulan (surat pengantar) & SK/pemberitahuan yang sudah terbit
 //   skpg/{id}                → SKPG yang sudah diterbitkan (nomor, pegawai, bulan, keperluan) untuk cetak ulang
 //   sekolah/aturan_gaji      → harga beras & persentase iuran (bisa diubah Bendahara)
+//   sekolah/tabel_gaji       → tabel gaji pokok yang berlaku { baris: [{ jenis, golongan, mkg, gaji_pokok }], dasar_pns, dasar_pppk, berlaku }
 // Log aktivitas tidak memuat nominal gaji (log dapat dibaca Kepala Sekolah).
 import { collection, doc, getDoc, getDocs, writeBatch, runTransaction, serverTimestamp, query, orderBy } from 'firebase/firestore'
 import { db, auth, modePratinjau } from './firebase'
@@ -32,14 +33,15 @@ const dataContoh = async () => (contoh ||= { ...(await import('./contohGaji')) }
 export async function muatSemuaGaji() {
   if (modePratinjau) {
     const c = await dataContoh()
-    return { pegawai: salin(c.pegawai), dasar: salin(c.dasar), kgb: salin(c.kgb), skpg: salin(c.skpg), aturan: { ...ATURAN_GAJI_AWAL } }
+    return { pegawai: salin(c.pegawai), dasar: salin(c.dasar), kgb: salin(c.kgb), skpg: salin(c.skpg), aturan: { ...ATURAN_GAJI_AWAL }, tabel: c.tabel || null }
   }
-  const [pegawai, sd, sk, ss, sa] = await Promise.all([
+  const [pegawai, sd, sk, ss, sa, st] = await Promise.all([
     muatPegawai({ denganRahasia: true }),
     getDocs(collection(db, 'gaji_dasar')),
     getDocs(collection(db, 'kgb')),
     getDocs(query(collection(db, 'skpg'), orderBy('tanggal', 'desc'))),
     getDoc(doc(db, 'sekolah', 'aturan_gaji')),
+    getDoc(doc(db, 'sekolah', 'tabel_gaji')),
   ])
   return {
     pegawai,
@@ -47,7 +49,20 @@ export async function muatSemuaGaji() {
     kgb: sk.docs.map((d) => ({ id: d.id, ...d.data() })),
     skpg: ss.docs.map((d) => ({ id: d.id, ...d.data() })),
     aturan: { ...ATURAN_GAJI_AWAL, ...(sa.exists() ? sa.data() : {}) },
+    tabel: st.exists() ? st.data() : null,
   }
+}
+
+/* ---------------- Tabel gaji pokok ---------------- */
+
+/** data: { baris, dasar_pns, dasar_pppk, berlaku }; null = kembali ke tabel bawaan */
+export async function simpanTabelGaji(data) {
+  if (modePratinjau) { (await dataContoh()).tabel = data; return }
+  const b = writeBatch(db)
+  // Dokumen sekolah tidak boleh dihapus (rules); "kembali ke bawaan" = baris kosong
+  b.set(doc(db, 'sekolah', 'tabel_gaji'), { ...bersih(data || { baris: [], dasar_pns: '', dasar_pppk: '', berlaku: '' }), diperbarui: serverTimestamp(), diperbarui_oleh: auth.currentUser.uid })
+  log(b, 'ubah', data ? `Mengubah tabel gaji pokok (${data.dasar_pns} / ${data.dasar_pppk}, berlaku ${data.berlaku || '-'})` : 'Mengembalikan tabel gaji pokok ke bawaan (PP 5/2024 & Perpres 11/2024)', 'sekolah', 'tabel_gaji')
+  await b.commit()
 }
 
 /* ---------------- Aturan ---------------- */

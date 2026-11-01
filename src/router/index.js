@@ -40,7 +40,9 @@ const routes = [
       { path: 'barang/:tab', component: () => import('@/views/aset/Aset.vue'), meta: { judul: 'Barang & Aset', ikon: 'Boxes', peran: ['bendahara', 'pengurus_barang', 'kepala_sekolah', 'tim_bos'] } },
       { path: 'gaji', redirect: '/gaji/daftar' },
       { path: 'gaji/:tab', component: () => import('@/views/gaji/Gaji.vue'), meta: { judul: 'Kepegawaian & Gaji', ikon: 'Banknote', peran: ['bendahara'] } },
-      { path: 'panduan', component: () => import('@/views/Panduan.vue'), meta: { judul: 'Panduan Input', ikon: 'Compass' } },
+      // Panduan Input kini di Pengaturan (Bendahara); peran lain tetap bisa membuka daftar tur di /panduan
+      { path: 'panduan', component: () => import('@/views/Panduan.vue'), meta: { judul: 'Panduan Input', ikon: 'Compass' }, beforeEnter: () => (useAuth().isAdmin ? '/pengaturan/panduan' : true) },
+      { path: 'data', component: () => import('@/views/DataSibos.vue'), meta: { judul: 'Ekspor & Impor Data', ikon: 'ArrowDownUp', peran: ['bendahara'] } },
       { path: 'standar-harga', component: () => import('@/views/master/StandarHarga.vue'), meta: { judul: 'Standar Harga Satuan', ikon: 'Tags' } },
       { path: 'impor', component: () => import('@/views/Impor.vue'), meta: { judul: 'Impor Data', ikon: 'FileUp', peran: ['bendahara'] } },
       { path: 'log', component: () => import('@/views/LogAktivitas.vue'), meta: { judul: 'Log Aktivitas', ikon: 'History', peran: ['bendahara', 'kepala_sekolah'] } },

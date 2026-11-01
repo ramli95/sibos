@@ -1,4 +1,4 @@
-// Panduan Input — tur interaktif per menu (Fase 5; tur Kepegawaian // Panduan Input — tur interaktif per menu (Fase 5). Gaji ditambahkan di Fase 6).
+// Panduan Input — tur interaktif per menu (Fase 5; tur Kepegawaian & Gaji ditambahkan di Fase 6).
 // Setiap langkah menyorot elemen (pilih: satu atau beberapa selector CSS; yang pertama terlihat dipakai).
 // Bila elemen tidak ditemukan, langkah ditampilkan di tengah layar. rute = halaman tempat tur berjalan.
 
@@ -17,7 +17,7 @@ export const TUR = {
       { pilih: MENU, judul: 'Menu utama', isi: 'Semua menu dikelompokkan sesuai alur kerja: RKAS → Belanja & Dokumen → Pajak → Buku Kas → Laporan → Barang & Aset. Di HP, menu lain ada di tombol "Lainnya".' },
       { pilih: [JUDUL], judul: 'Judul halaman', isi: 'Menunjukkan halaman yang sedang dibuka beserta ikonnya.' },
       { pilih: ['.kartu'], judul: 'Ringkasan dana', isi: 'Dasbor menampilkan pagu, realisasi, saldo, pajak belum disetor, dan pengingat tenggat. Kartu bisa diketuk untuk membuka menu terkait.' },
-      { pilih: [BANTUAN], judul: 'Butuh bantuan?', isi: 'Tekan tombol tanda tanya ini di halaman mana pun untuk memutar tur menu tersebut. Daftar lengkap ada di menu Panduan Input.' },
+      { pilih: [BANTUAN], judul: 'Butuh bantuan?', isi: 'Tekan tombol tanda tanya ini di halaman mana pun untuk memutar tur menu tersebut. Daftar lengkap ada di Pengaturan → Panduan Input.' },
     ],
   },
   rkas: {

@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import { muatSemuaGaji, muatBulan } from '@/services/gaji'
 import { dasarGaji, hitungGaji, selisih, infoKgb, asn, hariIni } from '@/utils/gaji'
 import { statusKgb } from '@/config/gaji'
+import { pasangTabelGaji } from '@/config/tabelGaji'
 
 const bulanIni = () => hariIni().slice(0, 7)
 
@@ -13,6 +14,7 @@ export const useGaji = defineStore('gaji', () => {
   const kgb = ref([])
   const skpg = ref([])
   const aturan = ref({})
+  const tabel = ref(null) // dok sekolah/tabel_gaji (null = bawaan)
   const periode = ref(bulanIni())
   const bulan = ref(null) // isi gaji/{periode}
   const memuat = ref(false)
@@ -25,6 +27,7 @@ export const useGaji = defineStore('gaji', () => {
     galat.value = ''
     try {
       const x = await muatSemuaGaji()
+      pasangTabelGaji(x.tabel); tabel.value = x.tabel
       pegawai.value = x.pegawai; dasar.value = x.dasar; kgb.value = x.kgb; skpg.value = x.skpg; aturan.value = x.aturan
       bulan.value = await muatBulan(periode.value)
       dimuat = true
@@ -66,7 +69,7 @@ export const useGaji = defineStore('gaji', () => {
   const kgbH30 = computed(() => daftarKgb.value.filter((x) => x.sisa != null && x.sisa <= 30))
 
   return {
-    pegawai, dasar, kgb, skpg, aturan, periode, bulan, memuat, galat, muat, segarkan, gantiPeriode, muatUlangBulan,
+    pegawai, dasar, kgb, skpg, aturan, tabel, periode, bulan, memuat, galat, muat, segarkan, gantiPeriode, muatUlangBulan,
     aktif, pegawaiAsn, honorer, dasarDari, baris, terkunci, daftarKgb, kgbH30,
   }
 })
