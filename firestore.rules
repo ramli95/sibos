@@ -1,9 +1,10 @@
 rules_version = '2';
 // ================================================================
-//  Aturan akses Firestore SIBOS — Fase 5 (Laporan, Kesiapan SPJ, Panduan, Barang & Aset)
+//  Aturan akses Firestore SIBOS — Fase 6 (Kepegawaian & Gaji: Daftar Gaji, SKPG, KGB)
 //  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
 //  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
 //  Kecuali Barang & Aset: Bendahara dan Pengurus Barang boleh mencatat inventaris, ruangan, dan persediaan.
+//  Data gaji (dasar gaji, daftar gaji, SKPG, KGB) hanya untuk Bendahara — Kepala Sekolah pun tidak membaca.
 //  Peralihan bendahara: Bendahara aktif, atau Kepala Sekolah bila bendahara berhalangan.
 // ================================================================
 service cloud.firestore {
@@ -221,6 +222,24 @@ service cloud.firestore {
     match /bast_barang/{id} {
       allow read: if aktif();
       allow write: if admin();
+    }
+
+    // ---------- kepegawaian & gaji (Fase 6) ----------
+    // Dasar gaji per pegawai (MKG, gaji pokok, tunjangan & potongan tetap)
+    match /gaji_dasar/{id} {
+      allow read, write: if admin();
+    }
+    // Per bulan (yyyy-mm): Daftar Gaji resmi hasil impor PDF + Daftar Gaji SIBOS yang disimpan
+    match /gaji/{periode} {
+      allow read, write: if admin();
+    }
+    // KGB: surat pengantar usulan & SK/pemberitahuan yang terbit
+    match /kgb/{id} {
+      allow read, write: if admin();
+    }
+    // SKPG yang sudah diterbitkan (nomor surat, bulan, keperluan, angka)
+    match /skpg/{id} {
+      allow read, write: if admin();
     }
 
     // ---------- notifikasi, log, impor ----------

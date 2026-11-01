@@ -7,6 +7,7 @@ import { sapaan, tanggalPanjang, rupiah, rupiahRingkas, persen as fPersen } from
 import { useRkas } from '@/stores/rkas'
 import { useBelanja } from '@/stores/belanja'
 import { useKas } from '@/stores/kas'
+import { useGaji, namaLengkap } from '@/stores/gaji'
 import { ringkasan, proporsiJuknis } from '@/utils/rkasPohon'
 import Ikon from '@/components/Ikon.vue'
 import GridStat from '@/components/GridStat.vue'
@@ -18,7 +19,8 @@ const namaDepan = computed(() => (auth.pengguna?.nama || '').split(',')[0])
 const rkas = useRkas()
 const belanja = useBelanja()
 const kas = useKas()
-onMounted(() => { rkas.muat().catch(() => {}); kas.muat().catch(() => {}) })
+const gaji = useGaji()
+onMounted(() => { rkas.muat().catch(() => {}); kas.muat().catch(() => {}); if (auth.isAdmin) gaji.muat().catch(() => {}) })
 const belumLengkap = computed(() => belanja.daftar.filter((b) => (b.persen_lengkap || 0) < 100).length)
 const rk = computed(() => ringkasan(rkas.uraian))
 const proporsi = computed(() => proporsiJuknis(rkas.uraian, rkas.versi?.pagu || rk.value.jumlah))
@@ -86,8 +88,23 @@ const persen = computed(() => Math.round((jumlahSelesai.value / persiapan.value.
       </div>
       <p class="flex items-center gap-2 text-sm text-blue-100"><Ikon nama="CalendarDays" :ukuran="16" /> {{ tanggalPanjang(new Date()) }}</p>
       <h2 class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ sapaan() }}, {{ namaDepan }}</h2>
-      <p class="mt-1 max-w-xl text-blue-100">SIBOS memasuki <b>Fase 3 — Belanja &amp; Dokumen SPJ</b>: catat belanja sekali, paket dokumen dan realisasi RKAS terisi otomatis.</p>
+      <p class="mt-1 max-w-xl text-blue-100">Catat sekali — dokumen SPJ, buku kas, laporan, inventaris, hingga daftar gaji &amp; SKPG terisi otomatis.</p>
     </section>
+
+    <!-- Pengingat KGB H-30 (hanya Bendahara) -->
+    <RouterLink v-if="auth.isAdmin && gaji.kgbH30.length" to="/gaji/kgb" data-tur="dasbor-kgb"
+                class="kartu flex flex-wrap items-center gap-4 border-l-4 border-l-amber-500 p-4 transition hover:shadow-md">
+      <span class="grid h-11 w-11 place-items-center rounded-xl ikon-chip-peringatan"><Ikon nama="BellRing" :ukuran="20" /></span>
+      <div class="min-w-[12rem] flex-1">
+        <p class="font-bold">KGB jatuh tempo ≤ 30 hari · {{ gaji.kgbH30.length }} pegawai</p>
+        <p class="text-xs text-slate-500">Siapkan surat pengantar usulan KGB ke Dinas Pendidikan.</p>
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        <span v-for="x in gaji.kgbH30.slice(0, 4)" :key="x.p.id" :class="['lencana', x.st.lencana]">{{ namaLengkap(x.p).split(',')[0] }} · {{ x.st.label }}</span>
+        <span v-if="gaji.kgbH30.length > 4" class="lencana bg-slate-100 text-slate-600 dark:bg-slate-800">+{{ gaji.kgbH30.length - 4 }}</span>
+      </div>
+      <Ikon nama="ChevronRight" class="text-slate-400" />
+    </RouterLink>
 
     <!-- RKAS -->
     <section v-if="rkas.versi" class="space-y-4">

@@ -1,11 +1,15 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { onClickOutside } from '@/utils/klikLuar'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { formatWaktuRelatif } from '@/utils/format'
 import Ikon from './Ikon.vue'
 
 const notif = useNotifikasi()
+const router = useRouter()
+// Notifikasi bertautan (mis. KGB → /gaji/kgb) membuka halamannya
+function pilih(n) { notif.tandai(n); if (n.tautan) { buka.value = false; router.push(n.tautan) } }
 const buka = ref(false)
 const wadah = ref(null)
 onClickOutside(wadah, () => (buka.value = false))
@@ -29,7 +33,7 @@ const warna = { info: 'bg-blue-100 text-biru dark:bg-blue-900/50 dark:text-blue-
         <button class="text-xs font-semibold text-biru hover:underline" @click="notif.tandaiSemua()">Tandai semua dibaca</button>
       </div>
       <ul class="max-h-80 overflow-y-auto">
-        <li v-for="n in notif.daftar.slice(0, 8)" :key="n.id" :class="['flex cursor-pointer gap-3 px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/40', !n.dibaca && 'bg-blue-50/60 dark:bg-blue-950/30']" @click="notif.tandai(n)">
+        <li v-for="n in notif.daftar.slice(0, 8)" :key="n.id" :class="['flex cursor-pointer gap-3 px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/40', !n.dibaca && 'bg-blue-50/60 dark:bg-blue-950/30']" @click="pilih(n)">
           <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl', warna[n.jenis] || warna.info]"><Ikon :nama="n.ikon || 'Bell'" :ukuran="17" /></span>
           <div class="min-w-0">
             <p class="font-semibold">{{ n.judul }}</p>

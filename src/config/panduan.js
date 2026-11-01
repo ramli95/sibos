@@ -1,4 +1,4 @@
-// Panduan Input — tur interaktif per menu (Fase 5).
+// Panduan Input — tur interaktif per menu (Fase 5; tur Kepegawaian // Panduan Input — tur interaktif per menu (Fase 5). Gaji ditambahkan di Fase 6).
 // Setiap langkah menyorot elemen (pilih: satu atau beberapa selector CSS; yang pertama terlihat dipakai).
 // Bila elemen tidak ditemukan, langkah ditampilkan di tengah layar. rute = halaman tempat tur berjalan.
 
@@ -124,6 +124,36 @@ export const TUR = {
       { judul: 'Cetak F4', isi: 'Atur margin, ukuran huruf, dan kode sampul. Semua dokumen memakai kertas F4 dan Times New Roman.' },
     ],
   },
+  gaji: {
+    judul: 'Daftar Gaji PNS & PPPK', ikon: 'Wallet', warna: '#E3A414', rute: '/gaji/daftar', kelompok: 'Kepegawaian', peran: ['bendahara'],
+    ket: 'Dasar gaji, hitungan per bulan, pembanding daftar resmi, cetak & Excel.',
+    langkah: [
+      { pilih: ['[data-tur="gaji-tab"]'], judul: 'Bagian Kepegawaian & Gaji', isi: 'Daftar Gaji, Dasar Gaji Pegawai, SKPG, KGB, Impor Daftar Resmi, dan Tabel Gaji Pokok. Semua data gaji hanya bisa dibuka Bendahara.' },
+      { judul: 'Mulai dari Dasar Gaji', isi: 'Isi MKG tiap pegawai (atau impor sheet dB-SKPG). Gaji pokok diambil dari tabel PP 5/2024 / Perpres 11/2024; tunjangan keluarga dari status kawin & anak di Data Pegawai.' },
+      { pilih: ['[data-tur="gaji-periode"]'], judul: 'Pilih bulan', isi: 'Daftar Gaji dihitung langsung dari Dasar Gaji. Tekan "Simpan bulan ini" agar angkanya tidak berubah lagi bila dasar gaji diubah kemudian.' },
+      { pilih: ['[data-tur="gaji-cetak"]'], judul: 'Cetak & Excel', isi: 'Cetak F4 mendatar dengan tanda tangan Kepala Sekolah & Bendahara Gaji, atau unduh Excel.' },
+      { judul: 'Bandingkan dengan daftar resmi', isi: 'Impor PDF Daftar Gaji dari aplikasi gaji di tab Impor. Pegawai yang angkanya berbeda ditandai kuning; klik barisnya untuk melihat komponen yang selisih.' },
+    ],
+  },
+  skpg: {
+    judul: 'Membuat SKPG', ikon: 'FileSignature', warna: '#22A08D', rute: '/gaji/skpg', kelompok: 'Kepegawaian', peran: ['bendahara'],
+    ket: 'Surat Keterangan Perincian Gaji untuk PNS, PPPK, dan Honorer.',
+    langkah: [
+      { pilih: ['[data-tur="skpg-form"]'], judul: 'Isi permintaan', isi: 'Pilih pegawai, bulan gaji, dan keperluan (bank, mutasi, administrasi, pensiun). Angka diambil dari Daftar Gaji resmi bila sudah diimpor; Honorer dari honor bulanan BOSP.' },
+      { judul: 'Nomor otomatis', isi: 'Saat diterbitkan, nomor surat diambil dari penghitung surat sekolah dan tercatat di Agenda Surat. Ditandatangani Kepala Sekolah & Bendahara Gaji.' },
+      { pilih: ['[data-tur="skpg-riwayat"]'], judul: 'Cetak ulang', isi: 'SKPG yang sudah diterbitkan tersimpan di sini dan bisa dicetak ulang kapan saja.' },
+    ],
+  },
+  kgb: {
+    judul: 'KGB & pengingat H-30', ikon: 'TrendingUp', warna: '#1A62E8', rute: '/gaji/kgb', kelompok: 'Kepegawaian', peran: ['bendahara'],
+    ket: 'Jatuh tempo, surat pengantar usulan, catat SK terbit.',
+    langkah: [
+      { pilih: ['.kartu'], judul: 'Status KGB', isi: 'Jatuh tempo = TMT KGB terakhir + 2 tahun. Kuning = ≤ 30 hari, merah = sudah lewat. Ketuk kartu untuk menyaring.' },
+      { pilih: ['[data-tur="kgb-alat"]'], judul: 'Surat pengantar', isi: 'Centang pegawai lalu buat surat pengantar usulan KGB ke Dinas Pendidikan, lengkap dengan lampiran daftar nama, gaji pokok lama & baru.' },
+      { judul: 'Catat SK terbit', isi: 'Setelah Surat Pemberitahuan KGB terbit, tekan "Catat SK": TMT KGB terakhir dan gaji pokok di Dasar Gaji diperbarui otomatis.' },
+      { judul: 'Pengingat otomatis', isi: 'Apps Script v7 memeriksa setiap pagi pukul 07.00 dan mengirim notifikasi ke Bendahara bila ada KGB ≤ 30 hari.' },
+    ],
+  },
 }
 
 /** Tur yang cocok untuk rute saat ini: segmen awal yang sama paling banyak */
@@ -149,5 +179,6 @@ export const ALUR_BULANAN = [
   { ikon: 'CalendarCheck', judul: 'Tutup buku', isi: 'Isi saldo ARKAS & SIMAKDA, cocokkan, lalu tutup bulan.', ke: '/buku-kas/tutup' },
   { ikon: 'FileBarChart', judul: 'Laporan Pemda (tgl 5)', isi: 'Cetak LRPB, SPTJM, dan rekap pembelian BMD.', ke: '/laporan/pemda' },
   { ikon: 'Gauge', judul: 'Periksa kesiapan SPJ', isi: 'Lengkapi transaksi berwarna merah/kuning.', ke: '/laporan/kesiapan' },
+  { ikon: 'Wallet', judul: 'Daftar Gaji & KGB', isi: 'Impor Daftar Gaji resmi, periksa selisih, simpan bulan ini; tindak lanjuti KGB ≤ 30 hari.', ke: '/gaji/daftar' },
   { ikon: 'Boxes', judul: 'Catat barang', isi: 'Kelompokkan barang belanja, catat ke KIB, buat BAST ke Pengurus Barang.', ke: '/barang/klasifikasi' },
 ]

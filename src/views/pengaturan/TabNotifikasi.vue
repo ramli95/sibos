@@ -20,10 +20,10 @@ async function simpan() {
 }
 
 const jenis = [
-  { ikon: 'CloudUpload', judul: 'Cadangan gagal', ket: 'Dikirim penghubung Apps Script ke semua Bendahara', fase: 1, warna: 'from-teal-400 to-cyan-600' },
+  { ikon: 'CloudUpload', judul: 'Cadangan gagal', ket: 'Dikirim penghubung Apps Script ke semua Bendahara', fase: 1, aktif: true, warna: 'from-teal-400 to-cyan-600' },
   { ikon: 'ReceiptText', judul: 'Pajak belum disetor', ket: 'Pajak terutang mendekati tenggat', fase: 4, warna: 'from-emerald-400 to-teal-600' },
   { ikon: 'CalendarDays', judul: 'Tenggat laporan', ket: '31 Juli (tahap I) dan 31 Januari (tahunan)', fase: 5, warna: 'from-amber-400 to-orange-500' },
-  { ikon: 'TrendingUp', judul: 'KGB H-30', ket: 'Pegawai yang KGB-nya jatuh tempo bulan depan', fase: 6, warna: 'from-violet-500 to-fuchsia-500' },
+  { ikon: 'TrendingUp', judul: 'KGB H-30', ket: 'Setiap pagi: pegawai yang KGB-nya jatuh tempo ≤ 30 hari (Apps Script v7)', fase: 6, aktif: true, warna: 'from-violet-500 to-fuchsia-500' },
 ]
 </script>
 
@@ -49,7 +49,7 @@ const jenis = [
       <div v-for="j in jenis" :key="j.judul" class="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
         <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-lg ikon-chip']"><Ikon :nama="j.ikon" :ukuran="17" /></span>
         <div class="min-w-0 flex-1"><p class="text-sm font-semibold">{{ j.judul }}</p><p class="text-xs text-slate-500">{{ j.ket }}</p></div>
-        <span :class="['lencana', j.fase === 1 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800']">{{ j.fase === 1 ? 'Aktif' : `Fase ${j.fase}` }}</span>
+        <span :class="['lencana', j.aktif ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800']">{{ j.aktif ? 'Aktif' : 'Lewat dasbor' }}</span>
       </div>
     </section>
   </div>

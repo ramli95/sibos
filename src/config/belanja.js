@@ -105,7 +105,7 @@ export const JENIS_NOMOR = {
 // Jenis surat di Agenda Surat (termasuk surat manual)
 export const JENIS_AGENDA = {
   surat_pesanan: 'Surat Pesanan', shp: 'Surat Hasil Pemeriksaan', bast: 'Berita Acara Serah Terima', negosiasi: 'BA Negosiasi',
-  kwitansi_kecil: 'Kwitansi', invoice: 'Invoice', proforma: 'Proforma Invoice', surat_tugas: 'Surat Tugas', undangan: 'Undangan', lainnya: 'Surat Lainnya',
+  kwitansi_kecil: 'Kwitansi', invoice: 'Invoice', proforma: 'Proforma Invoice', surat_tugas: 'Surat Tugas', undangan: 'Undangan', skpg: 'SKPG', kgb: 'Usulan KGB', lainnya: 'Surat Lainnya',
 }
 
 // Kelengkapan arsip yang diunggah (dokumen bertanda tangan/nota asli)

@@ -2,7 +2,8 @@
  * SIBOS Penghubung — Google Apps Script
  * Dipasang di akun Bendahara (pemilik proyek Firebase sibos19 dan folder Drive SIBOS).
  * Tugas: unggah berkas ke Drive, reset password pengguna tanpa email, cadangan otomatis,
- * notifikasi push (Firebase Cloud Messaging), dan penghapusan log aktivitas lebih dari 6 bulan.
+ * notifikasi push (Firebase Cloud Messaging), penghapusan log aktivitas lebih dari 6 bulan,
+ * dan pengingat KGB H-30 setiap pagi (v7, Fase 6).
  */
 const KONFIG = {
   PROYEK: 'sibos19',
@@ -12,7 +13,7 @@ const KONFIG = {
   SIMPAN_JSON: 12,
   SIMPAN_LOG_BULAN: 6,
 };
-const VERSI = 6;
+const VERSI = 7;
 const FS = 'https://firestore.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/databases/(default)/documents';
 const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian', 'potong', 'foto'];
 
@@ -43,6 +44,9 @@ function doPost(e) {
       case 'reset_password':
         wajibAdmin(p);
         return balas(resetPassword(m.uid, p));
+      case 'cek_kgb':
+        wajibAdmin(p);
+        return balas({ ok: true, hasil: pengingatKgb(true) });
       case 'uji_push':
         return balas({ ok: true, terkirim: kirimPush(p.uid, 'Uji notifikasi SIBOS', 'Notifikasi push berhasil diterima di perangkat ini.') });
       default:
@@ -131,6 +135,47 @@ function cadanganHarian() {
   cadangkan(minggu ? 'mingguan' : 'harian', 'otomatis');
   // Setelah data tercadang, log aktivitas yang lebih tua dari 6 bulan dihapus
   try { hapusLogLama(); } catch (e) { kabariAdmin('Pembersihan log gagal', String(e.message || e)); }
+}
+
+/* ======================= PENGINGAT KGB (v7) ======================= */
+
+// Dijalankan setiap pagi. KGB jatuh tempo = TMT KGB terakhir + 2 tahun (data Kepegawaian).
+// Pegawai yang jatuh temponya 0–30 hari lagi (atau sudah lewat ≤ 60 hari) dikabarkan sekali per jatuh tempo
+// kepada semua Bendahara (lonceng SIBOS + push). Catatan yang sudah dikabarkan disimpan di sistem/kgb.
+function pengingatHarian() {
+  try { pengingatKgb(false); } catch (e) { kabariAdmin('Pengingat KGB gagal', String(e.message || e)); }
+}
+
+function pengingatKgb(paksa) {
+  const hariIni = Utilities.formatDate(new Date(), KONFIG.ZONA, 'yyyy-MM-dd');
+  const status = bacaDok('sistem/kgb') || {};
+  const sudah = status.dikabari || {};
+  const docs = (panggilGoogle(FS + ':runQuery', 'post', { structuredQuery: { from: [{ collectionId: 'pegawai' }] } }) || [])
+    .filter(function (x) { return x.document; })
+    .map(function (x) { const d = dariFs(x.document.fields || {}); d.id = x.document.name.split('/').pop(); return d; });
+  const daftar = [];
+  docs.forEach(function (p) {
+    if (p.aktif === false || ['PNS', 'PPPK'].indexOf(p.status_kepegawaian) < 0 || !p.tmt_kgb_terakhir) return;
+    const t = String(p.tmt_kgb_terakhir).slice(0, 10).split('-');
+    if (t.length !== 3) return;
+    const jatuh = (Number(t[0]) + 2) + '-' + t[1] + '-' + t[2];
+    const sisa = Math.round((new Date(jatuh + 'T00:00:00Z') - new Date(hariIni + 'T00:00:00Z')) / 864e5);
+    if (sisa > 30 || sisa < -60) return;
+    if (!paksa && sudah[p.id] === jatuh) return;
+    daftar.push({ id: p.id, nama: p.nama, jatuh: jatuh, sisa: sisa });
+  });
+  if (daftar.length) {
+    daftar.sort(function (a, b) { return a.sisa - b.sisa; });
+    const teks = daftar.slice(0, 5).map(function (x) {
+      return x.nama + ' (' + (x.sisa > 0 ? 'H-' + x.sisa : x.sisa === 0 ? 'hari ini' : 'lewat ' + (-x.sisa) + ' hari') + ')';
+    }).join(', ') + (daftar.length > 5 ? ', dan ' + (daftar.length - 5) + ' lainnya' : '');
+    kabariAdmin('KGB jatuh tempo: ' + daftar.length + ' pegawai', teks + '. Siapkan surat pengantar usulan KGB.',
+      { jenis: 'peringatan', ikon: 'TrendingUp', tautan: '/gaji/kgb' });
+    daftar.forEach(function (x) { sudah[x.id] = x.jatuh; });
+  }
+  tulisDok('sistem/kgb', { dikabari: sudah, terakhir_dicek: new Date(), jumlah_terakhir: daftar.length });
+  Logger.log('Pengingat KGB: ' + daftar.length + ' pegawai');
+  return { jumlah: daftar.length, pegawai: daftar };
 }
 
 /* ======================= PEMBERSIHAN LOG ======================= */
@@ -321,6 +366,7 @@ function siapkan() {
 function pasangPemicu() {
   ScriptApp.getProjectTriggers().forEach(function (t) { ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('cadanganHarian').timeBased().everyDays(1).atHour(23).nearMinute(0).inTimezone(KONFIG.ZONA).create();
+  ScriptApp.newTrigger('pengingatHarian').timeBased().everyDays(1).atHour(7).nearMinute(0).inTimezone(KONFIG.ZONA).create();
 }
 
 /* ======================= FIRESTORE REST ======================= */
@@ -356,26 +402,28 @@ function tambahLog(uid, aksi, keterangan, koleksi, id) {
   }) });
 }
 
-function kabariAdmin(judul, isi) {
+// opsi: { jenis: 'galat'|'peringatan'|'info'|'sukses', ikon: nama ikon Lucide, tautan: rute SIBOS mis. '/gaji/kgb' }
+function kabariAdmin(judul, isi, opsi) {
+  const o = opsi || {};
   const q = { structuredQuery: { from: [{ collectionId: 'pengguna' }], where: { fieldFilter: {
     field: { fieldPath: 'peran' }, op: 'ARRAY_CONTAINS', value: { stringValue: 'bendahara' } } } } };
   (panggilGoogle(FS + ':runQuery', 'post', q) || []).filter(function (x) { return x.document; }).forEach(function (x) {
     const uid = x.document.name.split('/').pop();
     panggilGoogle(FS + '/notifikasi', 'post', { fields: keFs({
-      uid: uid, jenis: 'galat', ikon: 'CloudUpload', judul: judul, isi: isi, waktu: new Date(), dibaca: false,
+      uid: uid, jenis: o.jenis || 'galat', ikon: o.ikon || 'CloudUpload', judul: judul, isi: isi, tautan: o.tautan || null, waktu: new Date(), dibaca: false,
     }) });
-    try { kirimPush(uid, judul, isi); } catch (e) { /* abaikan */ }
+    try { kirimPush(uid, judul, isi, o.tautan); } catch (e) { /* abaikan */ }
   });
 }
 
 /* ======================= NOTIFIKASI PUSH (FCM) ======================= */
 
 // Mengirim push ke semua perangkat milik pengguna; token yang sudah tidak berlaku dihapus
-function kirimPush(uid, judul, isi) {
+function kirimPush(uid, judul, isi, rute) {
   const prof = bacaDok('pengguna/' + uid) || {};
   const token = prof.token_fcm || [];
   if (!token.length) return 0;
-  const tautan = 'https://ramli95.github.io/sibos/#/notifikasi';
+  const tautan = 'https://ramli95.github.io/sibos/#' + (rute || '/notifikasi');
   let terkirim = 0;
   const sisa = [];
   token.forEach(function (t) {

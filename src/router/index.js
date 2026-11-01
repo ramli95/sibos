@@ -38,6 +38,8 @@ const routes = [
       { path: 'barang', redirect: '/barang/klasifikasi' },
       { path: 'barang/aset/:id', component: () => import('@/views/aset/LihatAset.vue'), meta: { judul: 'Rincian Barang', ikon: 'Boxes' } },
       { path: 'barang/:tab', component: () => import('@/views/aset/Aset.vue'), meta: { judul: 'Barang & Aset', ikon: 'Boxes', peran: ['bendahara', 'pengurus_barang', 'kepala_sekolah', 'tim_bos'] } },
+      { path: 'gaji', redirect: '/gaji/daftar' },
+      { path: 'gaji/:tab', component: () => import('@/views/gaji/Gaji.vue'), meta: { judul: 'Kepegawaian & Gaji', ikon: 'Banknote', peran: ['bendahara'] } },
       { path: 'panduan', component: () => import('@/views/Panduan.vue'), meta: { judul: 'Panduan Input', ikon: 'Compass' } },
       { path: 'standar-harga', component: () => import('@/views/master/StandarHarga.vue'), meta: { judul: 'Standar Harga Satuan', ikon: 'Tags' } },
       { path: 'impor', component: () => import('@/views/Impor.vue'), meta: { judul: 'Impor Data', ikon: 'FileUp', peran: ['bendahara'] } },

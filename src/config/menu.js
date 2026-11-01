@@ -69,9 +69,10 @@ export const MENU = [
     judul: 'Kepegawaian', ikon: 'IdCard', warna: 'text-biru-muda', fase: 1, peran: ['bendahara', 'tim_bos', 'kepala_sekolah'],
     anak: [
       { judul: 'Data Pegawai', ikon: 'Users', ke: '/pegawai', fase: 1 },
-      { judul: 'Daftar Gaji', ikon: 'Wallet', fase: 6 },
-      { judul: 'SKPG', ikon: 'FileSignature', fase: 6 },
-      { judul: 'KGB', ikon: 'TrendingUp', fase: 6 },
+      { judul: 'Daftar Gaji', ikon: 'Wallet', ke: '/gaji/daftar', fase: 6, peran: ['bendahara'] },
+      { judul: 'Dasar Gaji', ikon: 'Calculator', ke: '/gaji/dasar', fase: 6, peran: ['bendahara'] },
+      { judul: 'SKPG', ikon: 'FileSignature', ke: '/gaji/skpg', fase: 6, peran: ['bendahara'] },
+      { judul: 'KGB', ikon: 'TrendingUp', ke: '/gaji/kgb', fase: 6, peran: ['bendahara'] },
     ],
   },
   {
