@@ -63,6 +63,7 @@ export const useAuth = defineStore('auth', () => {
   }
 
   async function masuk(username, password) {
+    try { localStorage.setItem('sibos_aktif_terakhir', String(Date.now())) } catch { /* abaikan */ } // hitungan keluar otomatis mulai dari login
     if (modePratinjau) {
       pengguna.value = {
         uid: 'pratinjau', username: username || 'ramli', nama: 'Ramli, S.Pd., M.Pd., Gr.', email: PEMILIK_AWAL.email,

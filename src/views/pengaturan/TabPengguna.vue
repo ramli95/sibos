@@ -76,7 +76,7 @@ const salin = (t) => navigator.clipboard?.writeText(t).then(() => notif.kabari('
           <h3 class="text-lg font-bold">Serah Terima Bendahara</h3>
           <p class="text-sm text-white/85">Alihkan peran Admin ke bendahara baru: akun, periode pejabat, dan pemilik sistem berpindah sekaligus, tercatat di log.</p>
         </div>
-        <RouterLink to="/serah-terima" class="tombol bg-white text-navy hover:bg-blue-50"><Ikon nama="ArrowRightLeft" :ukuran="17" /> Mulai serah terima</RouterLink>
+        <RouterLink to="/serah-terima/akun" class="tombol bg-white text-navy hover:bg-blue-50"><Ikon nama="ArrowRightLeft" :ukuran="17" /> Mulai serah terima</RouterLink>
       </div>
     </section>
 

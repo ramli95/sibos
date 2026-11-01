@@ -10,6 +10,8 @@ export const TAB_LAPORAN = [
   { kunci: 'tahunan', judul: 'Tahap & Tahunan', ikon: 'CalendarRange' },
   { kunci: 'objek', judul: 'Buku Subrincian Objek', ikon: 'BookCopy' },
   { kunci: 'siplah', judul: 'Rekap SIPLah', ikon: 'ShoppingBag' },
+  { kunci: 'pemda-lain', judul: 'Pemda Lainnya', ikon: 'Files' },
+  { kunci: 'rekap-lain', judul: 'Rekap, Matriks & SK', ikon: 'Sheet' },
   { kunci: 'kesiapan', judul: 'Kesiapan SPJ', ikon: 'Gauge' },
   { kunci: 'simakda', judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet' },
 ]

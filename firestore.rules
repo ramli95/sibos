@@ -1,11 +1,13 @@
 rules_version = '2';
 // ================================================================
-//  Aturan akses Firestore SIBOS — Fase 6 (Kepegawaian & Gaji: Daftar Gaji, SKPG, KGB)
+//  Aturan akses Firestore SIBOS — Fase 7 (Papan Informasi, Serah Terima, WhatsApp, Catatan Keuangan)
 //  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
 //  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
 //  Kecuali Barang & Aset: Bendahara dan Pengurus Barang boleh mencatat inventaris, ruangan, dan persediaan.
 //  Data gaji (dasar gaji, daftar gaji, SKPG, KGB) hanya untuk Bendahara — Kepala Sekolah pun tidak membaca.
 //  Peralihan bendahara: Bendahara aktif, atau Kepala Sekolah bila bendahara berhalangan.
+//  Fase 7: publik/bos bisa dibaca tanpa login (hanya angka ringkasan yang diterbitkan Bendahara);
+//  catatan pribadi bendahara hanya bisa dibaca & diubah oleh pemilik akunnya sendiri.
 // ================================================================
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -240,6 +242,36 @@ service cloud.firestore {
     // SKPG yang sudah diterbitkan (nomor surat, bulan, keperluan, angka)
     match /skpg/{id} {
       allow read, write: if admin();
+    }
+
+    // ---------- papan informasi, serah terima, WhatsApp, catatan (Fase 7) ----------
+    // Halaman publik tanpa login: satu dokumen ringkasan yang diterbitkan Bendahara
+    match /publik/{id} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if admin();
+    }
+    // Berita Acara serah terima bendahara (Bendahara, atau Kepala Sekolah bila bendahara berhalangan)
+    match /ba_serah_terima/{id} {
+      allow read, write: if admin() || kepsek();
+    }
+    // Template & riwayat pesan WhatsApp (nomor pegawai/rekanan) — hanya Bendahara
+    match /template_wa/{id} {
+      allow read, write: if admin();
+    }
+    match /pesan_wa/{id} {
+      allow read, write: if admin();
+    }
+    // Catatan kas sekolah di luar Dana BOSP: Kepala Sekolah ikut melihat
+    match /catatan_kas_sekolah/{id} {
+      allow read: if admin() || kepsek();
+      allow write: if admin();
+    }
+    // Catatan pribadi bendahara: hanya pemilik catatan (uid sama), tidak terbaca bendahara berikutnya
+    match /catatan_pribadi/{id} {
+      allow read, delete: if admin() && resource.data.uid == request.auth.uid;
+      allow create: if admin() && request.resource.data.uid == request.auth.uid;
+      allow update: if admin() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid;
     }
 
     // ---------- notifikasi, log, impor ----------

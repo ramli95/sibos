@@ -79,7 +79,7 @@ async function keluarSetelahSelesai() {
 </script>
 
 <template>
-  <div class="mx-auto max-w-3xl space-y-5">
+  <div class="mx-auto max-w-3xl space-y-5" data-tur="serah-akun">
     <!-- Penanda langkah -->
     <ol class="kartu flex items-center gap-2 p-3">
       <li v-for="(l, i) in langkahList" :key="l.no" class="flex flex-1 items-center gap-2">

@@ -180,7 +180,9 @@ export async function hapusVersi(versi) {
  * Membuat draf pergeseran/perubahan: salinan versi sumber (biasanya versi berlaku) yang bisa diedit
  * per uraian lewat pop-up "Isi Detail Anggaran". Draf tidak dipakai belanja/laporan sampai ditetapkan berlaku.
  */
-export async function buatDraf(sumber, uraianSumber, { jenis, nama }) {
+export async function buatDraf(sumber, uraianSumber, { jenis, nama, tahun: tahunTujuan = null }) {
+  // tahunTujuan: salin RKAS ke tahun anggaran baru sebagai rancangan (Fase 7, pergantian tahun)
+  if (tahunTujuan) sumber = { ...sumber, tahun: Number(tahunTujuan), pagu: 0 }
   if (modePratinjau) {
     const id = `draf-pratinjau-${drafPratinjau.length + 1}`
     const butir = uraianSumber.map((u) => rapikanUraian({ ...u }))
@@ -202,7 +204,7 @@ export async function buatDraf(sumber, uraianSumber, { jenis, nama }) {
     ...ringkas, snp: [...new Set(butir.map((u) => u.snp))],
     dibuat: serverTimestamp(), diperbarui: serverTimestamp(), diperbarui_oleh: auth.currentUser.uid,
   })
-  log(b, 'tambah', `Membuat draf ${JENIS_VERSI[jenis]?.nama || jenis} RKAS ${sumber.tahun} "${nama}" dari versi ${sumber.nama}`, 'rkas', ref.id)
+  log(b, 'tambah', `Membuat draf ${JENIS_VERSI[jenis]?.nama || jenis} RKAS ${sumber.tahun} "${nama}" dari versi ${sumber.nama}${tahunTujuan ? ' (salinan tahun sebelumnya)' : ''}`, 'rkas', ref.id)
   await b.commit()
   cacheUraian.set(ref.id, butir)
   return ref.id

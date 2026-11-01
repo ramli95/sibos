@@ -1,6 +1,7 @@
 <script setup>
 // Jendela pratinjau Paket SPJ: semua dokumen satu transaksi dalam satu berkas F4 berurutan
 // (tegak & mendatar bercampur), Times New Roman. Cetak langsung, unduh satu PDF, atau Excel.
+// Fase 7: prop `massal` = [{ b, foto }] menggabungkan paket banyak transaksi menjadi satu berkas/PDF.
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { muatCetak, CETAK_AWAL, buatPdfPaket } from '@/services/cetak'
 import { useNotifikasi } from '@/stores/notifikasi'
@@ -13,7 +14,9 @@ import Halaman from './Halaman.vue'
 import './gaya-spj.css'
 
 const props = defineProps({
-  b: { type: Object, required: true },
+  b: { type: Object, default: null },
+  massal: { type: Array, default: null }, // [{ b, foto }] — cetak massal
+  judulMassal: { type: String, default: '' },
   bahan: { type: Object, required: true }, // { profil, pejabat, pegawai }
   foto: { type: Array, default: () => [] },
   semua: { type: Array, default: () => [] },
@@ -25,19 +28,26 @@ const emit = defineEmits(['tutup'])
 const notif = useNotifikasi()
 
 const cetak = ref(structuredClone(CETAK_AWAL))
-const pilihan = computed(() => pilihanPaket(props.b, props.foto))
+const daftarB = computed(() => props.massal || [{ b: props.b, foto: props.foto }])
+const pilihan = computed(() => {
+  const peta = new Map()
+  daftarB.value.forEach((x) => pilihanPaket(x.b, x.foto).forEach((p) => { if (!peta.has(p.kunci)) peta.set(p.kunci, p) }))
+  return [...peta.values()]
+})
 const pilih = ref(new Set(props.hanya || pilihan.value.map((p) => p.kunci)))
 const menuDok = ref(false)
 const sibuk = ref('')
 const wadah = ref(null)
 
-const k = computed(() => konteks(props.b, { ...props.bahan, cetak: cetak.value }))
-const halaman = computed(() => susunPaket(props.b, {
-  k: k.value, profil: props.bahan.profil, foto: props.foto, semua: props.semua, pegawai: props.bahan.pegawai,
-  namaKeg: props.namaKeg, namaRek: props.namaRek, pilih: pilih.value,
+const halaman = computed(() => daftarB.value.flatMap((x, n) => {
+  const k = konteks(x.b, { ...props.bahan, cetak: cetak.value })
+  return susunPaket(x.b, {
+    k, profil: props.bahan.profil, foto: x.foto, semua: props.semua, pegawai: props.bahan.pegawai,
+    namaKeg: props.namaKeg, namaRek: props.namaRek, pilih: pilih.value,
+  }).map((h) => ({ ...h, id: `${n}-${h.id || h.kunci}`, judul: props.massal ? `${x.b.nama_pekerjaan} · ${h.judul}` : h.judul }))
 }))
-const judul = computed(() => (props.hanya?.length === 1 ? pilihan.value.find((p) => p.kunci === props.hanya[0])?.judul || 'Dokumen' : 'Paket SPJ'))
-const namaBerkas = computed(() => `${judul.value} - ${props.b.nama_pekerjaan}`.replace(/[\\/:*?"<>|]/g, '-').slice(0, 120))
+const judul = computed(() => (props.massal ? `Paket SPJ Massal (${props.massal.length} transaksi)` : props.hanya?.length === 1 ? pilihan.value.find((p) => p.kunci === props.hanya[0])?.judul || 'Dokumen' : 'Paket SPJ'))
+const namaBerkas = computed(() => `${props.massal ? `Paket SPJ ${props.judulMassal}` : `${judul.value} - ${props.b.nama_pekerjaan}`}`.replace(/[\\/:*?"<>|]/g, '-').slice(0, 120))
 const jumlahTegak = computed(() => halaman.value.filter((h) => !h.mendatar).length)
 
 function alih(kunci) { const s = new Set(pilih.value); s.has(kunci) ? s.delete(kunci) : s.add(kunci); pilih.value = s }
@@ -75,6 +85,13 @@ async function unduhPdf() {
 }
 
 async function excel() {
+  if (props.massal) {
+    const kolom = [{ judul: 'Tanggal Lunas', lebar: 14, nilai: (x) => x.b.tgl_lunas || '' }, { judul: 'Pekerjaan', lebar: 44, nilai: (x) => x.b.nama_pekerjaan },
+      { judul: 'Penyedia/Penerima', lebar: 30, nilai: (x) => (x.b.jenis === 'honor' ? `${(x.b.penerima || []).length} penerima` : x.b.rekanan?.nama_usaha || '') },
+      { judul: 'BNU', lebar: 14, nilai: (x) => Object.values(x.b.bnu || {}).filter(Boolean).join(', ') }, { judul: 'Nilai', lebar: 16, jenis: 'uang', nilai: (x) => x.b.total || 0 }]
+    try { await eksporExcel({ judul: judul.value, kolom, baris: props.massal, namaBerkas: namaBerkas.value }) } catch (e) { notif.kabari(e.message, 'galat') }
+    return
+  }
   const b = props.b
   const honor = b.jenis === 'honor'
   const kolom = honor
@@ -114,7 +131,7 @@ async function excel() {
 
       <div class="area gulir-halus flex-1 overflow-auto p-4 sm:p-8" @click="menuDok = false">
         <div ref="wadah" class="paket" :style="gayaWadah">
-          <Halaman v-for="(h, i) in halaman" :key="(h.id || h.kunci) + i" :mendatar="h.mendatar" :judul="h.judul">
+          <Halaman v-for="(h, i) in halaman" :key="h.id + i" :mendatar="h.mendatar" :judul="h.judul">
             <component :is="h.komponen" v-bind="h.props" />
           </Halaman>
           <p v-if="!halaman.length" class="py-20 text-center text-white/70">Tidak ada dokumen dipilih.</p>

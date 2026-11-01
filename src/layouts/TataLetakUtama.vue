@@ -16,6 +16,7 @@ import { useTampilan } from '@/stores/tampilan'
 import { usePanduan } from '@/stores/panduan'
 import { turUntukRute } from '@/config/panduan'
 import TurPanduan from '@/components/TurPanduan.vue'
+import KeluarOtomatis from '@/components/KeluarOtomatis.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -109,7 +110,7 @@ async function keluar() {
             <RouterLink to="/buat-password" @click="menuAkun = false" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
               <Ikon nama="KeyRound" :ukuran="16" class="text-biru" /> Ganti password
             </RouterLink>
-            <RouterLink v-if="auth.punyaPeran('kepala_sekolah') && !auth.isAdmin" to="/serah-terima" @click="menuAkun = false" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
+            <RouterLink v-if="auth.punyaPeran('kepala_sekolah') && !auth.isAdmin" to="/serah-terima/berita-acara" @click="menuAkun = false" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
               <Ikon nama="Repeat" :ukuran="16" class="text-biru" /> Serah terima bendahara
             </RouterLink>
             <button @click="keluar" class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40">
@@ -125,5 +126,6 @@ async function keluar() {
       <NavBawah @lainnya="laciTerbuka = true" />
     </div>
     <TurPanduan />
+    <KeluarOtomatis />
   </div>
 </template>

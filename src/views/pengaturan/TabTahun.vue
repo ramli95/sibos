@@ -8,6 +8,7 @@ import { useBelanja } from '@/stores/belanja'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { rupiah, tanggalPanjang } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
+import SalinTahun from './SalinTahun.vue'
 
 const ta = useTahun()
 const kas = useKas()
@@ -67,6 +68,8 @@ async function kembalikan(t) {
         </div>
       </div>
     </section>
+
+    <SalinTahun :dari="ta.aktif" :ke="baru" :key="ta.aktif" />
 
     <section class="kartu space-y-4 p-5">
       <h3 class="flex items-center gap-2 font-bold"><Ikon nama="ArrowRight" :ukuran="18" class="text-[#22A08D]" /> Alihkan ke TA {{ baru }}</h3>

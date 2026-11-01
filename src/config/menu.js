@@ -22,6 +22,7 @@ export const MENU = [
       { judul: 'Belanja Baru', ikon: 'CirclePlus', ke: '/belanja/baru', fase: 3, peran: ['bendahara'] },
       { judul: 'Honor & Transpor', ikon: 'Wallet', ke: '/belanja/honor', fase: 3 },
       { judul: 'Arsip & Kelengkapan', ikon: 'Archive', ke: '/belanja/arsip', fase: 3 },
+      { judul: 'Cetak Massal SPJ', ikon: 'Files', ke: '/belanja/massal', fase: 7 },
     ],
   },
   {
@@ -53,8 +54,26 @@ export const MENU = [
       { judul: 'Tahap & Tahunan', ikon: 'CalendarRange', ke: '/laporan/tahunan', fase: 5 },
       { judul: 'Buku Subrincian Objek', ikon: 'BookCopy', ke: '/laporan/objek', fase: 5 },
       { judul: 'Rekap SIPLah', ikon: 'ShoppingBag', ke: '/laporan/siplah', fase: 5 },
+      { judul: 'Laporan Pemda Lainnya', ikon: 'Files', ke: '/laporan/pemda-lain', fase: 7 },
+      { judul: 'Rekap, Matriks & SK', ikon: 'Sheet', ke: '/laporan/rekap-lain', fase: 7 },
       { judul: 'Kesiapan SPJ', ikon: 'Gauge', ke: '/laporan/kesiapan', fase: 5 },
       { judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet', ke: '/laporan/simakda', fase: 5 },
+    ],
+  },
+  {
+    judul: 'Papan Informasi', ikon: 'Megaphone', warna: 'text-kuning', fase: 7,
+    anak: [
+      { judul: 'Ringkasan Komite', ikon: 'Handshake', ke: '/informasi/komite', fase: 7 },
+      { judul: 'Poster F4', ikon: 'Presentation', ke: '/informasi/poster', fase: 7 },
+      { judul: 'Tautan Publik', ikon: 'Globe', ke: '/informasi/publik', fase: 7, peran: ['bendahara'] },
+    ],
+  },
+  {
+    judul: 'Keuangan Bendahara', ikon: 'PiggyBank', warna: 'text-[#5FD3C0]', fase: 7, peran: ['bendahara', 'kepala_sekolah'],
+    anak: [
+      { judul: 'Dasbor Bulanan', ikon: 'ChartColumn', ke: '/keuangan/bulanan', fase: 7 },
+      { judul: 'Catatan Kas Sekolah', ikon: 'NotebookPen', ke: '/keuangan/kas-sekolah', fase: 7 },
+      { judul: 'Catatan Pribadi', ikon: 'LockKeyhole', ke: '/keuangan/pribadi', fase: 7, peran: ['bendahara'] },
     ],
   },
   {
@@ -86,6 +105,8 @@ export const MENU = [
     ],
   },
   { judul: 'Agenda Surat', ikon: 'Mailbox', ke: '/agenda-surat/daftar', warna: 'text-[#5FD3C0]', fase: 3 },
+  { judul: 'WhatsApp', ikon: 'MessageCircle', ke: '/whatsapp/kirim', warna: 'text-[#5FD3C0]', fase: 7, peran: ['bendahara'] },
+  { judul: 'Serah Terima', ikon: 'Repeat', ke: '/serah-terima/berita-acara', warna: 'text-kuning', fase: 7, peran: ['bendahara', 'kepala_sekolah'] },
   { judul: 'Ekspor & Impor', ikon: 'ArrowDownUp', ke: '/data', warna: 'text-biru-muda', fase: 1, peran: ['bendahara'] },
   { judul: 'Log Aktivitas', ikon: 'History', ke: '/log', warna: 'text-kuning', fase: 1, peran: ['bendahara', 'kepala_sekolah'] },
   { judul: 'Pengaturan', ikon: 'Settings', ke: '/pengaturan', warna: 'text-biru-muda', fase: 1, peran: ['bendahara'] },
@@ -119,10 +140,38 @@ export const TAB_BELANJA = [
   { kunci: 'daftar', judul: 'Daftar Belanja', ikon: 'ListChecks' },
   { kunci: 'honor', judul: 'Honor & Transpor', ikon: 'Wallet' },
   { kunci: 'arsip', judul: 'Arsip & Kelengkapan', ikon: 'Archive' },
+  { kunci: 'massal', judul: 'Cetak Massal SPJ', ikon: 'Files' },
 ]
 
 // Tab halaman Agenda Surat (rute /agenda-surat/:tab)
 export const TAB_AGENDA = [
   { kunci: 'daftar', judul: 'Buku Agenda', ikon: 'Mailbox' },
   { kunci: 'pola', judul: 'Pola Penomoran', ikon: 'Hash' },
+]
+
+// Tab Papan Informasi (rute /informasi/:tab) — Fase 7
+export const TAB_INFORMASI = [
+  { kunci: 'komite', judul: 'Ringkasan Komite', ikon: 'Handshake' },
+  { kunci: 'poster', judul: 'Poster F4', ikon: 'Presentation' },
+  { kunci: 'publik', judul: 'Tautan Publik', ikon: 'Globe', peran: ['bendahara'] },
+]
+
+// Tab Serah Terima Bendahara (rute /serah-terima/:tab) — Fase 7
+export const TAB_SERAH = [
+  { kunci: 'berita-acara', judul: 'Berita Acara', ikon: 'FileSignature' },
+  { kunci: 'akun', judul: 'Pindahkan Akun Admin', ikon: 'UserCog' },
+]
+
+// Tab WhatsApp (rute /whatsapp/:tab) — Fase 7
+export const TAB_WA = [
+  { kunci: 'kirim', judul: 'Kirim Pesan', ikon: 'Send' },
+  { kunci: 'template', judul: 'Template', ikon: 'MessageSquareText' },
+  { kunci: 'riwayat', judul: 'Riwayat', ikon: 'History' },
+]
+
+// Tab Keuangan Bendahara (rute /keuangan/:tab) — Fase 7
+export const TAB_KEUANGAN = [
+  { kunci: 'bulanan', judul: 'Dasbor Bulanan', ikon: 'ChartColumn' },
+  { kunci: 'kas-sekolah', judul: 'Catatan Kas Sekolah', ikon: 'NotebookPen' },
+  { kunci: 'pribadi', judul: 'Catatan Pribadi', ikon: 'LockKeyhole', peran: ['bendahara'] },
 ]

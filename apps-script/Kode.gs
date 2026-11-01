@@ -4,6 +4,7 @@
  * Tugas: unggah berkas ke Drive, reset password pengguna tanpa email, cadangan otomatis,
  * notifikasi push (Firebase Cloud Messaging), penghapusan log aktivitas lebih dari 6 bulan,
  * dan pengingat KGB H-30 setiap pagi (v7, Fase 6). v8: sel panjang (logo base64) tidak lagi menggagalkan cadangan.
+ * v9 (Fase 7): catatan pribadi bendahara tidak ikut dicadangkan (folder Drive bisa berpindah saat serah terima).
  */
 const KONFIG = {
   PROYEK: 'sibos19',
@@ -13,9 +14,11 @@ const KONFIG = {
   SIMPAN_JSON: 12,
   SIMPAN_LOG_BULAN: 6,
 };
-const VERSI = 8;
+const VERSI = 9;
 const FS = 'https://firestore.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/databases/(default)/documents';
 const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian', 'potong', 'foto'];
+// Koleksi yang tidak ikut cadangan: catatan pribadi milik masing-masing bendahara
+const KECUALI_CADANGAN = ['catatan_pribadi'];
 
 /* ======================= PINTU MASUK ======================= */
 
@@ -214,6 +217,7 @@ function cadangkan(jenis, oleh) {
     const semua = {};
     let jumlah = 0;
     koleksi.forEach(function (id) {
+      if (KECUALI_CADANGAN.indexOf(id) >= 0) return;
       let docs = ambilSemua(id);
       if (!docs.length) return;
       // Foto belanja: gambarnya sudah diarsipkan di Drive, cadangan cukup keterangan & tautan (tanpa isi gambar)

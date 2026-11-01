@@ -1,4 +1,4 @@
-// Panduan Input — tur interaktif per menu (Fase 5; tur Kepegawaian & Gaji ditambahkan di Fase 6).
+// Panduan Input — tur interaktif per menu (Fase 5; tur Kepegawaian & Gaji ditambahkan di Fase 6; Fase 7: papan informasi, serah terima, WhatsApp, keuangan, cetak massal, laporan Pemda lainnya).
 // Setiap langkah menyorot elemen (pilih: satu atau beberapa selector CSS; yang pertama terlihat dipakai).
 // Bila elemen tidak ditemukan, langkah ditampilkan di tengah layar. rute = halaman tempat tur berjalan.
 
@@ -152,6 +152,62 @@ export const TUR = {
       { pilih: ['[data-tur="kgb-alat"]'], judul: 'Surat pengantar', isi: 'Centang pegawai lalu buat surat pengantar usulan KGB ke Dinas Pendidikan, lengkap dengan lampiran daftar nama, gaji pokok lama & baru.' },
       { judul: 'Catat SK terbit', isi: 'Setelah Surat Pemberitahuan KGB terbit, tekan "Catat SK": TMT KGB terakhir dan gaji pokok di Dasar Gaji diperbarui otomatis.' },
       { judul: 'Pengingat otomatis', isi: 'Apps Script v7 memeriksa setiap pagi pukul 07.00 dan mengirim notifikasi ke Bendahara bila ada KGB ≤ 30 hari.' },
+    ],
+  },
+  // ---------- Fase 7 ----------
+  informasi: {
+    judul: 'Papan Informasi BOS', ikon: 'Megaphone', warna: '#E3A414', rute: '/informasi/poster', kelompok: 'Transparansi',
+    ket: 'Poster F4 per tahap, ringkasan Komite, dan tautan publik ber-QR.',
+    langkah: [
+      { pilih: [TAB], judul: 'Tiga bagian', isi: 'Ringkasan Komite (dibaca Komite yang login), Poster F4 untuk papan pengumuman, dan Tautan Publik untuk orang tua tanpa login.' },
+      { pilih: ['[data-tur="info-periode"]'], judul: 'Pilih periode', isi: 'Tahap I (Januari–Juni), Tahap II (Juli–Desember), atau setahun. Penerimaan dari Buku Kas, realisasi dari belanja Lunas.' },
+      { pilih: ['[data-tur="poster-atur"]'], judul: 'Cetak poster', isi: 'Isi teks informasi & pengaduan, lalu pratinjau dan cetak di kertas F4. QR ke halaman publik ikut tercetak bila sudah diterbitkan.' },
+      { judul: 'Tautan publik', isi: 'Di tab Tautan Publik tekan Terbitkan setiap selesai tahap. Yang tampil hanya angka ringkasan — tanpa nama penerima atau rekening.' },
+    ],
+  },
+  serahterima: {
+    judul: 'Serah terima bendahara', ikon: 'Repeat', warna: '#E3A414', rute: '/serah-terima/berita-acara', kelompok: 'Transparansi', peran: ['bendahara', 'kepala_sekolah'],
+    ket: 'Berita acara keadaan keuangan, lalu pindahkan akun Admin.',
+    langkah: [
+      { pilih: ['.kartu'], judul: 'Keadaan per tanggal', isi: 'Saldo bank & tunai menurut BKU, pajak belum disetor, transaksi belum lunas, dan SPJ belum lengkap dihitung otomatis per tanggal serah terima.' },
+      { pilih: ['[data-tur="ba-pihak"]'], judul: 'Para pihak', isi: 'Pihak Pertama terisi dari Pejabat per Periode. Pilih bendahara baru dan dua saksi dari daftar pegawai.' },
+      { pilih: ['[data-tur="ba-arsip"]'], judul: 'Arsip yang diserahkan', isi: 'Centang, ubah, atau tambah arsip beserta jumlahnya. Simpan, lalu cetak F4 untuk ditandatangani.' },
+      { pilih: [TAB], judul: 'Langkah 2: akun Admin', isi: 'Setelah BA ditandatangani, buka tab Pindahkan Akun Admin agar bendahara baru menjadi Admin SIBOS.' },
+    ],
+  },
+  whatsapp: {
+    judul: 'Pesan WhatsApp', ikon: 'MessageCircle', warna: '#22A08D', rute: '/whatsapp/kirim', kelompok: 'Transparansi', peran: ['bendahara'],
+    ket: 'Pesan siap kirim lewat wa.me: SPJ, transfer, rekanan, KGB.',
+    langkah: [
+      { pilih: ['[data-tur="wa-jenis"]'], judul: 'Jenis pesan', isi: 'Kelengkapan SPJ, konfirmasi transfer (rekening disamarkan 4 digit), pesan ke rekanan, dan pengingat KGB.' },
+      { pilih: ['[data-tur="wa-daftar"]'], judul: 'Kirim satu per satu', isi: 'Tekan Pesan untuk melihat/mengubah isi, atau Kirim untuk langsung membuka WhatsApp. Nomor diambil dari Data Pegawai & Rekanan.' },
+      { judul: 'Kirim ke semua', isi: 'Membuka antrean: setiap ketukan membuka satu percakapan. Kirim di WhatsApp, kembali ke SIBOS, lalu lanjut ke tujuan berikutnya.' },
+      { pilih: [TAB], judul: 'Template & riwayat', isi: 'Ubah kalimat di tab Template; semua pesan yang dibuka tercatat di tab Riwayat.' },
+    ],
+  },
+  keuangan: {
+    judul: 'Keuangan bendahara', ikon: 'PiggyBank', warna: '#22A08D', rute: '/keuangan/bulanan', kelompok: 'Transparansi', peran: ['bendahara', 'kepala_sekolah'],
+    ket: 'Dasbor uang bulanan, catatan kas sekolah, catatan pribadi.',
+    langkah: [
+      { pilih: ['[data-tur="bulanan-pilih"]'], judul: 'Pilih bulan', isi: 'Titik hijau = buku bulan itu sudah ditutup. Kartu menampilkan saldo awal, penerimaan, belanja, dan saldo akhir.' },
+      { pilih: [TAB], judul: 'Catatan lain', isi: 'Catatan Kas Sekolah untuk uang di luar Dana BOSP; Catatan Pribadi untuk talangan pribadi — hanya akun Anda yang bisa membukanya.' },
+    ],
+  },
+  massal: {
+    judul: 'Cetak massal Paket SPJ', ikon: 'Files', warna: '#1A62E8', rute: '/belanja/massal', kelompok: 'Belanja',
+    ket: 'Gabungkan paket SPJ banyak transaksi menjadi satu PDF.',
+    langkah: [
+      { pilih: ['[data-tur="massal-saring"]'], judul: 'Saring & pilih', isi: 'Pilih bulan dan jenis transaksi, lalu centang transaksi atau tekan Pilih semua.' },
+      { judul: 'Satu berkas', isi: 'Gabungkan & cetak membuka satu pratinjau berisi semua dokumen (urut tanggal lunas lalu BNU). Unduh PDF untuk diarsipkan per bulan.' },
+    ],
+  },
+  laporanlain: {
+    judul: 'Laporan Pemda lainnya', ikon: 'Files', warna: '#1A62E8', rute: '/laporan/pemda-lain', kelompok: 'Laporan',
+    ket: 'BKU per nota, Buku Simpanan Bank, SPJ Belanja, STS, SPTJM Pemda.',
+    langkah: [
+      { pilih: ['[data-tur="pemdalain-dokumen"]'], judul: 'Dokumen bulanan', isi: 'BKU per nota (dengan terbilang), Buku Simpanan Bank, dan SPJ Belanja BOS untuk bulan terpilih — cetak F4 atau Excel.' },
+      { pilih: ['[data-tur="pemdalain-sts"]'], judul: 'STS', isi: 'Surat Tanda Setoran ke Kas Daerah. Tombol "Isi jasa giro" mengambil bunga bank bulan ini dari Buku Kas.' },
+      { pilih: ['[data-tur="pemdalain-sptjm"]'], judul: 'SPTJM Pemda', isi: 'Pernyataan tanggung jawab per semester atau setahun, lengkap dengan rincian penerimaan, belanja per jenis, dan sisa dana.' },
     ],
   },
 }

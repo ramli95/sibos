@@ -34,6 +34,8 @@ async function masuk() {
     <p class="text-sm font-semibold text-biru dark:text-blue-300">Selamat datang kembali</p>
     <h1 class="mt-1 text-[1.65rem] font-extrabold leading-tight">Masuk ke akun Anda</h1>
     <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Gunakan username dan password yang diberikan Bendahara.</p>
+    <p v-if="route.query.alasan === 'tidak-aktif'" class="mt-4 flex items-start gap-2 rounded-2xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+      <Ikon nama="Timer" :ukuran="17" class="mt-0.5 shrink-0" /> Anda keluar otomatis karena 30 menit tidak aktif. Silakan masuk kembali.</p>
 
     <form class="mt-7 space-y-4" @submit.prevent="masuk">
       <div>

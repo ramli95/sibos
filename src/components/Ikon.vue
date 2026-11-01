@@ -12,6 +12,7 @@ import {
   PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
   ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus, Camera, CirclePlus, ExternalLink, Hash, HandCoins, Scissors, CalendarCheck, FileSearch, DatabaseZap, ArrowDownLeft, ArrowUpRight, Unlink, Ban, LockOpen, Check,
   ClipboardCheck, QrCode, DoorOpen, Warehouse, PackagePlus, PackageMinus, CircleHelp, Route, Compass, MapPin, Lightbulb, Play, Tag, Armchair, PackageSearch, CalendarClock, Split, ListOrdered, MousePointerClick, Footprints, ShieldAlert, Award, Barcode, Eraser, FolderOpen, LayoutGrid, Rows3, ImageDown,
+  Megaphone, Presentation, Send, MessageCircle, MessageSquareText, NotebookPen, LockKeyhole, Files, Timer, UserMinus, Sheet, CopyPlus, ListX, Square, SquareCheck, BookUser, CalendarSync,
 } from 'lucide-vue-next'
 
 const DAFTAR = {
@@ -26,6 +27,7 @@ const DAFTAR = {
   PanelLeftClose, PanelLeftOpen, Pin, PinOff, FileText, Expand, Type, Bold, ArrowUp, ImagePlus, Globe, Frame,
   ChartPie, ListTree, Layers, GitCompareArrows, FileCheck, FilePen, ShoppingBag, Cpu, Library, Scale, Gauge, ChartColumn, Sigma, Calculator, Coins, Percent, ArrowDownUp, Minus, Undo2, MoveRight, BookCopy, Hammer, FileStack, FolderTree, ChevronsUpDown, ChevronsDownUp, Equal, TrendingDown, Target, Wrench, CalendarRange, Flag, BadgeAlert, SearchX, Grid3x3, CopyCheck, Activity, UtensilsCrossed, Bus, Package, Ellipsis, Archive, CalendarPlus, Camera, CirclePlus, ExternalLink, Hash, HandCoins, Scissors, CalendarCheck, FileSearch, DatabaseZap, ArrowDownLeft, ArrowUpRight, Unlink, Ban, LockOpen, Check,
   ClipboardCheck, QrCode, DoorOpen, Warehouse, PackagePlus, PackageMinus, CircleHelp, Route, Compass, MapPin, Lightbulb, Play, Tag, Armchair, PackageSearch, CalendarClock, Split, ListOrdered, MousePointerClick, Footprints, ShieldAlert, Award, Barcode, Eraser, FolderOpen, LayoutGrid, Rows3, ImageDown,
+  Megaphone, Presentation, Send, MessageCircle, MessageSquareText, NotebookPen, LockKeyhole, Files, Timer, UserMinus, Sheet, CopyPlus, ListX, Square, SquareCheck, BookUser, CalendarSync,
 }
 
 const props = defineProps({ nama: { type: String, required: true }, ukuran: { type: [Number, String], default: 18 } })

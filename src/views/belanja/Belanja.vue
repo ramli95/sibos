@@ -10,6 +10,7 @@ import PilihTahun from '@/components/PilihTahun.vue'
 import PitaArsip from '@/components/PitaArsip.vue'
 import TabDaftar from './TabDaftar.vue'
 import TabArsip from './TabArsip.vue'
+import TabMassal from './TabMassal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -53,6 +54,7 @@ onMounted(() => belanja.muat())
 
     <div v-if="belanja.galat" class="kartu flex items-center gap-3 p-5 text-sm text-rose-600"><Ikon nama="CircleAlert" /> {{ belanja.galat }}</div>
     <TabArsip v-else-if="aktif === 'arsip'" />
+    <TabMassal v-else-if="aktif === 'massal'" />
     <TabDaftar v-else :key="aktif" :jenis="aktif === 'honor' ? 'honor' : 'pengadaan'" />
   </div>
 </template>

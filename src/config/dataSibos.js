@@ -52,6 +52,15 @@ export const KOLEKSI_DATA = [
       { id: 'skpg', judul: 'SKPG diterbitkan', ikon: 'FileSignature', label: (d) => `${d.nomor} — ${d.nama}` },
     ],
   },
+  {
+    kelompok: 'Informasi, Serah Terima & Catatan', ikon: 'Megaphone', daftar: [
+      { id: 'publik', judul: 'Papan informasi publik (terbitan)', ikon: 'Globe', hapus: false },
+      { id: 'ba_serah_terima', judul: 'Berita Acara serah terima bendahara', ikon: 'Repeat', label: (d) => `${d.tanggal} — ${d.pihak2?.nama || ''}` },
+      { id: 'template_wa', judul: 'Template pesan WhatsApp', ikon: 'MessageSquareText' },
+      { id: 'pesan_wa', judul: 'Riwayat pesan WhatsApp', ikon: 'MessageCircle', label: (d) => `${d.nama} — ${d.waktu}` },
+      { id: 'catatan_kas_sekolah', judul: 'Catatan kas sekolah (di luar BOSP)', ikon: 'NotebookPen', label: (d) => d.uraian },
+    ],
+  },
 ]
 
 export const DEF_KOLEKSI = Object.fromEntries(KOLEKSI_DATA.flatMap((k) => k.daftar).map((d) => [d.id, d]))

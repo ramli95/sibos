@@ -7,6 +7,8 @@ const routes = [
   { path: '/masuk', name: 'masuk', component: () => import('@/views/akun/Masuk.vue'), meta: { publik: true, judul: 'Masuk' } },
   { path: '/lupa-password', name: 'lupa', component: () => import('@/views/akun/LupaPassword.vue'), meta: { publik: true, judul: 'Lupa Password' } },
   { path: '/penyiapan-awal', name: 'penyiapan', component: () => import('@/views/akun/PenyiapanAwal.vue'), meta: { judul: 'Penyiapan Awal' } },
+  // Halaman publik tanpa login (QR di papan pengumuman)
+  { path: '/info-bos', component: () => import('@/views/PublikBos.vue'), meta: { terbuka: true, judul: 'Informasi Dana BOSP' } },
   { path: '/cetak/uji', component: () => import('@/views/CetakUji.vue'), meta: { judul: 'Uji Cetak F4', peran: ['bendahara'] } },
   { path: '/buat-password', name: 'buat-password', component: () => import('@/views/akun/BuatPassword.vue'), meta: { judul: 'Buat Password' } },
   {
@@ -47,7 +49,14 @@ const routes = [
       { path: 'impor', component: () => import('@/views/Impor.vue'), meta: { judul: 'Impor Data', ikon: 'FileUp', peran: ['bendahara'] } },
       { path: 'log', component: () => import('@/views/LogAktivitas.vue'), meta: { judul: 'Log Aktivitas', ikon: 'History', peran: ['bendahara', 'kepala_sekolah'] } },
       { path: 'pengaturan/:tab?', component: () => import('@/views/pengaturan/Pengaturan.vue'), meta: { judul: 'Pengaturan', ikon: 'Settings', peran: ['bendahara'] } },
-      { path: 'serah-terima', component: () => import('@/views/SerahTerima.vue'), meta: { judul: 'Serah Terima Bendahara', ikon: 'Repeat', peran: ['bendahara', 'kepala_sekolah'] } },
+      { path: 'serah-terima', redirect: '/serah-terima/berita-acara' },
+      { path: 'serah-terima/:tab', component: () => import('@/views/serah/SerahTerima.vue'), meta: { judul: 'Serah Terima Bendahara', ikon: 'Repeat', peran: ['bendahara', 'kepala_sekolah'] } },
+      { path: 'informasi', redirect: '/informasi/komite' },
+      { path: 'informasi/:tab', component: () => import('@/views/informasi/Informasi.vue'), meta: { judul: 'Papan Informasi', ikon: 'Megaphone' } },
+      { path: 'whatsapp', redirect: '/whatsapp/kirim' },
+      { path: 'whatsapp/:tab', component: () => import('@/views/whatsapp/WhatsApp.vue'), meta: { judul: 'WhatsApp', ikon: 'MessageCircle', peran: ['bendahara'] } },
+      { path: 'keuangan', redirect: '/keuangan/bulanan' },
+      { path: 'keuangan/:tab', component: () => import('@/views/keuangan/Keuangan.vue'), meta: { judul: 'Keuangan Bendahara', ikon: 'PiggyBank', peran: ['bendahara', 'kepala_sekolah'] } },
       { path: 'notifikasi', component: () => import('@/views/Notifikasi.vue'), meta: { judul: 'Notifikasi', ikon: 'Bell' } },
     ],
   },
@@ -57,6 +66,7 @@ const routes = [
 const router = createRouter({ history: createWebHashHistory(), routes, scrollBehavior: () => ({ top: 0 }) })
 
 router.beforeEach(async (ke) => {
+  if (ke.meta.terbuka) return true
   const auth = useAuth()
   if (!auth.siap) await auth.mulai()
   if (auth.perluPenyiapan) return ke.name === 'penyiapan' ? true : '/penyiapan-awal'

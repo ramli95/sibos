@@ -96,7 +96,7 @@ const susunan = [
         <Ikon :nama="uji.ok ? 'CircleCheck' : 'TriangleAlert'" :ukuran="19" />
         <div v-if="uji.ok">
           <b>Tersambung.</b> Folder induk: <b>{{ uji.folder }}</b> · pemilik penghubung: {{ uji.pemilik }} · versi {{ uji.versi || 1 }}.
-          <span v-if="(uji.versi || 1) < 3" class="block font-semibold text-amber-700 dark:text-amber-300">Penghubung belum versi terbaru (3). Perbarui Kode.gs lalu Terapkan → Kelola deployment → Versi baru.</span>
+          <span v-if="(uji.versi || 1) < 9" class="block font-semibold text-amber-700 dark:text-amber-300">Penghubung belum versi terbaru (9). Perbarui Kode.gs lalu Terapkan → Kelola deployment → Versi baru.</span>
           <span class="block text-xs opacity-80">Jangan lupa klik Simpan bila URL baru.</span>
         </div>
         <div v-else><b>Gagal.</b> {{ uji.pesan }}</div>
