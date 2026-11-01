@@ -10,7 +10,8 @@ export const MENU = [
       { judul: 'Kertas Kerja', ikon: 'ListTree', ke: '/rkas/kertas-kerja', fase: 2 },
       { judul: 'Per Bulan', ikon: 'CalendarDays', ke: '/rkas/per-bulan', fase: 2 },
       { judul: 'Per Tahap', ikon: 'Layers', ke: '/rkas/per-tahap', fase: 2 },
-      { judul: 'Pergeseran', ikon: 'ArrowRightLeft', ke: '/rkas/pergeseran', fase: 2 },
+      { judul: 'Pergeseran & Perubahan', ikon: 'ArrowRightLeft', ke: '/rkas/pergeseran', fase: 2 },
+      { judul: 'Grafik', ikon: 'ChartColumn', ke: '/rkas/grafik', fase: 2 },
       { judul: 'Versi & Impor', ikon: 'GitCompareArrows', ke: '/rkas/versi', fase: 2 },
     ],
   },
@@ -50,6 +51,8 @@ export const MENU = [
       { judul: 'Realisasi SNP & Komponen', ikon: 'ChartPie', ke: '/laporan/realisasi', fase: 5 },
       { judul: 'Laporan Pemda Bulanan', ikon: 'Landmark', ke: '/laporan/pemda', fase: 5 },
       { judul: 'Tahap & Tahunan', ikon: 'CalendarRange', ke: '/laporan/tahunan', fase: 5 },
+      { judul: 'Buku Subrincian Objek', ikon: 'BookCopy', ke: '/laporan/objek', fase: 5 },
+      { judul: 'Rekap SIPLah', ikon: 'ShoppingBag', ke: '/laporan/siplah', fase: 5 },
       { judul: 'Kesiapan SPJ', ikon: 'Gauge', ke: '/laporan/kesiapan', fase: 5 },
       { judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet', ke: '/laporan/simakda', fase: 5 },
     ],
@@ -96,8 +99,7 @@ export const TAB_PENGATURAN = [
   { kunci: 'pejabat', judul: 'Pejabat per Periode', ikon: 'UserCheck', warna: '' },
   { kunci: 'pengguna', judul: 'Pengguna & Peran', ikon: 'UsersRound', warna: '' },
   { kunci: 'cetak', judul: 'Pengaturan Cetak', ikon: 'Printer', warna: '' },
-  { kunci: 'notifikasi', judul: 'Notifikasi', ikon: 'BellRing', warna: '' },
-  { kunci: 'drive', judul: 'Drive & Cadangan', ikon: 'HardDrive', warna: '' },
+  { kunci: 'drive', judul: 'Drive, Cadangan & Notifikasi', ikon: 'HardDrive', warna: '' },
   { kunci: 'panduan', judul: 'Panduan Input', ikon: 'Compass', warna: '' },
 ]
 
@@ -107,7 +109,8 @@ export const TAB_RKAS = [
   { kunci: 'kertas-kerja', judul: 'Kertas Kerja', ikon: 'ListTree', warna: '' },
   { kunci: 'per-bulan', judul: 'Per Bulan', ikon: 'CalendarDays', warna: '' },
   { kunci: 'per-tahap', judul: 'Per Tahap', ikon: 'Layers', warna: '' },
-  { kunci: 'pergeseran', judul: 'Pergeseran', ikon: 'ArrowRightLeft', warna: '' },
+  { kunci: 'pergeseran', judul: 'Pergeseran & Perubahan', ikon: 'ArrowRightLeft', warna: '' },
+  { kunci: 'grafik', judul: 'Grafik', ikon: 'ChartColumn', warna: '' },
   { kunci: 'versi', judul: 'Versi & Impor', ikon: 'GitCompareArrows', warna: '' },
 ]
 

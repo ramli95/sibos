@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { TAB_RKAS } from '@/config/menu'
 import { useRkas } from '@/stores/rkas'
@@ -15,15 +15,18 @@ import TabPerBulan from './TabPerBulan.vue'
 import TabPerTahap from './TabPerTahap.vue'
 import TabPergeseran from './TabPergeseran.vue'
 import TabVersi from './TabVersi.vue'
+import TabGrafik from './TabGrafik.vue'
 
 const route = useRoute()
 const router = useRouter()
 const rkas = useRkas()
 const auth = useAuth()
 const aktif = computed(() => route.params.tab || 'ringkasan')
-const komponen = { ringkasan: TabRingkasan, 'kertas-kerja': TabKertasKerja, 'per-bulan': TabPerBulan, 'per-tahap': TabPerTahap, pergeseran: TabPergeseran, versi: TabVersi }
+const komponen = { ringkasan: TabRingkasan, 'kertas-kerja': TabKertasKerja, 'per-bulan': TabPerBulan, 'per-tahap': TabPerTahap, pergeseran: TabPergeseran, grafik: TabGrafik, versi: TabVersi }
 const tab = computed(() => TAB_RKAS.find((t) => t.kunci === aktif.value) || TAB_RKAS[0])
 onMounted(() => rkas.muat())
+// Draf hanya dipakai di halaman RKAS: saat keluar, kembali ke versi berlaku agar belanja & laporan tidak memakai draf
+onBeforeUnmount(() => { if (rkas.versi?.draf && rkas.versiBerlaku) rkas.pilihVersi(rkas.versiBerlaku.id) })
 
 const v = computed(() => rkas.versi)
 const cocokPagu = computed(() => v.value && v.value.pagu && v.value.total === v.value.pagu)
@@ -61,6 +64,7 @@ const cocokPagu = computed(() => v.value && v.value.pagu && v.value.total === v.
                          x.id === rkas.idVersi ? 'border-transparent bg-biru text-white shadow-md' : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900']">
           <Ikon :nama="JENIS_VERSI[x.jenis]?.ikon || 'FileText'" :ukuran="16" />
           <span class="font-semibold">{{ x.nama }}</span>
+          <span v-if="x.draf" :class="['lencana', x.id === rkas.idVersi ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300']"><Ikon nama="FilePen" :ukuran="12" /> Draf</span>
           <span v-if="x.berlaku" :class="['lencana', x.id === rkas.idVersi ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300']"><Ikon nama="BadgeCheck" :ukuran="12" /> Berlaku</span>
         </button>
       </div>

@@ -14,14 +14,17 @@ export const useRkas = defineStore('rkas', () => {
   const memuat = ref(false)
   const galat = ref('')
   const nama = ref(pencariNama())
+  const refKegiatan = ref([])
+  const refRekening = ref([])
   let dimuat = false
 
   const versi = computed(() => daftarVersi.value.find((v) => v.id === idVersi.value) || null)
-  const versiBerlaku = computed(() => daftarVersi.value.find((v) => v.berlaku) || daftarVersi.value[daftarVersi.value.length - 1] || null)
+  const versiBerlaku = computed(() => daftarVersi.value.find((v) => v.berlaku) || daftarVersi.value.filter((v) => !v.draf).slice(-1)[0] || null)
 
   async function muatNama() {
     const [keg, rek] = await Promise.all([muatReferensi('kegiatan_arkas').catch(() => ({ butir: [] })), muatReferensi('rekening_arkas').catch(() => ({ butir: [] }))])
     nama.value = pencariNama(keg.butir, rek.butir)
+    refKegiatan.value = keg.butir; refRekening.value = rek.butir
   }
 
   let tahunDiatur = false
@@ -46,5 +49,9 @@ export const useRkas = defineStore('rkas', () => {
 
   async function gantiTahun(t) { tahunDiatur = true; tahun.value = Number(t); dimuat = false; idVersi.value = null; await muat() }
 
-  return { tahun, daftarVersi, idVersi, versi, versiBerlaku, uraian, memuat, galat, nama, muat, muatNama, pilihVersi, gantiTahun }
+  /** Ganti isi uraian versi aktif tanpa memuat ulang (setelah edit draf) */
+  function pasangUraian(daftar) { uraian.value = [...daftar] }
+  async function muatDaftar() { daftarVersi.value = await muatDaftarVersi(tahun.value) }
+
+  return { tahun, daftarVersi, idVersi, versi, versiBerlaku, uraian, refKegiatan, refRekening, pasangUraian, muatDaftar, memuat, galat, nama, muat, muatNama, pilihVersi, gantiTahun }
 })

@@ -21,6 +21,7 @@ const props = defineProps({
   orientasi: { type: String, default: 'landscape' },
   excel: Boolean,
   kecil: Boolean,
+  nomor: { type: Boolean, default: true },
   warnaBaris: Function,
   // Penanda tangan: { jabatan, label } (pejabat per tanggal) atau { label, pejabat: { nama, gelar, nip } }
   ttdKiri: { type: Object, default: () => ({ jabatan: 'kepala_sekolah', label: 'Mengetahui, Kepala Sekolah' }) },
@@ -48,6 +49,6 @@ const ttd = computed(() => (pakaiTtd.value ? { kiri: isi(props.ttdKiri), kanan: 
       <slot name="alat" />
     </template>
     <DokBuku v-if="profil" :profil="profil" :judul="props.judul" :subjudul="props.subjudul" :identitas="props.identitas" :kolom="props.kolom" :baris="props.baris"
-             :ringkasan="props.ringkasan" :ttd="ttd" :tanggal="props.tanggal" :kecil="props.kecil" :warna-baris="props.warnaBaris"><slot /></DokBuku>
+             :ringkasan="props.ringkasan" :ttd="ttd" :tanggal="props.tanggal" :kecil="props.kecil" :nomor="props.nomor" :warna-baris="props.warnaBaris"><slot /></DokBuku>
   </JendelaCetak>
 </template>

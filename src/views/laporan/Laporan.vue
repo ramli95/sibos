@@ -1,5 +1,5 @@
 <script setup>
-// Menu Laporan (Fase 5): realisasi SNP/komponen, laporan Pemda bulanan, tahap & tahunan, kesiapan SPJ, ekspor SIMAKDA.
+// Menu Laporan (Fase 5): realisasi SNP/komponen, buku subrincian objek, rekap SIPLah, laporan Pemda bulanan, tahap & tahunan, kesiapan SPJ, ekspor SIMAKDA.
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { TAB_LAPORAN } from '@/config/laporan'
@@ -15,6 +15,8 @@ import TabPemda from './TabPemda.vue'
 import TabTahunan from './TabTahunan.vue'
 import TabKesiapan from './TabKesiapan.vue'
 import TabSimakda from './TabSimakda.vue'
+import TabObjek from './TabObjek.vue'
+import TabSiplah from './TabSiplah.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -66,6 +68,8 @@ onMounted(() => muat())
     <TabTahunan v-else-if="aktif === 'tahunan'" />
     <TabKesiapan v-else-if="aktif === 'kesiapan'" />
     <TabSimakda v-else-if="aktif === 'simakda'" />
+    <TabObjek v-else-if="aktif === 'objek'" />
+    <TabSiplah v-else-if="aktif === 'siplah'" />
     <TabRealisasi v-else />
   </div>
 </template>

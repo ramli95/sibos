@@ -111,7 +111,7 @@ const namaKeg = (k) => rkas.nama.kegiatan(k)
 // Peringatan per item: melebihi sisa pagu uraian
 const lewatPagu = computed(() => items.value.map((it, i) => {
   const u = rkas.uraian.find((x) => kunciUraian(x) === kunciUraian(it))
-  if (!u) return { tidakAda: true }
+  if (!u) return { tidakAda: !it.luar_rkas, luar: it.luar_rkas }
   const p = pakai(kunciUraian(it), i)
   return { sisa: u.jumlah - p.komitmen, lewat: it.jumlah > u.jumlah - p.komitmen }
 }))
@@ -163,6 +163,7 @@ const peringatan = computed(() => {
   const w = []
   if (milikPegawai.value.length) w.push({ nada: 'info', ikon: 'Info', teks: `Usaha ini milik pegawai sekolah (${milikPegawai.value.map((p) => p.nama).join(', ')}). Tetap boleh; pastikan harga wajar dan dokumen lengkap.` })
   if (lewatPagu.value.some((x) => x.lewat)) w.push({ nada: 'bahaya', ikon: 'TriangleAlert', teks: 'Ada item yang melebihi sisa pagu uraian RKAS. Lakukan pergeseran di ARKAS sebelum dibayar.' })
+  if (lewatPagu.value.some((x) => x.luar)) w.push({ nada: 'info', ikon: 'ClipboardList', teks: 'Ada item di luar RKAS. Tambahkan uraiannya di ARKAS saat pergeseran/perubahan — daftarnya ada di RKAS → Pergeseran.' })
   if (lewatPagu.value.some((x) => x.tidakAda) && rkas.uraian.length) w.push({ nada: 'peringatan', ikon: 'SearchX', teks: 'Ada item yang uraiannya tidak ditemukan di RKAS versi berlaku.' })
   if (spk.value && !siplah.value) w.push({ nada: 'peringatan', ikon: 'Scale', teks: 'Di atas Rp 50 juta: surat pesanan berbentuk SPK dan wajib pembandingan minimal 2 calon penyedia (Pasal 16).' })
   if (!siplah.value && total.value <= BATAS.perencanaan && f.dokumen.perencanaan) w.push({ nada: 'info', ikon: 'Info', teks: 'Belanja ≤ Rp 1 juta boleh tanpa Dokumen Perencanaan (Pasal 12 ayat 3).' })
@@ -265,7 +266,7 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
             <div class="min-w-0 flex-1">
               <p class="font-semibold leading-snug">{{ it.nama }}</p>
               <p class="text-xs text-slate-500"><span class="angka">{{ it.volume }} {{ it.satuan }} × {{ rupiah(it.harga) }}</span><template v-if="it.harga_ssh"> · SSH <span :class="it.harga > it.harga_ssh ? 'text-rose-600' : ''">{{ rupiah(it.harga_ssh) }}</span></template></p>
-              <p class="kode truncate text-[11px] text-slate-500">{{ it.kode_kegiatan }} · {{ it.kode_rekening }} · {{ it.uraian_rkas }}</p>
+              <p class="kode truncate text-[11px] text-slate-500">{{ it.kode_kegiatan }} · {{ it.kode_rekening }} · {{ it.uraian_rkas }}<span v-if="it.luar_rkas" class="ml-1 rounded bg-amber-100 px-1 font-sans font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">di luar RKAS</span></p>
               <p v-if="lewatPagu[i]?.lewat" class="mt-1 text-xs font-semibold text-rose-600">Melebihi sisa pagu uraian ({{ rupiah(lewatPagu[i].sisa) }})</p>
             </div>
           </div>

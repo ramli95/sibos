@@ -3,7 +3,7 @@
  * Dipasang di akun Bendahara (pemilik proyek Firebase sibos19 dan folder Drive SIBOS).
  * Tugas: unggah berkas ke Drive, reset password pengguna tanpa email, cadangan otomatis,
  * notifikasi push (Firebase Cloud Messaging), penghapusan log aktivitas lebih dari 6 bulan,
- * dan pengingat KGB H-30 setiap pagi (v7, Fase 6).
+ * dan pengingat KGB H-30 setiap pagi (v7, Fase 6). v8: sel panjang (logo base64) tidak lagi menggagalkan cadangan.
  */
 const KONFIG = {
   PROYEK: 'sibos19',
@@ -13,7 +13,7 @@ const KONFIG = {
   SIMPAN_JSON: 12,
   SIMPAN_LOG_BULAN: 6,
 };
-const VERSI = 7;
+const VERSI = 8;
 const FS = 'https://firestore.googleapis.com/v1/projects/' + KONFIG.PROYEK + '/databases/(default)/documents';
 const SUBKOLEKSI = ['rahasia', 'item', 'penerima', 'dokumen', 'uraian', 'bagian', 'potong', 'foto'];
 
@@ -316,11 +316,16 @@ function ratakanButir(docs) {
   return hasil;
 }
 
+// Satu sel Google Sheets paling banyak 50.000 karakter. Gambar (logo/tanda tangan base64) tidak ditulis ke Sheets
+// — isi lengkapnya tetap ada di cadangan JSON mingguan. Teks lain yang terlalu panjang dipotong dengan penanda.
+const BATAS_SEL = 45000;
 function keSel(v) {
   if (v === null || v === undefined) return '';
   if (v instanceof Date) return Utilities.formatDate(v, KONFIG.ZONA, 'yyyy-MM-dd HH:mm:ss');
-  if (typeof v === 'object') return JSON.stringify(v).slice(0, 49000);
-  return String(v);
+  const s = typeof v === 'object' ? JSON.stringify(v) : String(v);
+  if (/^data:[a-z]+\/[a-z0-9.+-]+;base64,/i.test(s)) return '[gambar ' + Math.round(s.length / 1024) + ' KB — lengkap di cadangan JSON]';
+  if (s.length > BATAS_SEL) return s.slice(0, BATAS_SEL) + ' …[terpotong, ' + s.length + ' karakter — lengkap di cadangan JSON]';
+  return s;
 }
 
 function tulisRingkasan(ss, semua, waktu, jenis, oleh) {

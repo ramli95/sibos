@@ -7,6 +7,8 @@ import { bangunPohon, ringkasan } from '@/utils/rkasPohon'
 import { rupiah, rupiahRingkas, NAMA_BULAN } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
 import CetakRkas from './CetakRkas.vue'
+import DetailAnggaran from './DetailAnggaran.vue'
+import { pakaiDetail } from './pakaiDetail'
 import { eksporRkas } from './eksporRkas'
 
 const rkas = useRkas()
@@ -21,6 +23,7 @@ const kegiatan = computed(() => pohon.value.flatMap((s) => s.anak.flatMap((c) =>
 const totalBulan = computed(() => r.value.bulan[bulan.value - 1])
 const jumlahItem = computed(() => kegiatan.value.reduce((s, g) => s + g.uraian.length, 0))
 const cetak = ref(null)
+const { detail, menyimpan, bolehUbah, buka, simpan, hapus } = pakaiDetail()
 async function ekspor(b = bulan.value) { try { await eksporRkas(rkas, { bulan: b }) } catch (e) { notif.kabari(e.message, 'galat') } }
 </script>
 
@@ -52,7 +55,7 @@ async function ekspor(b = bulan.value) { try { await eksporRkas(rkas, { bulan: b
         <span class="grid h-11 w-11 place-items-center rounded-xl ikon-chip"><Ikon nama="CalendarDays" :ukuran="20" /></span>
         <div class="min-w-0 flex-1">
           <p class="font-bold">{{ NAMA_BULAN[bulan - 1] }} {{ rkas.tahun }}</p>
-          <p class="text-xs text-slate-500">{{ kegiatan.length }} kegiatan · {{ jumlahItem }} uraian · Tahap {{ bulan <= 6 ? 'I' : 'II' }}</p>
+          <p class="text-xs text-slate-500">{{ kegiatan.length }} kegiatan · {{ jumlahItem }} uraian · Tahap {{ bulan <= 6 ? 'I' : 'II' }} · <span class="text-biru">klik uraian untuk {{ bolehUbah ? 'mengubah' : 'melihat rincian' }}</span></p>
         </div>
         <p class="angka text-xl font-extrabold">{{ rupiah(totalBulan) }}</p>
         <div class="flex w-full flex-wrap gap-2 sm:w-auto">
@@ -72,7 +75,7 @@ async function ekspor(b = bulan.value) { try { await eksporRkas(rkas, { bulan: b
         <div class="overflow-x-auto">
           <table class="w-full min-w-[640px] text-sm">
             <tbody>
-              <tr v-for="u in g.uraian" :key="u.id" class="border-b border-slate-100 last:border-0 dark:border-slate-800">
+              <tr v-for="u in g.uraian" :key="u.id" class="cursor-pointer border-b border-slate-100 last:border-0 hover:bg-blue-50/60 dark:border-slate-800 dark:hover:bg-slate-800/50" :title="bolehUbah ? 'Klik untuk mengubah' : 'Klik untuk melihat rincian'" @click="buka(u)">
                 <td class="px-4 py-2">{{ u.uraian }}<span class="kode ml-2 text-[11px] text-slate-400">{{ u.kode_rekening }}</span></td>
                 <td class="angka w-24 px-2 py-2 text-right">{{ (u.bulan[bulan - 1] / (u.harga || 1)).toLocaleString('id-ID', { maximumFractionDigits: 2 }) }}</td>
                 <td class="w-32 px-2 py-2 text-slate-600 dark:text-slate-300">{{ u.satuan }}</td>
@@ -85,6 +88,7 @@ async function ekspor(b = bulan.value) { try { await eksporRkas(rkas, { bulan: b
       </div>
     </template>
 
+    <DetailAnggaran v-if="detail" :uraian="detail.uraian" :dibelanjakan="detail.dibelanjakan" :boleh-ubah="bolehUbah" :menyimpan="menyimpan" @tutup="detail = null" @simpan="simpan" @hapus="hapus" />
     <CetakRkas v-if="cetak" v-bind="cetak" @tutup="cetak = null" @excel="ekspor(cetak.mode === 'bulan' ? cetak.bulan : 0)" />
   </div>
 </template>

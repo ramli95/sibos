@@ -11,13 +11,17 @@ import TabTahun from './TabTahun.vue'
 import TabKop from './TabKop.vue'
 import TabCetak from './TabCetak.vue'
 import TabNotifikasi from './TabNotifikasi.vue'
+import { h } from 'vue'
 import SegeraHadir from '@/views/SegeraHadir.vue'
 import Panduan from '@/views/Panduan.vue'
 
 const route = useRoute()
 const router = useRouter()
-const aktif = computed(() => route.params.tab || 'profil')
-const komponen = { profil: TabProfil, kop: TabKop, pejabat: TabPejabat, pengguna: TabPengguna, cetak: TabCetak, notifikasi: TabNotifikasi, drive: TabDrive, tahun: TabTahun, panduan: Panduan }
+// Notifikasi digabung ke tab Drive, Cadangan & Notifikasi (tautan lama tetap berfungsi)
+const aktif = computed(() => (route.params.tab === 'notifikasi' ? 'drive' : route.params.tab || 'profil'))
+// Satu tab: Drive & cadangan di atas, notifikasi di bawahnya
+const TabDriveNotifikasi = { render: () => h('div', { class: 'space-y-5' }, [h(TabDrive), h('h2', { class: 'flex items-center gap-2 px-1 pt-2 text-lg font-bold' }, [h(Ikon, { nama: 'BellRing', ukuran: 19, class: 'text-biru' }), 'Notifikasi']), h(TabNotifikasi)]) }
+const komponen = { profil: TabProfil, kop: TabKop, pejabat: TabPejabat, pengguna: TabPengguna, cetak: TabCetak, drive: TabDriveNotifikasi, tahun: TabTahun, panduan: Panduan }
 </script>
 
 <template>

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useBelanja } from '@/stores/belanja'
 import { useAuth } from '@/stores/auth'
 import { useNotifikasi } from '@/stores/notifikasi'
@@ -14,6 +15,7 @@ import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
 const props = defineProps({ jenis: { type: String, default: 'pengadaan' } })
 const belanja = useBelanja()
+const router = useRouter()
 const auth = useAuth()
 const notif = useNotifikasi()
 const honor = computed(() => props.jenis === 'honor')
@@ -21,6 +23,10 @@ const honor = computed(() => props.jenis === 'honor')
 const cari = ref('')
 const bulan = ref('')
 const saring = ref('semua')
+// Tampilan daftar: kartu atau baris (diingat per perangkat)
+const KUNCI_TAMPIL = 'sibos.tampilanBelanja'
+const tampilan = ref((() => { try { return localStorage.getItem(KUNCI_TAMPIL) || 'kartu' } catch { return 'kartu' } })())
+function gantiTampilan(t) { tampilan.value = t; try { localStorage.setItem(KUNCI_TAMPIL, t) } catch { /* abaikan */ } }
 
 const sumber = computed(() => belanja.daftar.filter((b) => (honor.value ? b.jenis === 'honor' : b.jenis !== 'honor')))
 const hasil = computed(() => {
@@ -96,6 +102,10 @@ async function ekspor() {
           <option value="">Semua bulan</option>
           <option v-for="(n, i) in NAMA_BULAN" :key="n" :value="i">{{ n }}</option>
         </select>
+        <div class="flex gap-0.5 rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="group" aria-label="Tampilan daftar">
+          <button v-for="[k, ik, j] in [['kartu', 'LayoutGrid', 'Kartu'], ['baris', 'Rows3', 'Baris']]" :key="k" type="button" :title="j" :aria-pressed="tampilan === k"
+                  :class="['grid h-8 w-9 place-items-center rounded-lg', tampilan === k ? 'bg-white text-biru shadow dark:bg-slate-700 dark:text-blue-300' : 'text-slate-500']" @click="gantiTampilan(k)"><Ikon :nama="ik" :ukuran="16" /></button>
+        </div>
         <button class="tombol-garis" @click="cetakTerbuka = true"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> <span class="hidden sm:inline">Cetak / Unduh</span></button>
       </div>
       <div class="tanpa-penggulir flex gap-1.5 overflow-x-auto">
@@ -113,8 +123,27 @@ async function ekspor() {
       <p class="font-semibold">{{ sumber.length ? 'Tidak ada yang cocok.' : honor ? 'Belum ada honor/transpor.' : 'Belum ada belanja.' }}</p>
       <RouterLink v-if="!sumber.length && auth.isAdmin" :to="honor ? '/belanja/honor/baru' : '/belanja/baru'" class="tombol-utama"><Ikon nama="CirclePlus" :ukuran="17" /> {{ honor ? 'Catat honor/transpor' : 'Catat belanja pertama' }}</RouterLink>
     </div>
-    <div v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div v-else-if="tampilan === 'kartu'" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <KartuBelanja v-for="b in hasil" :key="b.id" :b="b" />
+    </div>
+    <div v-else class="kartu overflow-x-auto">
+      <table class="w-full min-w-[760px] text-sm">
+        <thead class="bg-slate-50 text-xs text-slate-500 dark:bg-slate-800/60">
+          <tr><th class="p-2.5 text-left">Tanggal</th><th class="p-2.5 text-left">{{ honor ? 'Kegiatan' : 'Pekerjaan' }}</th><th class="p-2.5 text-left">{{ honor ? 'Jenis' : 'Penyedia' }}</th><th class="p-2.5 text-left">BNU</th><th class="p-2.5">Status</th><th class="p-2.5">Lengkap</th><th class="p-2.5 text-right">Jumlah</th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="b in hasil" :key="b.id" class="cursor-pointer border-t border-slate-100 hover:bg-blue-50/60 dark:border-slate-800 dark:hover:bg-slate-800/50" @click="router.push(`/belanja/lihat/${b.id}`)">
+            <td class="whitespace-nowrap p-2.5 text-slate-500">{{ tanggalPendek(tanggalRealisasi(b)) || '—' }}</td>
+            <td class="p-2.5"><span class="line-clamp-1 font-semibold">{{ b.nama_pekerjaan || 'Tanpa nama' }}</span>
+              <span v-if="b.cara === 'siplah'" class="lencana mt-0.5 bg-biru/10 text-biru dark:bg-blue-400/15 dark:text-blue-300"><Ikon nama="ShoppingBag" :ukuran="11" /> SIPLah{{ b.mitra_siplah ? ` · ${b.mitra_siplah}` : '' }}</span></td>
+            <td class="p-2.5"><span class="line-clamp-1">{{ honor ? `${JENIS_HONOR[b.jenis_honor]?.label || 'Honor'} · ${(b.penerima || []).length} org` : b.rekanan?.nama_usaha || '—' }}</span></td>
+            <td class="kode whitespace-nowrap p-2.5 text-xs">{{ Object.values(b.bnu || {}).filter(Boolean).join(', ') || '—' }}</td>
+            <td class="p-2.5 text-center"><span :class="['lencana', (STATUS[b.status] || STATUS.draf).lencana]"><Ikon :nama="(STATUS[b.status] || STATUS.draf).ikon" :ukuran="11" /> {{ (STATUS[b.status] || STATUS.draf).label }}</span></td>
+            <td class="p-2.5"><div class="flex items-center gap-1.5"><div class="h-1.5 w-14 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div :class="['h-full rounded-full', (b.persen_lengkap || 0) === 100 ? 'bg-emerald-500' : (b.persen_lengkap || 0) >= 60 ? 'bg-biru' : 'bg-amber-500']" :style="{ width: Math.max(b.persen_lengkap || 0, 4) + '%' }" /></div><span class="text-[11px] text-slate-500">{{ b.persen_lengkap || 0 }}%</span></div></td>
+            <td class="angka whitespace-nowrap p-2.5 text-right font-bold">{{ rupiah(b.total) }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <CetakDaftar v-if="cetakTerbuka" :judul="honor ? 'Daftar Honor dan Transpor' : 'Daftar Belanja'" :subjudul="`Tahun Anggaran ${belanja.tahun}`" :kolom="kolomCetak" :baris="hasil" excel

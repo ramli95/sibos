@@ -57,6 +57,8 @@ export function rapikanItem(it) {
     kode_kegiatan: it.kode_kegiatan || '', kode_rekening: it.kode_rekening || '',
     uraian_rkas: it.uraian_rkas || '', harga_rkas: Math.round(Number(it.harga_rkas) || 0),
     kategori: it.kategori || kategoriRekening(it.kode_rekening || ''),
+    // Belanja yang belum ada di RKAS: ditambahkan ke ARKAS saat pergeseran/perubahan
+    luar_rkas: !!it.luar_rkas,
   }
 }
 

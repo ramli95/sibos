@@ -234,3 +234,69 @@ export function daftarTenggat(tahun, hariIni = new Date()) {
   daftar.push({ kunci: 'tahunan', judul: 'Laporan realisasi tahunan (ARKAS)', tanggal: iso(tahun + 1, 1, 31), sisa: sisaHari(iso(tahun + 1, 1, 31)), jenis: 'tahunan' })
   return daftar
 }
+
+/* ---------------- Buku Subrincian Objek & rincian per rekening ---------------- */
+
+// Objek belanja seperti cetakan ARKAS (Buku Subrincian Objek)
+export const OBJEK_BELANJA = [
+  { kunci: 'operasional', kode: '5.1.02.88.88.8888', nama: 'BELANJA BARANG DAN JASA BOS', ikon: 'ShoppingBag', warna: '#2563eb' },
+  { kunci: 'alat_mesin', kode: '5.2.02.88.88.8888', nama: 'BELANJA MODAL PERALATAN DAN MESIN BOS', ikon: 'Cpu', warna: '#f97316' },
+  { kunci: 'aset_lain', kode: '5.2.05.88.88.8888', nama: 'BELANJA MODAL ASET TETAP LAINNYA BOS', ikon: 'Library', warna: '#0d9488' },
+]
+const katKode = (kode) => (/^5\.2\.02/.test(kode) ? 'alat_mesin' : /^5\.2/.test(kode) ? 'aset_lain' : 'operasional')
+
+/**
+ * Baris buku per objek (kategori) atau per kode rekening rinci.
+ * saring: { kategori } atau { rekening }. Periode bulan [dari, sampai] (0–11).
+ * Hasil: { anggaran, saldoLalu, baris: [{ tanggal, bnu, uraian, realisasi, sisa }], total, sisa }
+ */
+export function bukuObjek({ uraian = [], belanja = [], kategori = null, rekening = null, dari = 0, sampai = 11 }) {
+  const cocok = (kode) => (rekening ? kode === rekening : katKode(kode || '') === kategori)
+  const anggaran = jumlah(uraian.filter((u) => cocok(u.kode_rekening)), (u) => u.jumlah)
+  const semua = []
+  belanja.forEach((b) => {
+    if (b.status !== 'lunas' || !b.tgl_lunas) return
+    const m = bulanIso(b.tgl_lunas)
+    kelompokRekening(b.item || []).filter((g) => cocok(g.kode_rekening)).forEach((g) => semua.push({
+      id: `${b.id}|${g.kunci}`, id_belanja: b.id, bulan: m, tanggal: b.tgl_lunas, bnu: b.bnu?.[g.kunci] || '',
+      uraian: b.uraian_pembayaran || b.nama_pekerjaan || '', kode_kegiatan: g.kode_kegiatan, kode_rekening: g.kode_rekening,
+      realisasi: g.jumlah, siplah: b.cara === 'siplah',
+    }))
+  })
+  const n = (s) => { const x = String(s || '').match(/(\d+)\s*$/); return x ? Number(x[1]) : 1e9 }
+  semua.sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)) || n(a.bnu) - n(b.bnu))
+  const saldoLalu = jumlah(semua.filter((r) => r.bulan < dari), (r) => r.realisasi)
+  let sisa = anggaran - saldoLalu
+  const baris = semua.filter((r) => r.bulan >= dari && r.bulan <= sampai).map((r) => { sisa -= r.realisasi; return { ...r, sisa } })
+  const total = jumlah(baris, (r) => r.realisasi)
+  return { anggaran, saldoLalu, baris, total, sisa: anggaran - saldoLalu - total }
+}
+
+/** Ringkasan semua kode rekening rinci: anggaran, realisasi s.d. akhir periode, sisa */
+export function ringkasRekening({ uraian = [], belanja = [], sampai = 11, nama }) {
+  const peta = new Map()
+  const ambil = (k) => { if (!peta.has(k)) peta.set(k, { kode: k, nama: nama?.rekening?.(k) || NAMA_REKENING[k] || '', kategori: katKode(k), anggaran: 0, realisasi: 0, transaksi: 0 }); return peta.get(k) }
+  uraian.forEach((u) => { ambil(u.kode_rekening).anggaran += u.jumlah || 0 })
+  itemLunas(belanja).filter((i) => i.bulan <= sampai).forEach((i) => { const r = ambil(i.kode_rekening || '-'); r.realisasi += i.jumlah || 0 })
+  belanja.filter((b) => b.status === 'lunas' && (bulanIso(b.tgl_lunas) ?? 99) <= sampai).forEach((b) => new Set((b.item || []).map((i) => i.kode_rekening)).forEach((k) => { if (peta.has(k)) peta.get(k).transaksi++ }))
+  return [...peta.values()].map((r) => ({ ...r, sisa: r.anggaran - r.realisasi, persen: r.anggaran ? r.realisasi / r.anggaran : 0 })).sort((a, b) => a.kode.localeCompare(b.kode))
+}
+
+/* ---------------- Rekap transaksi SIPLah ---------------- */
+
+/** Transaksi SIPLah (semua status) dalam rentang bulan tanggal realisasi */
+export function rekapSiplah(belanja = [], { dari = 0, sampai = 11, hanyaLunas = false } = {}) {
+  const baris = belanja.filter((b) => b.jenis !== 'honor' && b.cara === 'siplah' && (!hanyaLunas || b.status === 'lunas')).map((b) => {
+    const t = tanggalRealisasi(b)
+    const pajak = jumlah((b.pajak || []).filter((p) => p.cara !== 'luar'), (p) => p.nilai)
+    return {
+      id: b.id, tanggal: t, bulan: bulanIso(t), mitra: b.mitra_siplah || 'Tanpa mitra', penyedia: b.rekanan?.nama_usaha || '', npwp: b.rekanan?.npwp || '',
+      pekerjaan: b.nama_pekerjaan || '', nomor_sp: b.siplah?.nomor_sp || '', nomor_bast: b.siplah?.nomor_bast || '', nomor_invoice: b.siplah?.nomor_invoice || '',
+      bnu: Object.values(b.bnu || {}).filter(Boolean).join(', '), status: b.status, kategori: b.kategori, nilai: b.total || 0, pajak,
+    }
+  }).filter((r) => r.bulan != null && r.bulan >= dari && r.bulan <= sampai)
+    .sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)))
+  const peta = new Map()
+  baris.forEach((r) => { if (!peta.has(r.mitra)) peta.set(r.mitra, { mitra: r.mitra, transaksi: 0, nilai: 0, pajak: 0, lunas: 0 }); const m = peta.get(r.mitra); m.transaksi++; m.nilai += r.nilai; m.pajak += r.pajak; if (r.status === 'lunas') m.lunas += r.nilai })
+  return { baris, perMitra: [...peta.values()].sort((a, b) => b.nilai - a.nilai), total: jumlah(baris, (r) => r.nilai), pajak: jumlah(baris, (r) => r.pajak) }
+}

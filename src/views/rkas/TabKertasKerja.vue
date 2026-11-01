@@ -5,7 +5,10 @@ import { useNotifikasi } from '@/stores/notifikasi'
 import { KATEGORI } from '@/utils/arkas'
 import { bangunPohon } from '@/utils/rkasPohon'
 import { WARNA_SNP, KOMPONEN_ARKAS } from '@/config/kodeArkas'
-import { rupiah } from '@/utils/format'
+import { rupiah, NAMA_BULAN } from '@/utils/format'
+import { barisDatar } from '@/utils/rkasPohon'
+import DetailAnggaran from './DetailAnggaran.vue'
+import { pakaiDetail } from './pakaiDetail'
 import Ikon from '@/components/Ikon.vue'
 import CetakRkas from './CetakRkas.vue'
 import { eksporRkas } from './eksporRkas'
@@ -36,7 +39,21 @@ watch(() => rkas.idVersi, () => { buka.value = new Set(pohon.value.map((n) => n.
 const k = (n) => n.kode + '@' + n.tingkat
 
 const cetak = ref(null)
-async function ekspor() { try { await eksporRkas(rkas) } catch (e) { notif.kabari(e.message, 'galat') } }
+const { detail, menyimpan, bolehUbah, buka: bukaDetail, simpan: simpanDetail, hapus: hapusDetail } = pakaiDetail()
+
+// Tampilan: pohon (seperti ARKAS) atau kolom bulan (3 bulan / 6 bulan) seperti kertas kerja Jurnal Dana BOS
+const tampilan = ref('pohon')
+const PERIODE = [
+  { k: 't1', j: 'Tahap I (Jan–Jun)', dari: 1, n: 6 }, { k: 't2', j: 'Tahap II (Jul–Des)', dari: 7, n: 6 },
+  { k: 'tw1', j: 'Triwulan I', dari: 1, n: 3 }, { k: 'tw2', j: 'Triwulan II', dari: 4, n: 3 }, { k: 'tw3', j: 'Triwulan III', dari: 7, n: 3 }, { k: 'tw4', j: 'Triwulan IV', dari: 10, n: 3 },
+]
+const periode = ref('t1')
+const per = computed(() => PERIODE.find((p) => p.k === periode.value))
+const bulanKolom = computed(() => Array.from({ length: per.value.n }, (_, i) => per.value.dari - 1 + i))
+const datar = computed(() => barisDatar(pohon.value))
+const volBln = (u, i) => { const x = (u.bulan?.[i] || 0) / (u.harga || 1); return x ? Math.round(x * 100) / 100 : '' }
+function bukaCetak() { cetak.value = tampilan.value === 'kolom' ? { mode: 'kolom', kategori: kategori.value, bulanDari: per.value.dari, jumlahBulan: per.value.n } : { mode: 'tahap', kategori: kategori.value } }
+async function ekspor() { try { await eksporRkas(rkas, { kategori: kategori.value, kolomBulan: tampilan.value === 'kolom' ? bulanKolom.value : null }) } catch (e) { notif.kabari(e.message, 'galat') } }
 const saringKat = [
   { k: 'semua', j: 'Semua', ikon: 'Layers', w: 'bg-biru text-white' },
   ...Object.entries(KATEGORI).map(([kk, v]) => ({ k: kk, j: v.nama, ikon: v.ikon, w: 'bg-biru text-white' })),
@@ -59,15 +76,56 @@ const saringKat = [
       <div class="ml-auto flex flex-wrap gap-2">
         <button class="tombol-garis px-3" title="Buka semua" @click="bukaSemua(true)"><Ikon nama="ChevronsUpDown" :ukuran="17" class="text-biru" /></button>
         <button class="tombol-garis px-3" title="Tutup semua" @click="bukaSemua(false)"><Ikon nama="ChevronsDownUp" :ukuran="17" class="text-biru" /></button>
-        <button class="tombol-garis" @click="cetak = { mode: 'tahap' }"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> Cetak / Unduh</button>
+        <button class="tombol-garis" @click="bukaCetak"><Ikon nama="Printer" :ukuran="17" class="text-biru" /> Cetak / Unduh{{ kategori !== 'semua' ? ` (${KATEGORI[kategori].nama})` : '' }}</button>
         <button class="tombol-garis" @click="ekspor"><Ikon nama="FileSpreadsheet" :ukuran="17" class="text-emerald-600" /> Excel</button>
       </div>
+    </div>
+
+    <div class="kartu flex flex-wrap items-center gap-2 p-2">
+      <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        <button v-for="[k, j, ik] in [['pohon', 'Pohon ARKAS', 'ListTree'], ['kolom', 'Kolom bulan', 'Columns3']]" :key="k" :class="['flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold', tampilan === k ? 'bg-white text-biru shadow dark:bg-slate-700 dark:text-blue-300' : 'text-slate-500']" @click="tampilan = k"><Ikon :nama="ik" :ukuran="15" /> {{ j }}</button>
+      </div>
+      <div v-if="tampilan === 'kolom'" class="flex gap-1 overflow-x-auto tanpa-penggulir">
+        <button v-for="p in PERIODE" :key="p.k" :class="['shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold', periode === p.k ? 'bg-[#22A08D] text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800']" @click="periode = p.k">{{ p.j }}</button>
+      </div>
+      <p class="ml-auto text-xs text-slate-500"><Ikon nama="MousePointerClick" :ukuran="13" class="inline text-biru" /> Klik uraian untuk {{ bolehUbah ? 'mengubah (draf)' : 'melihat rincian per bulan' }}</p>
+    </div>
+
+    <!-- Tampilan kolom bulan -->
+    <div v-if="tampilan === 'kolom' && pohon.length" class="kartu overflow-x-auto">
+      <table class="w-full min-w-[900px] text-xs">
+        <thead class="bg-slate-50 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">
+          <tr><th rowspan="2" class="sticky left-0 z-10 bg-slate-50 p-2 text-left dark:bg-slate-800">Uraian</th><th rowspan="2" class="p-2 text-right">Vol</th><th rowspan="2" class="p-2">Satuan</th><th rowspan="2" class="p-2 text-right">Harga</th><th rowspan="2" class="p-2 text-right">Jumlah</th>
+            <th v-for="i in bulanKolom" :key="i" colspan="2" class="border-l border-slate-200 p-2 text-center dark:border-slate-700">{{ NAMA_BULAN[i] }}</th></tr>
+          <tr><template v-for="i in bulanKolom" :key="i"><th class="border-l border-slate-200 px-2 pb-2 text-right dark:border-slate-700">Vol</th><th class="px-2 pb-2 text-right">Jumlah</th></template></tr>
+        </thead>
+        <tbody>
+          <tr v-for="(b, n) in datar" :key="n" :class="['border-t border-slate-100 dark:border-slate-800', b.induk ? 'font-semibold' : 'cursor-pointer hover:bg-blue-50/60 dark:hover:bg-slate-800/50']"
+              :style="b.induk ? { background: `var(--arkas-${b.tingkat === 1 ? 'snp' : b.tingkat === 2 ? 'komponen' : 'kegiatan'})` } : null" @click="!b.induk && bukaDetail(rkas.uraian.find((u) => u.id === b.id))">
+            <td class="sticky left-0 max-w-[22rem] bg-inherit p-2" :style="b.induk ? null : { background: 'var(--latar-kartu, transparent)' }">
+              <span v-if="b.induk" class="kode mr-1 text-slate-500">{{ b.kode }}</span>{{ b.induk ? b.nama : b.uraian }}
+            </td>
+            <td class="angka p-2 text-right">{{ b.induk ? '' : b.volume.toLocaleString('id-ID') }}</td>
+            <td class="p-2">{{ b.induk ? '' : b.satuan }}</td>
+            <td class="angka p-2 text-right">{{ b.induk ? '' : rupiah(b.harga, { tanpaRp: true }) }}</td>
+            <td class="angka p-2 text-right">{{ rupiah(b.jumlah, { tanpaRp: true }) }}</td>
+            <template v-for="i in bulanKolom" :key="i">
+              <td class="angka border-l border-slate-100 p-2 text-right dark:border-slate-800">{{ b.induk ? '' : volBln(b, i) }}</td>
+              <td :class="['angka p-2 text-right', (b.bulan?.[i] || 0) ? '' : 'text-slate-300 dark:text-slate-600']">{{ b.bulan?.[i] ? rupiah(b.bulan[i], { tanpaRp: true }) : '-' }}</td>
+            </template>
+          </tr>
+        </tbody>
+        <tfoot class="bg-slate-50 font-bold dark:bg-slate-800/60">
+          <tr><td class="sticky left-0 bg-slate-50 p-2 dark:bg-slate-800" colspan="4">Jumlah</td><td class="angka p-2 text-right">{{ rupiah(pohon.reduce((s, x) => s + x.jumlah, 0), { tanpaRp: true }) }}</td>
+            <template v-for="i in bulanKolom" :key="i"><td /><td class="angka p-2 text-right">{{ rupiah(pohon.reduce((s, x) => s + x.bulan[i], 0), { tanpaRp: true }) }}</td></template></tr>
+        </tfoot>
+      </table>
     </div>
 
     <div v-if="!pohon.length" class="kartu flex flex-col items-center gap-2 p-10 text-center text-sm text-slate-500"><Ikon nama="SearchX" :ukuran="28" /> Tidak ada uraian yang cocok.</div>
 
     <!-- Tingkat 1: SNP -->
-    <section v-for="s in pohon" :key="s.kode" class="kartu overflow-hidden">
+    <section v-for="s in (tampilan === 'pohon' ? pohon : [])" :key="s.kode" class="kartu overflow-hidden">
       <button type="button" class="flex w-full items-center gap-3 p-4 text-left transition hover:brightness-[0.98]" style="background: var(--arkas-snp)" :aria-expanded="terbuka(k(s))" @click="alih(k(s))">
         <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-sm font-extrabold text-white shadow" :style="{ background: WARNA_SNP[s.kode] }"><span class="kode">{{ s.kode }}</span></span>
         <div class="min-w-0 flex-1">
@@ -117,7 +175,7 @@ const saringKat = [
                         </td>
                         <td class="angka px-2 py-1.5 text-right text-xs font-bold text-blue-800 dark:text-blue-300">{{ rupiah(r.jumlah, { tanpaRp: true }) }}</td><td colspan="2" />
                       </tr>
-                      <tr v-for="u in r.uraian" :key="u.id" class="border-t border-slate-100 dark:border-slate-800">
+                      <tr v-for="u in r.uraian" :key="u.id" class="cursor-pointer border-t border-slate-100 hover:bg-blue-50/60 dark:border-slate-800 dark:hover:bg-slate-800/50" @click="bukaDetail(u)">
                         <td class="px-3 py-2">
                           <span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" :style="{ background: `var(--viz-${u.kategori === 'operasional' ? 'operasional' : u.kategori === 'alat_mesin' ? 'alat' : 'aset'})` }" :title="KATEGORI[u.kategori]?.nama" />
                           {{ u.uraian }}
@@ -139,6 +197,7 @@ const saringKat = [
       </div>
     </section>
 
+    <DetailAnggaran v-if="detail" :uraian="detail.uraian" :dibelanjakan="detail.dibelanjakan" :boleh-ubah="bolehUbah" :menyimpan="menyimpan" @tutup="detail = null" @simpan="simpanDetail" @hapus="hapusDetail" />
     <CetakRkas v-if="cetak" v-bind="cetak" @tutup="cetak = null" @excel="ekspor" />
   </div>
 </template>

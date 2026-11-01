@@ -1,5 +1,7 @@
 <script setup>
-// Cetak RKAS bergaya Kertas Kerja ARKAS: per tahap, per bulan, atau rekap 12 bulan per kegiatan.
+// Cetak RKAS bergaya Kertas Kerja ARKAS: per tahap, per bulan, rekap 12 bulan per kegiatan,
+// atau kolom bulan (3 bulan/triwulan atau 6 bulan/tahap) seperti kertas kerja di Jurnal Dana BOS.
+// Bisa disaring per kategori (Operasional / Alat & Mesin / Aset Tetap Lainnya).
 // F4 mendatar, Times New Roman, kop sekolah, tanda tangan Kepala Sekolah · Komite · Bendahara.
 import { ref, computed, onMounted } from 'vue'
 import { modePratinjau } from '@/services/firebase'
@@ -9,12 +11,16 @@ import { PEJABAT_AWAL } from '@/config/sekolahAwal'
 import { useRkas } from '@/stores/rkas'
 import { bangunPohon, barisDatar } from '@/utils/rkasPohon'
 import { rupiah, NAMA_BULAN } from '@/utils/format'
+import { KATEGORI } from '@/utils/arkas'
 import JendelaCetak from '@/components/cetak/JendelaCetak.vue'
 import KopSurat from '@/components/cetak/KopSurat.vue'
 import BlokTandaTangan from '@/components/cetak/BlokTandaTangan.vue'
 
 const props = defineProps({
-  mode: { type: String, default: 'tahap' }, // tahap | bulan | rekap
+  mode: { type: String, default: 'tahap' }, // tahap | bulan | rekap | kolom
+  kategori: { type: String, default: 'semua' },
+  bulanDari: { type: Number, default: 1 }, // mode kolom: bulan pertama (1–12)
+  jumlahBulan: { type: Number, default: 6 }, // mode kolom: 3 atau 6
   bulan: { type: Number, default: 1 },
   tahap: { type: Number, default: 0 }, // 0 = Tahap I & II
 })
@@ -32,19 +38,24 @@ onMounted(async () => {
 
 const v = computed(() => rkas.versi)
 const n = (x) => rupiah(x, { tanpaRp: true })
-const nilai = (u) => (props.mode === 'bulan' ? (u.bulan?.[props.bulan - 1] || 0) : props.tahap === 1 ? u.tahap1 : props.tahap === 2 ? u.tahap2 : u.jumlah)
-const pohon = computed(() => bangunPohon(rkas.uraian, rkas.nama, { saring: (u) => nilai(u) > 0 }))
+const ikutKategori = (u) => props.kategori === 'semua' || u.kategori === props.kategori
+const bulanKolom = computed(() => Array.from({ length: props.jumlahBulan }, (_, i) => props.bulanDari - 1 + i).filter((i) => i < 12))
+const nilaiKolom = (b) => bulanKolom.value.reduce((s, i) => s + (b.bulan?.[i] || 0), 0)
+const nilai = (u) => (props.mode === 'kolom' ? nilaiKolom(u) : props.mode === 'bulan' ? (u.bulan?.[props.bulan - 1] || 0) : props.tahap === 1 ? u.tahap1 : props.tahap === 2 ? u.tahap2 : u.jumlah)
+const pohon = computed(() => bangunPohon(rkas.uraian, rkas.nama, { saring: (u) => ikutKategori(u) && ((props.mode === 'tahap' && !props.tahap) || props.mode === 'kolom' ? u.jumlah > 0 : nilai(u) > 0) }))
 const baris = computed(() => barisDatar(pohon.value))
-const nilaiInduk = (b) => (props.mode === 'bulan' ? b.bulan[props.bulan - 1] : props.tahap === 1 ? b.tahap1 : props.tahap === 2 ? b.tahap2 : b.jumlah)
+const nilaiInduk = (b) => (props.mode === 'kolom' ? nilaiKolom(b) : props.mode === 'bulan' ? b.bulan[props.bulan - 1] : props.tahap === 1 ? b.tahap1 : props.tahap === 2 ? b.tahap2 : b.jumlah)
 const total = computed(() => pohon.value.reduce((s, x) => s + nilaiInduk(x), 0))
 const totalT1 = computed(() => pohon.value.reduce((s, x) => s + x.tahap1, 0))
 const totalT2 = computed(() => pohon.value.reduce((s, x) => s + x.tahap2, 0))
 const volumeBulan = (u) => { const x = nilai(u) / (u.harga || 1); return Number.isInteger(x) ? x : x.toLocaleString('id-ID', { maximumFractionDigits: 2 }) }
 
-const judul = computed(() => props.mode === 'bulan' ? 'Rincian Kertas Kerja RKAS per Bulan'
+const volBulan = (u, i) => { const x = (u.bulan?.[i] || 0) / (u.harga || 1); return x ? (Number.isInteger(x) ? x : x.toLocaleString('id-ID', { maximumFractionDigits: 2 })) : '' }
+const labelKat = computed(() => (props.kategori === 'semua' ? '' : ` — ${KATEGORI[props.kategori]?.panjang || props.kategori}`))
+const judul = computed(() => props.mode === 'kolom' ? 'Kertas Kerja RKAS per Bulan' : props.mode === 'bulan' ? 'Rincian Kertas Kerja RKAS per Bulan'
   : props.mode === 'rekap' ? 'Rekapitulasi Rencana Bulanan RKAS' : 'Kertas Kerja RKAS per Tahap')
-const sub = computed(() => props.mode === 'bulan' ? `${NAMA_BULAN[props.bulan - 1]} ${rkas.tahun}`
-  : props.mode === 'rekap' ? `Januari – Desember ${rkas.tahun}` : props.tahap ? `Tahap ${props.tahap === 1 ? 'I (Januari – Juni)' : 'II (Juli – Desember)'}` : 'Tahap I dan II')
+const sub = computed(() => (props.mode === 'kolom' ? `${NAMA_BULAN[bulanKolom.value[0]]} – ${NAMA_BULAN[bulanKolom.value[bulanKolom.value.length - 1]]} ${rkas.tahun}` : props.mode === 'bulan' ? `${NAMA_BULAN[props.bulan - 1]} ${rkas.tahun}`
+  : props.mode === 'rekap' ? `Januari – Desember ${rkas.tahun}` : props.tahap ? `Tahap ${props.tahap === 1 ? 'I (Januari – Juni)' : 'II (Juli – Desember)'}` : 'Tahap I dan II') + labelKat.value)
 // Rekap: satu baris per kegiatan (tingkat 3) dengan subtotal SNP
 const rekap = computed(() => {
   const out = []
@@ -61,7 +72,7 @@ const ttd = computed(() => ({
   tengah: { label: 'Komite Sekolah', pejabat: pejabatPada(pejabat.value, 'ketua_komite', tglDok.value) },
   kanan: { label: 'Bendahara Sekolah', pejabat: pejabatPada(pejabat.value, 'bendahara_bosp', tglDok.value) },
 }))
-const namaBerkas = computed(() => `RKAS ${rkas.tahun} ${v.value?.nama || ''} - ${judul.value}${props.mode === 'bulan' ? ' ' + NAMA_BULAN[props.bulan - 1] : ''}`)
+const namaBerkas = computed(() => `RKAS ${rkas.tahun} ${v.value?.nama || ''} - ${judul.value} ${sub.value}`.replace(/\s+/g, ' '))
 </script>
 
 <template>
@@ -80,8 +91,36 @@ const namaBerkas = computed(() => `RKAS ${rkas.tahun} ${v.value?.nama || ''} - $
         <tr><td>Penerimaan</td><td>:</td><td>4.3.1.01. BOSP Reguler — Rp {{ n(v?.pagu || 0) }}</td><td></td></tr>
       </table>
 
+      <!-- Kolom bulan (3/6 bulan) -->
+      <table v-if="mode === 'kolom'" class="tabel" :class="jumlahBulan > 3 && 'kecil'">
+        <thead>
+          <tr>
+            <th rowspan="2" style="width:1.3cm">Kode</th><th rowspan="2">Uraian</th>
+            <th rowspan="2" style="width:1.1cm">Vol</th><th rowspan="2" style="width:1.5cm">Satuan</th><th rowspan="2" style="width:2cm">Harga</th><th rowspan="2" style="width:2.2cm">Jumlah Setahun</th>
+            <th v-for="i in bulanKolom" :key="i" colspan="2">{{ NAMA_BULAN[i] }}</th>
+          </tr>
+          <tr><template v-for="i in bulanKolom" :key="i"><th style="width:0.9cm">Vol</th><th :style="{ width: jumlahBulan > 3 ? '1.9cm' : '2.3cm' }">Jumlah</th></template></tr>
+        </thead>
+        <tbody>
+          <tr v-for="(b, k) in baris" :key="k" :class="b.induk && ['tebal', `t${b.tingkat}`]">
+            <template v-if="b.induk">
+              <td>{{ b.kode }}</td><td colspan="4">{{ b.nama }}</td><td class="kanan">{{ n(b.jumlah) }}</td>
+              <template v-for="i in bulanKolom" :key="i"><td /><td class="kanan">{{ b.bulan[i] ? n(b.bulan[i]) : '-' }}</td></template>
+            </template>
+            <template v-else>
+              <td class="tengah">-</td><td>{{ b.uraian }}</td><td class="tengah">{{ b.volume.toLocaleString('id-ID') }}</td><td>{{ b.satuan }}</td><td class="kanan">{{ n(b.harga) }}</td><td class="kanan">{{ n(b.jumlah) }}</td>
+              <template v-for="i in bulanKolom" :key="i"><td class="tengah">{{ volBulan(b, i) }}</td><td class="kanan">{{ b.bulan?.[i] ? n(b.bulan[i]) : '-' }}</td></template>
+            </template>
+          </tr>
+          <tr class="tebal">
+            <td colspan="5" class="tengah">Jumlah</td><td class="kanan">{{ n(pohon.reduce((s, x) => s + x.jumlah, 0)) }}</td>
+            <template v-for="i in bulanKolom" :key="i"><td /><td class="kanan">{{ n(pohon.reduce((s, x) => s + x.bulan[i], 0)) }}</td></template>
+          </tr>
+        </tbody>
+      </table>
+
       <!-- Rekap 12 bulan -->
-      <table v-if="mode === 'rekap'" class="tabel kecil">
+      <table v-else-if="mode === 'rekap'" class="tabel kecil">
         <thead>
           <tr><th style="width:1.3cm">Kode</th><th>Kegiatan</th><th v-for="b in NAMA_BULAN" :key="b">{{ b.slice(0, 3) }}</th><th>Jumlah</th></tr>
         </thead>

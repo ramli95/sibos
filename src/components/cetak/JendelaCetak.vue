@@ -73,18 +73,18 @@ async function unduhPdf() {
           <p class="truncate text-xs text-white/70 sm:text-sm">{{ infoKertas }}</p>
         </div>
         <slot name="alat" />
-        <div v-if="props.gantiOrientasi" class="flex gap-1 rounded-xl bg-white/10 p-1">
+        <div v-if="props.gantiOrientasi" class="flex h-10 items-center gap-1 rounded-xl bg-white/10 p-1">
           <button v-for="[v, l] in [['portrait', 'Tegak'], ['landscape', 'Mendatar']]" :key="v" @click="arah = v" :title="l"
-                  :class="['flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold', arah === v ? 'bg-white text-arang' : 'text-white/75 hover:text-white']">
+                  :class="['flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm font-semibold', arah === v ? 'bg-white text-arang' : 'text-white/75 hover:text-white']">
             <span :class="['rounded-[3px] border-2 border-current', v === 'portrait' ? 'h-4 w-3' : 'h-3 w-4']" /><span class="hidden md:inline">{{ l }}</span>
           </button>
         </div>
-        <button v-if="props.excel" class="tombol bg-emerald-600 px-3 text-white hover:bg-emerald-700" @click="emit('excel')"><Ikon nama="FileSpreadsheet" :ukuran="17" /> <span class="hidden sm:inline">Excel</span></button>
-        <button class="tombol bg-biru px-3 text-white hover:bg-blue-700" :disabled="!!sibuk" @click="unduhPdf">
+        <button v-if="props.excel" class="tb-bilah bg-emerald-600 text-white hover:bg-emerald-700" @click="emit('excel')"><Ikon nama="FileSpreadsheet" :ukuran="17" /> <span class="hidden sm:inline">Excel</span></button>
+        <button class="tb-bilah bg-white/10 text-white ring-1 ring-white/25 hover:bg-white/20" :disabled="!!sibuk" @click="unduhPdf">
           <Ikon :nama="sibuk === 'pdf' ? 'RefreshCw' : 'FileDown'" :ukuran="17" :class="sibuk === 'pdf' && 'animate-spin'" /> <span class="hidden sm:inline">Unduh PDF</span>
         </button>
-        <button class="tombol rounded-2xl bg-biru px-5 py-3 text-base text-white shadow-lg shadow-biru/30 hover:bg-blue-700" @click="cetakSekarang"><Ikon nama="Printer" :ukuran="20" /> Cetak</button>
-        <button class="grid h-10 w-10 place-items-center rounded-xl text-white/80 hover:bg-white/10 hover:text-white" aria-label="Tutup" @click="emit('tutup')"><Ikon nama="X" :ukuran="24" /></button>
+        <button class="tb-bilah min-w-[6.5rem] bg-biru text-white shadow-lg shadow-biru/30 hover:bg-blue-700" @click="cetakSekarang"><Ikon nama="Printer" :ukuran="17" /> Cetak</button>
+        <button class="tb-bilah w-10 justify-center px-0 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Tutup" @click="emit('tutup')"><Ikon nama="X" :ukuran="22" /></button>
       </header>
 
       <!-- Lembar -->
@@ -99,6 +99,9 @@ async function unduhPdf() {
 
 <style>
 .jendela-cetak .lembar { font-family: 'Times New Roman', Times, serif; box-sizing: border-box; }
+/* Semua tombol di bilah atas sama tinggi (40 px), sudut & huruf seragam — termasuk tombol pilihan dari slot #alat */
+.jendela-cetak .bilah > button, .jendela-cetak .tb-bilah { display: inline-flex; height: 2.5rem; align-items: center; gap: 0.375rem; border-radius: 0.75rem; padding: 0 0.875rem; font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background-color .15s; }
+.jendela-cetak .tb-bilah:disabled { opacity: .6; }
 @media print {
   body.sedang-cetak > *:not(.jendela-cetak) { display: none !important; }
   body.sedang-cetak { background: #fff !important; }

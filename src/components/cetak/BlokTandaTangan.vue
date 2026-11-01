@@ -17,7 +17,7 @@ const nama = (p) => (p ? p.nama + (p.gelar ? ', ' + p.gelar : '') : '………�
       <td v-for="(s, i) in (tengah ? [kiri, tengah, kanan] : [kiri, kanan])" :key="i" :style="{ width: tengah ? '33.3%' : '50%' }">
         <template v-if="s">
           <div :class="s !== kanan && 'tak-terlihat'">{{ tempat }}, {{ tanggalPanjang(tanggal) }}</div>
-          <div>{{ s.label }}</div>
+          <div style="white-space: pre-line">{{ s.label }}</div>
           <div class="ruang"><img v-if="gambar && s.pejabat?.tanda_tangan" :src="s.pejabat.tanda_tangan" alt="" /></div>
           <div class="nama">{{ nama(s.pejabat) }}</div>
           <div v-if="s.pejabat?.pangkat">{{ s.pejabat.pangkat }}</div>

@@ -6,6 +6,7 @@ import { usulanUraian, kunciUraian, rapikanNamaItem } from '@/utils/belanja'
 import { kategoriRekening } from '@/utils/arkas'
 import Ikon from '@/components/Ikon.vue'
 import Laci from '@/components/Laci.vue'
+import { useRkas } from '@/stores/rkas'
 
 const props = defineProps({
   item: Object, // null = item baru
@@ -21,8 +22,27 @@ const emit = defineEmits(['tutup', 'simpan'])
 const JENIS = [['barang', 'Barang', 'Package'], ['jasa', 'Jasa', 'Wrench'], ['konsumsi', 'Konsumsi', 'UtensilsCrossed']]
 const f = reactive({
   id_harga: null, nama: '', spesifikasi: '', jenis: 'barang', volume: 1, satuan: '', harga: 0, harga_ssh: 0,
-  kode_kegiatan: '', kode_rekening: '', uraian_rkas: '', harga_rkas: 0, ...(props.item || {}),
+  kode_kegiatan: '', kode_rekening: '', uraian_rkas: '', harga_rkas: 0, luar_rkas: false, ...(props.item || {}),
 })
+
+/* ---------- Di luar RKAS: belanja dulu, uraiannya ditambahkan di ARKAS saat pergeseran/perubahan ---------- */
+const rkasStore = useRkas()
+const kegiatanLuar = computed(() => {
+  const peta = new Map()
+  rkasStore.refKegiatan.filter((k) => k.kode.split('.').length === 3).forEach((k) => peta.set(k.kode, k.nama))
+  props.uraian.forEach((u) => { if (!peta.has(u.kode_kegiatan)) peta.set(u.kode_kegiatan, props.namaKegiatan(u.kode_kegiatan)) })
+  return [...peta.entries()].sort((a, b) => a[0].localeCompare(b[0], 'id', { numeric: true }))
+})
+const rekeningLuar = computed(() => {
+  const peta = new Map()
+  rkasStore.refRekening.forEach((r) => peta.set(r.kode, r.nama))
+  props.uraian.forEach((u) => { if (!peta.has(u.kode_rekening)) peta.set(u.kode_rekening, props.namaRekening(u.kode_rekening)) })
+  return [...peta.entries()].sort((a, b) => a[0].localeCompare(b[0], 'id', { numeric: true }))
+})
+function alihLuar() {
+  f.luar_rkas = !f.luar_rkas
+  if (!f.luar_rkas) Object.assign(f, { kode_kegiatan: '', kode_rekening: '', uraian_rkas: '', harga_rkas: 0 })
+}
 const cariHarga = ref('')
 const cariUraian = ref('')
 const lihatSemuaUraian = ref(false)
@@ -71,14 +91,20 @@ const info = computed(() => {
 })
 const peringatan = computed(() => {
   const w = []
+  if (f.luar_rkas) w.push({ nada: 'info', teks: 'Item di luar RKAS: jangan lupa tambahkan uraiannya di ARKAS saat pergeseran/perubahan (lihat RKAS → Pergeseran).' })
   if (info.value?.lewat) w.push({ nada: 'bahaya', teks: `Melebihi sisa pagu uraian (${rupiah(info.value.sisa)}). Perlu pergeseran di ARKAS.` })
   else if (info.value?.lewatBulan) w.push({ nada: 'peringatan', teks: `Melebihi sisa rencana ${NAMA_BULAN[props.bulan]} (${rupiah(info.value.sisaBulan)}).` })
   if (f.harga_ssh && f.harga > f.harga_ssh) w.push({ nada: 'peringatan', teks: `Harga di atas SSH (${rupiah(f.harga_ssh)}). Siapkan alasan/pembanding harga.` })
   if (!f.id_harga && f.nama) w.push({ nada: 'info', teks: 'Item tidak diambil dari Standar Harga.' })
   return w
 })
-const sah = computed(() => f.nama.trim() && Number(f.volume) > 0 && f.satuan.trim() && Number(f.harga) > 0 && f.kode_rekening)
-function simpan() { if (sah.value) emit('simpan', { ...f, nama: rapikanNamaItem(f.nama, f.jenis), volume: Number(f.volume), harga: Math.round(Number(f.harga)) }) }
+const sah = computed(() => f.nama.trim() && Number(f.volume) > 0 && f.satuan.trim() && Number(f.harga) > 0 && f.kode_rekening && (!f.luar_rkas || f.kode_kegiatan))
+function simpan() {
+  if (!sah.value) return
+  const nama = rapikanNamaItem(f.nama, f.jenis)
+  const luar = f.luar_rkas ? { uraian_rkas: f.uraian_rkas?.trim() || nama, harga_rkas: Math.round(Number(f.harga)), kategori: kategoriRekening(f.kode_rekening) } : {}
+  emit('simpan', { ...f, ...luar, nama, volume: Number(f.volume), harga: Math.round(Number(f.harga)) })
+}
 const NADA = { bahaya: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200', peringatan: 'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200', info: 'bg-blue-50 text-blue-900 dark:bg-blue-950/40 dark:text-blue-200' }
 </script>
 
@@ -125,13 +151,25 @@ const NADA = { bahaya: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-r
       <!-- 3. Uraian RKAS -->
       <section class="space-y-3 border-t border-slate-200 pt-5 dark:border-slate-700">
         <h3 class="flex items-center gap-2 text-sm font-bold"><span class="grid h-6 w-6 place-items-center rounded-full bg-biru text-xs text-white">3</span> Kaitkan ke uraian RKAS <span class="text-merah">*</span></h3>
-        <div class="flex gap-2">
+        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-300 bg-amber-50/60 p-3 text-sm dark:border-amber-700 dark:bg-amber-950/30">
+          <input type="checkbox" :checked="f.luar_rkas" class="mt-0.5 h-4 w-4 accent-[#E3A414]" @change="alihLuar" />
+          <span><b class="block">Belum ada di RKAS (di luar RKAS)</b><span class="text-xs text-slate-600 dark:text-slate-300">Belanja dulu; item ini masuk daftar "perlu ditambahkan di ARKAS" di RKAS → Pergeseran dan bisa sekali klik dimasukkan ke draf.</span></span>
+        </label>
+        <div v-if="f.luar_rkas" class="grid gap-3 sm:grid-cols-2">
+          <div><label class="label" for="it-keg">Kegiatan ARKAS <span class="text-merah">*</span></label>
+            <select id="it-keg" v-model="f.kode_kegiatan" class="masukan"><option value="">— pilih kegiatan —</option><option v-for="[k, n] in kegiatanLuar" :key="k" :value="k">{{ k }} · {{ n }}</option></select></div>
+          <div><label class="label" for="it-rek">Rekening belanja <span class="text-merah">*</span></label>
+            <select id="it-rek" v-model="f.kode_rekening" class="masukan"><option value="">— pilih rekening —</option><option v-for="[k, n] in rekeningLuar" :key="k" :value="k">{{ k }} · {{ n }}</option></select></div>
+          <div class="sm:col-span-2"><label class="label" for="it-urk">Uraian yang akan ditambahkan di ARKAS</label><input id="it-urk" v-model="f.uraian_rkas" class="masukan" :placeholder="f.nama || 'Sama dengan nama item'" /></div>
+        </div>
+        <div v-if="!f.luar_rkas" class="flex gap-2">
           <div class="relative flex-1">
             <Ikon nama="Search" :ukuran="17" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input v-model="cariUraian" class="masukan pl-9" placeholder="Cari uraian, kode kegiatan, kode rekening…" />
           </div>
           <button type="button" class="tombol-garis px-3" @click="lihatSemuaUraian = !lihatSemuaUraian"><Ikon :nama="lihatSemuaUraian ? 'Sparkles' : 'ListTree'" :ukuran="16" class="text-biru" /> <span class="hidden sm:inline">{{ lihatSemuaUraian ? 'Usulan' : 'Semua' }}</span></button>
         </div>
+        <template v-if="!f.luar_rkas">
         <p v-if="!cariUraian && !lihatSemuaUraian" class="text-xs text-slate-500">Usulan berdasarkan nama item & kode rekening Standar Harga.</p>
         <div class="gulir-halus max-h-64 space-y-1.5 overflow-y-auto pr-1">
           <button v-for="u in daftarUraian" :key="u.id" type="button" @click="pilihUraian(u)"
@@ -147,6 +185,7 @@ const NADA = { bahaya: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-r
           <div class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/50"><p class="text-[11px] text-slate-500">Sisa pagu uraian</p><p :class="['angka font-bold', info.lewat ? 'text-rose-600' : 'text-emerald-600 dark:text-emerald-400']">{{ rupiah(info.sisa) }}</p></div>
           <div v-if="info.rencanaBulan != null" class="rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/50"><p class="text-[11px] text-slate-500">Sisa rencana {{ NAMA_BULAN[props.bulan] }}</p><p :class="['angka font-bold', info.lewatBulan ? 'text-amber-600' : '']">{{ rupiah(info.sisaBulan) }}</p></div>
         </div>
+        </template>
       </section>
 
       <div v-for="(w, i) in peringatan" :key="i" :class="['flex gap-2 rounded-xl p-3 text-sm', NADA[w.nada]]"><Ikon :nama="w.nada === 'info' ? 'Info' : 'TriangleAlert'" :ukuran="17" class="mt-0.5" /> {{ w.teks }}</div>
@@ -154,7 +193,7 @@ const NADA = { bahaya: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-r
     <template #kaki>
       <button class="tombol-utama" :disabled="!sah" @click="simpan"><Ikon nama="Save" :ukuran="17" /> {{ props.item ? 'Simpan item' : 'Tambahkan' }}</button>
       <button class="tombol-garis" @click="emit('tutup')">Batal</button>
-      <span v-if="!sah" class="text-xs text-slate-500">Lengkapi nama, volume, satuan, harga & uraian RKAS.</span>
+      <span v-if="!sah" class="text-xs text-slate-500">Lengkapi nama, volume, satuan, harga & uraian RKAS{{ f.luar_rkas ? ' (kegiatan & rekening)' : '' }}.</span>
     </template>
   </Laci>
 </template>

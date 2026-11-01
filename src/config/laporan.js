@@ -8,6 +8,8 @@ export const TAB_LAPORAN = [
   { kunci: 'realisasi', judul: 'Realisasi SNP & Komponen', ikon: 'ChartPie' },
   { kunci: 'pemda', judul: 'Laporan Pemda Bulanan', ikon: 'Landmark' },
   { kunci: 'tahunan', judul: 'Tahap & Tahunan', ikon: 'CalendarRange' },
+  { kunci: 'objek', judul: 'Buku Subrincian Objek', ikon: 'BookCopy' },
+  { kunci: 'siplah', judul: 'Rekap SIPLah', ikon: 'ShoppingBag' },
   { kunci: 'kesiapan', judul: 'Kesiapan SPJ', ikon: 'Gauge' },
   { kunci: 'simakda', judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet' },
 ]
@@ -67,3 +69,10 @@ export const NADA_SKOR = {
   merah: { label: 'Belum siap', lencana: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300', batang: 'bg-rose-500', teks: 'text-rose-600 dark:text-rose-400', ikon: 'CircleAlert' },
 }
 export const nadaSkor = (n) => (n >= AMBANG_SKOR.hijau ? 'hijau' : n >= AMBANG_SKOR.kuning ? 'kuning' : 'merah')
+
+// Pilihan periode untuk Buku Subrincian Objek & Rekap SIPLah: [kunci, judul, dari, sampai]
+export const PERIODE_BUKU = [
+  ['tahun', 'Setahun', 0, 11], ['tahap1', 'Tahap I (Jan–Jun)', 0, 5], ['tahap2', 'Tahap II (Jul–Des)', 6, 11],
+  ['tw1', 'Triwulan I', 0, 2], ['tw2', 'Triwulan II', 3, 5], ['tw3', 'Triwulan III', 6, 8], ['tw4', 'Triwulan IV', 9, 11],
+  ...['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'].map((b, i) => [`b${i}`, b, i, i]),
+]

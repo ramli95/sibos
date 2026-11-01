@@ -66,8 +66,14 @@ export function ringkasVersi(uraian) {
 
 /* ---------------- Baca ---------------- */
 
+// Mode Pratinjau: draf hanya disimpan di memori (hilang saat halaman dimuat ulang) agar alurnya bisa dicoba
+const drafPratinjau = []
 export async function muatDaftarVersi(tahun) {
-  if (modePratinjau) return (await import('./contohRkas')).versiContoh(tahun)
+  if (modePratinjau) {
+    const daftar = await (await import('./contohRkas')).versiContoh(tahun)
+    const tetap = drafPratinjau.filter((d) => !d.draf && d.tahun === Number(tahun))
+    return [...daftar.map((v) => (tetap.length ? { ...v, berlaku: false } : v)), ...drafPratinjau.filter((d) => d.tahun === Number(tahun)).map((d) => ({ ...d }))]
+  }
   const q = tahun ? query(collection(db, 'rkas'), where('tahun', '==', Number(tahun))) : collection(db, 'rkas')
   const s = await getDocs(q)
   return s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.tanggal_dokumen_iso || '').localeCompare(String(b.tanggal_dokumen_iso || '')))
@@ -166,6 +172,83 @@ export async function hapusVersi(versi) {
   log(b, 'hapus', `Menghapus RKAS ${versi.tahun} versi ${versi.nama} (total Rp ${Number(versi.total || 0).toLocaleString('id-ID')})`, 'rkas', versi.id)
   await b.commit()
   lupakanUraian(versi.id)
+}
+
+/* ---------------- Draf pergeseran / perubahan (seperti ARKAS) ---------------- */
+
+/**
+ * Membuat draf pergeseran/perubahan: salinan versi sumber (biasanya versi berlaku) yang bisa diedit
+ * per uraian lewat pop-up "Isi Detail Anggaran". Draf tidak dipakai belanja/laporan sampai ditetapkan berlaku.
+ */
+export async function buatDraf(sumber, uraianSumber, { jenis, nama }) {
+  if (modePratinjau) {
+    const id = `draf-pratinjau-${drafPratinjau.length + 1}`
+    const butir = uraianSumber.map((u) => rapikanUraian({ ...u }))
+    const ringkas = ringkasVersi(butir)
+    drafPratinjau.push({ id, tahun: sumber.tahun, nama, jenis, draf: true, berlaku: false, pagu: sumber.pagu || ringkas.total, id_sumber: sumber.id, nama_sumber: sumber.nama,
+      tanggal_dokumen_iso: new Date().toISOString().slice(0, 10), ringkas_sumber: { total: ringkas.total, per_kategori: ringkas.per_kategori }, ...ringkas })
+    cacheUraian.set(id, butir)
+    return id
+  }
+  const ref = doc(collection(db, 'rkas'))
+  const butir = uraianSumber.map((u) => rapikanUraian({ ...u }))
+  const ringkas = ringkasVersi(butir)
+  const b = writeBatch(db)
+  tulisBagian(b, ref.id, butir)
+  b.set(ref, {
+    tahun: sumber.tahun, nama, jenis, draf: true, berlaku: false, pagu: sumber.pagu || ringkas.total, id_sumber: sumber.id, nama_sumber: sumber.nama,
+    tanggal_dokumen: '', tanggal_dokumen_iso: new Date().toISOString().slice(0, 10), sumber: 'draf SIBOS',
+    ringkas_sumber: { total: ringkas.total, per_kategori: ringkas.per_kategori },
+    ...ringkas, snp: [...new Set(butir.map((u) => u.snp))],
+    dibuat: serverTimestamp(), diperbarui: serverTimestamp(), diperbarui_oleh: auth.currentUser.uid,
+  })
+  log(b, 'tambah', `Membuat draf ${JENIS_VERSI[jenis]?.nama || jenis} RKAS ${sumber.tahun} "${nama}" dari versi ${sumber.nama}`, 'rkas', ref.id)
+  await b.commit()
+  cacheUraian.set(ref.id, butir)
+  return ref.id
+}
+
+/**
+ * Menyimpan perubahan satu uraian pada draf (tambah / ubah / hapus).
+ * lama: uraian sebelum diubah (null = baru); baru: uraian sesudah (null = hapus).
+ */
+export async function simpanUraianDraf(versi, semua, lama, baru) {
+  if (!versi?.draf) throw new Error('Hanya draf pergeseran/perubahan yang bisa diubah. Buat draf dulu di tab Pergeseran.')
+  const peta = new Map(semua.map((u) => [u.id, u]))
+  if (lama) peta.delete(lama.id)
+  const rapi = baru ? rapikanUraian({ ...baru, id: lama?.id || baru.id }) : null
+  if (rapi) peta.set(rapi.id, rapi)
+  const hasil = [...peta.values()]
+  const snp = new Set([lama?.snp, rapi?.snp].filter(Boolean))
+  if (modePratinjau) {
+    hasil.sort((a, c) => (a.no ?? 1e9) - (c.no ?? 1e9) || a.kode_kegiatan.localeCompare(c.kode_kegiatan))
+    cacheUraian.set(versi.id, hasil)
+    const d = drafPratinjau.find((x) => x.id === versi.id); if (d) Object.assign(d, ringkasVersi(hasil))
+    return hasil
+  }
+  const b = writeBatch(db)
+  for (const x of snp) {
+    const butir = hasil.filter((u) => u.snp === x)
+    if (butir.length) b.set(doc(db, 'rkas', versi.id, 'bagian', x), { snp: x, butir })
+    else b.delete(doc(db, 'rkas', versi.id, 'bagian', x))
+  }
+  b.update(doc(db, 'rkas', versi.id), { ...ringkasVersi(hasil), snp: [...new Set(hasil.map((u) => u.snp))], diperbarui: serverTimestamp(), diperbarui_oleh: auth.currentUser.uid })
+  const ket = !rapi ? `menghapus "${lama.uraian}"` : !lama ? `menambah "${rapi.uraian}" Rp ${rapi.jumlah.toLocaleString('id-ID')}` : `mengubah "${rapi.uraian}" Rp ${lama.jumlah.toLocaleString('id-ID')} → Rp ${rapi.jumlah.toLocaleString('id-ID')}`
+  log(b, 'ubah', `Draf ${versi.nama}: ${ket}`, 'rkas', versi.id)
+  await b.commit()
+  hasil.sort((a, c) => (a.no ?? 1e9) - (c.no ?? 1e9) || a.kode_kegiatan.localeCompare(c.kode_kegiatan))
+  cacheUraian.set(versi.id, hasil)
+  return hasil
+}
+
+/** Draf selesai: sudah disahkan di ARKAS → bukan draf lagi dan menjadi versi berlaku */
+export async function tetapkanDraf(versi, semuaVersi, { tanggal } = {}) {
+  if (modePratinjau) { drafPratinjau.forEach((d) => { d.berlaku = d.id === versi.id; if (d.id === versi.id) d.draf = false }); return }
+  const b = writeBatch(db)
+  semuaVersi.filter((v) => v.tahun === versi.tahun && v.berlaku && v.id !== versi.id).forEach((v) => b.update(doc(db, 'rkas', v.id), { berlaku: false }))
+  b.update(doc(db, 'rkas', versi.id), { draf: false, berlaku: true, tanggal_dokumen_iso: tanggal || new Date().toISOString().slice(0, 10), diperbarui: serverTimestamp(), diperbarui_oleh: auth.currentUser.uid })
+  log(b, 'ubah', `Menetapkan draf ${versi.nama} sebagai RKAS berlaku (sudah disahkan di ARKAS)`, 'rkas', versi.id)
+  await b.commit()
 }
 
 /* ---------------- Pergeseran ---------------- */
