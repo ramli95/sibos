@@ -121,3 +121,6 @@ export function tanggalKata(iso) {
   if (!d) return '……'
   return `${NAMA_HARI[d.getDay()]} tanggal ${eja(d.getDate())} bulan ${BULAN[d.getMonth()]} tahun ${eja(d.getFullYear())}`
 }
+
+/** 1250000 → "1.250.000" (pemisah ribuan titik, desimal koma) */
+export const angka = (n, d = 0) => (Number(n) || 0).toLocaleString('id-ID', { maximumFractionDigits: d })

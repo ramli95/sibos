@@ -1,6 +1,7 @@
 <script setup>
 // Dasar Gaji Pegawai: MKG, gaji pokok (tabel PP 5/2024 & Perpres 11/2024), tunjangan & potongan tetap.
 // Bisa diisi satu per satu atau diimpor dari sheet "dB-SKPG" (Jurnal Dana BOS).
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, reactive, computed } from 'vue'
 import { useGaji, namaLengkap } from '@/stores/gaji'
 import { useNotifikasi } from '@/stores/notifikasi'
@@ -157,7 +158,7 @@ async function simpanAturan() {
           <div><label class="label" for="dg-mkg">MKG (tahun)</label><input id="dg-mkg" v-model="f.mkg" type="number" min="0" max="40" class="masukan angka" /></div>
           <div class="sm:col-span-2">
             <label class="label" for="dg-gp">Gaji pokok <span class="font-normal text-slate-400">(kosong = ikut tabel)</span></label>
-            <input id="dg-gp" v-model="f.gaji_pokok" type="number" min="0" class="masukan angka" :placeholder="tabel ? String(tabel.gaji_pokok) : ''" />
+            <InputAngka id="dg-gp" v-model="f.gaji_pokok" class="masukan angka" :placeholder="tabel ? String(tabel.gaji_pokok) : ''" />
             <p v-if="tabel" class="mt-1 text-xs" :class="f.gaji_pokok && Number(f.gaji_pokok) !== tabel.gaji_pokok ? 'text-amber-600' : 'text-emerald-600'">Tabel {{ form.p.status_kepegawaian === 'PNS' ? 'PP 5/2024' : 'Perpres 11/2024' }} MKG {{ tabel.mkg_tabel }}: {{ rupiah(tabel.gaji_pokok) }}</p>
           </div>
         </div>
@@ -166,19 +167,19 @@ async function simpanAturan() {
           <label class="flex cursor-pointer items-center gap-2 text-sm sm:col-span-3"><input v-model="f.tunj_pasangan" type="checkbox" class="h-4 w-4 accent-[#1A56DB]" /> Mendapat tunjangan istri/suami (10%)</label>
           <div><label class="label" for="dg-an">Anak ditunjang (maks. 2)</label><input id="dg-an" v-model="f.anak_tunjangan" type="number" min="0" max="2" class="masukan angka" /></div>
           <div><label class="label" for="dg-jw">Jiwa (beras)</label><input id="dg-jw" v-model="f.jiwa_beras" type="number" min="1" class="masukan angka" /></div>
-          <div><label class="label" for="dg-tf">Tunj. fungsional/umum</label><input id="dg-tf" v-model="f.tj_fungsional" type="number" min="0" class="masukan angka" /></div>
+          <div><label class="label" for="dg-tf">Tunj. fungsional/umum</label><InputAngka id="dg-tf" v-model="f.tj_fungsional" class="masukan angka" /></div>
         </fieldset>
         <fieldset class="grid gap-3 rounded-xl border border-slate-200 p-3 sm:grid-cols-3 dark:border-slate-700">
           <legend class="px-1 text-xs font-semibold text-slate-500">Pajak & potongan tetap</legend>
-          <div><label class="label" for="dg-pph">Tunj. khusus pajak (PPh 21)</label><input id="dg-pph" v-model="f.tj_pph" type="number" min="0" class="masukan angka" /></div>
-          <div><label class="label" for="dg-tp">Taperum</label><input id="dg-tp" v-model="f.taperum" type="number" min="0" class="masukan angka" /></div>
-          <div><label class="label" for="dg-pl">Potongan lain</label><input id="dg-pl" v-model="f.potongan_lain" type="number" min="0" class="masukan angka" /></div>
+          <div><label class="label" for="dg-pph">Tunj. khusus pajak (PPh 21)</label><InputAngka id="dg-pph" v-model="f.tj_pph" class="masukan angka" /></div>
+          <div><label class="label" for="dg-tp">Taperum</label><InputAngka id="dg-tp" v-model="f.taperum" class="masukan angka" /></div>
+          <div><label class="label" for="dg-pl">Potongan lain</label><InputAngka id="dg-pl" v-model="f.potongan_lain" class="masukan angka" /></div>
           <div class="sm:col-span-3"><label class="label" for="dg-kpl">Keterangan potongan lain</label><input id="dg-kpl" v-model="f.ket_potongan_lain" class="masukan" placeholder="mis. Korpri, Askes tambahan" /></div>
         </fieldset>
         <fieldset class="grid gap-3 rounded-xl border border-slate-200 p-3 sm:grid-cols-3 dark:border-slate-700">
           <legend class="px-1 text-xs font-semibold text-slate-500">Untuk SKPG</legend>
           <div><label class="label" for="dg-tmt">TMT tugas di sekolah</label><input id="dg-tmt" v-model="f.tmt_tugas" type="date" class="masukan" /></div>
-          <div><label class="label" for="dg-tk">Tunj. kinerja</label><input id="dg-tk" v-model="f.tj_kinerja" type="number" min="0" class="masukan angka" /></div>
+          <div><label class="label" for="dg-tk">Tunj. kinerja</label><InputAngka id="dg-tk" v-model="f.tj_kinerja" class="masukan angka" /></div>
           <div><label class="label" for="dg-tpg">PPh TPG (%)</label><input id="dg-tpg" v-model="f.tarif_pph_tpg" type="number" min="0" max="15" step="0.5" class="masukan angka" :disabled="!form.p.terima_tpg" /></div>
           <p class="text-xs text-slate-500 sm:col-span-3">{{ form.p.terima_tpg ? 'Penerima TPG: tunjangan profesi = gaji pokok − PPh (gol. III 5%, gol. IV 15%).' : 'Tidak menerima TPG (ubah di Data Pegawai).' }}</p>
         </fieldset>
@@ -225,7 +226,7 @@ async function simpanAturan() {
     <!-- Aturan -->
     <Laci v-if="aturanBuka" judul="Aturan perhitungan gaji" subjudul="Berlaku untuk semua pegawai" ikon="Percent" lebar="max-w-xl" @tutup="aturanBuka = false">
       <div class="grid gap-3 p-5 sm:grid-cols-2">
-        <div><label class="label" for="at-br">Harga beras per kg</label><input id="at-br" v-model="at.harga_beras" type="number" class="masukan angka" /></div>
+        <div><label class="label" for="at-br">Harga beras per kg</label><InputAngka id="at-br" v-model="at.harga_beras" class="masukan angka" /></div>
         <div><label class="label" for="at-kg">Kg per jiwa</label><input id="at-kg" v-model="at.kg_per_jiwa" type="number" class="masukan angka" /></div>
         <div><label class="label" for="at-is">Tunj. istri/suami (%)</label><input id="at-is" v-model="at.istri" type="number" step="0.01" class="masukan angka" /></div>
         <div><label class="label" for="at-ak">Tunj. anak per anak (%)</label><input id="at-ak" v-model="at.anak" type="number" step="0.01" class="masukan angka" /></div>

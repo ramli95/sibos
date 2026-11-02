@@ -1,6 +1,7 @@
 <script setup>
 // Berita Acara Serah Terima Bendahara: keadaan kas, pajak belum disetor, transaksi belum lunas/lengkap,
 // dan arsip yang diserahkan per tanggal serah terima. Disimpan di ba_serah_terima, dicetak F4.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { modePratinjau } from '@/services/firebase'
 import { muatPegawai } from '@/services/master'
@@ -129,7 +130,7 @@ const tambahArsip = () => f.arsip.push({ nama: '', jumlah: '', ada: true })
           <div><label class="label" for="ba-no">Nomor</label><input id="ba-no" v-model="f.nomor" class="masukan" placeholder="400.3.11/…/UPT SPF SMP.19/XI/2026" /></div>
           <div class="sm:col-span-2"><label class="label" for="ba-dasar">Dasar (opsional)</label><input id="ba-dasar" v-model="f.dasar" class="masukan" placeholder="Surat Keputusan Kepala Sekolah Nomor … tanggal …" /></div>
           <div><label class="label" for="ba-tempat">Tempat</label><input id="ba-tempat" v-model="f.tempat" class="masukan" placeholder="UPT SPF SMP Negeri 19 Makassar" /></div>
-          <div><label class="label" for="ba-koran">Saldo rekening koran (opsional)</label><input id="ba-koran" v-model.number="f.saldo_koran" type="number" min="0" class="masukan angka" /></div>
+          <div><label class="label" for="ba-koran">Saldo rekening koran (opsional)</label><InputAngka id="ba-koran" v-model="f.saldo_koran" class="masukan angka" /></div>
         </div>
         <p v-if="selisihKoran" class="flex gap-2 rounded-xl bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
           <Ikon nama="TriangleAlert" :ukuran="15" class="shrink-0" /> Selisih dengan BKU {{ rupiah(selisihKoran) }} — jelaskan di catatan (mis. bunga/biaya bank belum dicatat).</p>

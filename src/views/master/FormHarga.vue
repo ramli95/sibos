@@ -1,4 +1,5 @@
 <script setup>
+import InputAngka from '@/components/InputAngka.vue'
 import { reactive, computed, ref } from 'vue'
 import { KATEGORI } from '@/utils/arkas'
 import { rupiah, persen } from '@/utils/format'
@@ -44,7 +45,7 @@ function simpan() { if (sah.value) emit('simpan', { ...f, nama_item: f.nama_item
       <div><label class="label" for="sp">Spesifikasi</label><input id="sp" v-model="f.spesifikasi" class="masukan" placeholder="mis. 75 gsm, isi 500 lembar" /></div>
       <div class="grid gap-4 sm:grid-cols-3">
         <div><label class="label" for="sa">Satuan <span class="text-merah">*</span></label><input id="sa" v-model="f.satuan" class="masukan" /></div>
-        <div><label class="label" for="hg">Harga satuan <span class="text-merah">*</span></label><input id="hg" v-model.number="f.harga" type="number" min="0" class="masukan angka" /><p class="mt-1 text-xs text-slate-500">{{ rupiah(f.harga) }}</p></div>
+        <div><label class="label" for="hg">Harga satuan <span class="text-merah">*</span></label><InputAngka id="hg" v-model="f.harga" class="masukan angka" /><p class="mt-1 text-xs text-slate-500">{{ rupiah(f.harga) }}</p></div>
         <div><label class="label" for="th">Tahun</label><input id="th" v-model.number="f.tahun" type="number" class="masukan angka" /></div>
       </div>
       <p v-if="ganda" class="flex gap-2 rounded-xl bg-rose-50 p-2.5 text-xs text-rose-700 dark:bg-rose-950/30 dark:text-rose-300"><Ikon nama="CircleAlert" :ukuran="14" /> Item dengan nama, satuan dan harga yang sama sudah ada.</p>

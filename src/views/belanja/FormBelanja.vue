@@ -1,4 +1,5 @@
 <script setup>
+import InputAngka from '@/components/InputAngka.vue'
 import { peringatanPajak } from '@/utils/pajak'
 import { WARNA_PAJAK } from '@/config/pajak'
 // Formulir belanja barang/jasa (Non-SIPLah & SIPLah). Satu formulir, boleh disimpan sebagian:
@@ -360,7 +361,7 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
           <p class="flex items-center gap-2 text-sm font-semibold"><Ikon nama="Handshake" :ukuran="16" class="text-biru" /> Harga penawaran (sebelum negosiasi)</p>
           <div v-for="(it, i) in f.item" :key="it.id" class="grid items-center gap-2 sm:grid-cols-[1fr_10rem_10rem]">
             <span class="truncate text-sm">{{ it.nama }}</span>
-            <input v-model.number="f.item[i].harga_penawaran" type="number" class="masukan angka py-2" :aria-label="`Harga penawaran ${it.nama}`" />
+            <InputAngka v-model="f.item[i].harga_penawaran" class="masukan angka py-2" :aria-label="`Harga penawaran ${it.nama}`" />
             <span class="angka text-right text-sm text-slate-500">nego {{ rupiah(items[i].harga) }}</span>
           </div>
         </div>
@@ -371,7 +372,7 @@ const pratinjau = computed(() => rapikanBelanja({ ...f, item: items.value }))
           <div v-for="(p, i) in f.pembanding" :key="i" class="grid gap-2 sm:grid-cols-[1fr_1fr_9rem_auto]">
             <input v-model="p.nama" class="masukan py-2" placeholder="Nama calon penyedia" />
             <input v-model="p.alamat" class="masukan py-2" placeholder="Alamat" />
-            <input v-model.number="p.harga" type="number" class="masukan angka py-2" placeholder="Total harga" />
+            <InputAngka v-model="p.harga" class="masukan angka py-2" placeholder="Total harga" />
             <button type="button" class="tombol px-2 text-rose-600" aria-label="Hapus pembanding" @click="f.pembanding.splice(i, 1)"><Ikon nama="Trash2" :ukuran="16" /></button>
           </div>
           <p class="text-xs text-slate-500">Penyedia terpilih otomatis menjadi kolom pertama.</p>

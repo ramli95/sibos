@@ -1,6 +1,7 @@
 <script setup>
 // Migrasi transaksi tahun berjalan dari workbook Jurnal Dana BOS (.xlsx):
 // buku kas (SIMAKDA/X ARKAS) → belanja Lunas + penerimaan; 📈 TAX → pajak & setoran; dB_Trima/dB_Honor → penerima honor.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, reactive, computed } from 'vue'
 import { useKas } from '@/stores/kas'
 import { useBelanja } from '@/stores/belanja'
@@ -201,7 +202,7 @@ const pratinjau = computed(() => barisTrx.value.slice(0, 5))
           <div v-for="(p, i) in penerimaan" :key="i" class="grid grid-cols-2 gap-2 rounded-xl border border-slate-200 p-2.5 sm:grid-cols-[9rem_minmax(0,1fr)_10rem_7rem_9rem_auto] dark:border-slate-700">
             <input v-model="p.tanggal" type="date" class="masukan py-1.5" aria-label="Tanggal" />
             <input v-model="p.uraian" class="masukan py-1.5" aria-label="Uraian" />
-            <input v-model.number="p.nilai" type="number" class="masukan angka py-1.5" aria-label="Nilai" />
+            <InputAngka v-model="p.nilai" class="masukan angka py-1.5" aria-label="Nilai" />
             <input v-model="p.bnu" class="masukan kode py-1.5" placeholder="BNU" aria-label="BNU" />
             <select v-model="p.jenis" class="masukan py-1.5" aria-label="Jenis"><option value="saldo_awal">Saldo awal</option><option value="terima_dana">Dana BOSP</option><option value="bunga">Bunga</option><option value="pajak_bunga">Pajak bunga</option><option value="biaya_bank">Biaya bank</option></select>
             <button class="rounded-lg p-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40" aria-label="Hapus baris" @click="penerimaan.splice(i, 1)"><Ikon nama="Trash2" :ukuran="16" /></button>

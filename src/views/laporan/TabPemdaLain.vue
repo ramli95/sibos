@@ -2,6 +2,7 @@
 // Laporan versi Pemda yang tersisa (Fase 7): BKU per nota + terbilang, Buku Simpanan Bank, SPJ Belanja BOS,
 // Surat Tanda Setoran (STS), dan SPTJM Pemda per semester/tahun (Permendagri 3/2023 Pasal 55–60).
 // Format mengikuti struktur umum dokumen Pemda; bila Dinas/BPKAD memberi format resmi, susunan kolom bisa disesuaikan.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, reactive, computed } from 'vue'
 import { useKas } from '@/stores/kas'
 import { useBelanja } from '@/stores/belanja'
@@ -168,7 +169,7 @@ const dokumen = computed(() => [
         <div v-for="(r, i) in sts.baris" :key="i" class="flex flex-wrap gap-2">
           <input v-model="r.kode" class="masukan kode w-32 py-1.5 text-xs" placeholder="Kode rek." :aria-label="`Kode rekening ${i + 1}`" />
           <input v-model="r.uraian" class="masukan min-w-[8rem] flex-1 py-1.5 text-sm" placeholder="Uraian" :aria-label="`Uraian ${i + 1}`" />
-          <input v-model.number="r.nilai" type="number" min="0" class="masukan angka w-32 py-1.5 text-sm" :aria-label="`Jumlah ${i + 1}`" />
+          <InputAngka v-model="r.nilai" class="masukan angka w-32 py-1.5 text-sm" :aria-label="`Jumlah ${i + 1}`" />
           <button class="text-slate-400 hover:text-rose-600" :aria-label="`Hapus baris ${i + 1}`" @click="sts.baris.splice(i, 1)"><Ikon nama="Trash2" :ukuran="16" /></button>
         </div>
         <div class="flex flex-wrap gap-2">

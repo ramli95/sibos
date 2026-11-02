@@ -27,15 +27,16 @@ const warna = { info: 'bg-blue-100 text-biru dark:bg-blue-900/50 dark:text-blue-
       </span>
     </button>
 
-    <div v-if="buka" class="kartu absolute right-0 z-40 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden">
+    <!-- HP: panel penuh selebar layar (kiri-kanan seimbang); desktop: menempel di kanan tombol -->
+    <div v-if="buka" class="kartu fixed inset-x-3 top-[4.25rem] z-40 overflow-hidden shadow-xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-[22rem]">
       <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">
         <span class="flex items-center gap-2 text-sm font-bold"><Ikon nama="Bell" :ukuran="16" class="text-biru" /> Notifikasi</span>
         <button class="text-xs font-semibold text-biru hover:underline" @click="notif.tandaiSemua()">Tandai semua dibaca</button>
       </div>
-      <ul class="max-h-80 overflow-y-auto">
+      <ul class="max-h-[60dvh] overflow-y-auto sm:max-h-80">
         <li v-for="n in notif.daftar.slice(0, 8)" :key="n.id" :class="['flex cursor-pointer gap-3 px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/40', !n.dibaca && 'bg-blue-50/60 dark:bg-blue-950/30']" @click="pilih(n)">
           <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-xl', warna[n.jenis] || warna.info]"><Ikon :nama="n.ikon || 'Bell'" :ukuran="17" /></span>
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1">
             <p class="font-semibold">{{ n.judul }}</p>
             <p class="text-slate-500 dark:text-slate-400">{{ n.isi }}</p>
             <p class="mt-0.5 text-xs text-slate-400">{{ formatWaktuRelatif(n.waktu) }}</p>

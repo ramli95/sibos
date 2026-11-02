@@ -1,6 +1,7 @@
 <script setup>
 // Formulir satu baris inventaris (KIB atau ekstrakomptabel). Kode barang dipilih dari Referensi Barang Modal ARKAS;
 // nomor register diusulkan otomatis per kode barang.
+import InputAngka from '@/components/InputAngka.vue'
 import { reactive, ref, computed, onMounted, watch } from 'vue'
 import { KELAS_BARANG, GOLONGAN_KIB, KONDISI } from '@/config/aset'
 import { muatRefBarangModal } from '@/services/aset'
@@ -86,9 +87,9 @@ function simpan() {
         </div>
         <div><label class="label" for="fa-spek">Spesifikasi / ukuran</label><input id="fa-spek" v-model="f.spesifikasi" class="masukan" /></div>
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div><label class="label" for="fa-jml">Jumlah <span class="text-merah">*</span></label><input id="fa-jml" v-model.number="f.jumlah" type="number" min="1" class="masukan angka" /></div>
+          <div><label class="label" for="fa-jml">Jumlah <span class="text-merah">*</span></label><InputAngka id="fa-jml" v-model="f.jumlah" class="masukan angka" /></div>
           <div><label class="label" for="fa-sat">Satuan</label><input id="fa-sat" v-model="f.satuan" class="masukan" /></div>
-          <div class="col-span-2"><label class="label" for="fa-harga">Harga satuan (Rp)</label><input id="fa-harga" v-model.number="f.harga_satuan" type="number" min="0" class="masukan angka" /></div>
+          <div class="col-span-2"><label class="label" for="fa-harga">Harga satuan (Rp)</label><InputAngka id="fa-harga" v-model="f.harga_satuan" class="masukan angka" /></div>
         </div>
         <p class="text-sm">Nilai perolehan: <b class="angka">{{ rupiah(nilai) }}</b></p>
       </section>

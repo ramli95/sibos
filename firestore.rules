@@ -274,6 +274,25 @@ service cloud.firestore {
       allow update: if admin() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid;
     }
 
+    // ---------- Kas Lain & Iuran (di luar Dana BOSP) ----------
+    // Pos kas, buku kas per pos, tagihan per orang + setoran, utang piutang. Kepala Sekolah ikut melihat.
+    match /kas_lain_pos/{id} {
+      allow read: if admin() || kepsek();
+      allow write: if admin();
+    }
+    match /kas_lain_transaksi/{id} {
+      allow read: if admin() || kepsek();
+      allow write: if admin();
+    }
+    match /kas_lain_tagihan/{id} {
+      allow read: if admin() || kepsek();
+      allow write: if admin();
+    }
+    match /utang_piutang/{id} {
+      allow read: if admin() || kepsek();
+      allow write: if admin();
+    }
+
     // ---------- rekonsiliasi (Fase 8) ----------
     // Saldo akhir bulan menurut ARKAS & SIMAKDA yang dicatat Bendahara untuk dicocokkan dengan BKU SIBOS
     match /rekonsiliasi/{id} {

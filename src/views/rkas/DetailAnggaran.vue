@@ -2,6 +2,7 @@
 // Pop-up "Isi Detail Anggaran Kegiatan" seperti ARKAS: kegiatan, rekening belanja, uraian, harga satuan,
 // dan rencana per bulan (jumlah + satuan). Bila sudah ada belanja, tiap bulan menampilkan "Dibelanjakan"
 // dan anggaran bulan itu tidak boleh di bawah yang sudah dibelanjakan.
+import InputAngka from '@/components/InputAngka.vue'
 import { reactive, ref, computed } from 'vue'
 import { useRkas } from '@/stores/rkas'
 import { kategoriRekening, KATEGORI } from '@/utils/arkas'
@@ -145,7 +146,7 @@ const kat = computed(() => (f.kode_rekening ? KATEGORI[kategoriRekening(f.kode_r
           <div class="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
             <div class="grid gap-3 sm:grid-cols-[1fr_14rem]">
               <div><label class="label" for="da-ur">Uraian</label><input id="da-ur" v-model="f.uraian" :disabled="terkunci" class="masukan" placeholder="Apa detail barang atau jasanya? (mis. papan tulis, honor narasumber)" /></div>
-              <div><label class="label" for="da-hg">Harga Satuan yang Dianggarkan</label><input id="da-hg" v-model.number="f.harga" type="number" min="0" class="masukan angka" placeholder="Berapa perkiraan harganya?" /></div>
+              <div><label class="label" for="da-hg">Harga Satuan yang Dianggarkan</label><InputAngka id="da-hg" v-model="f.harga" class="masukan angka" placeholder="Berapa perkiraan harganya?" /></div>
             </div>
             <div class="mt-4 flex flex-wrap items-end justify-between gap-2 border-b border-slate-200 pb-2 dark:border-slate-700">
               <p class="font-semibold">Dianggarkan untuk Bulan</p>
@@ -162,7 +163,7 @@ const kat = computed(() => (f.kode_rekening ? KATEGORI[kategoriRekening(f.kode_r
                 </div>
                 <p class="mt-2 text-xs text-slate-500">Dianggarkan</p>
                 <div class="mt-1 grid grid-cols-[5.5rem_1fr] gap-2">
-                  <input v-model.number="b.vol" type="number" min="0" step="any" class="masukan angka py-2" :aria-label="`Jumlah ${NAMA_BULAN[b.i]}`" placeholder="Jumlah" />
+                  <InputAngka v-model="b.vol" class="masukan angka py-2" :aria-label="`Jumlah ${NAMA_BULAN[b.i]}`" placeholder="Jumlah" />
                   <input v-model="f.satuan" class="masukan py-2" placeholder="Satuan" :aria-label="`Satuan ${NAMA_BULAN[b.i]}`" />
                 </div>
                 <template v-if="props.dibelanjakan[b.i]">

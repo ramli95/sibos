@@ -211,6 +211,25 @@ export const TUR = {
       { pilih: ['[data-tur="rekon-input"]'], judul: 'Tandai sudah diinput', isi: 'Setelah menyalin transaksi ke ARKAS/SIMAKDA, ketuk kotak centang per transaksi atau tombol "Semua". Transaksi yang belum ditandai muncul di Dasbor → Perlu perhatian.' },
     ],
   },
+  kaslain: {
+    judul: 'Kas Lain & Iuran', ikon: 'Vault', warna: '#E3A414', rute: '/kas-lain/ringkasan', kelompok: 'Keuangan', peran: ['bendahara', 'kepala_sekolah'],
+    ket: 'Arisan, dana sosial, zakat, potongan sertifikasi, komite, utang piutang.',
+    langkah: [
+      { pilih: ['[data-tur="kaslain-pasang"]', '[data-tur="kaslain-stat"]'], judul: 'Di luar Dana BOSP', isi: 'Catat uang lain yang Anda kelola. Mulai dengan memasang pos bawaan (Arisan, Dana Sosial, Zakat Profesi, Potongan Sertifikasi, Komite) — bisa diubah dan ditambah.' },
+      { pilih: ['[data-tur="kaslain-pos"]'], judul: 'Saldo per pos', isi: 'Setiap pos punya buku kas sendiri. Ketuk kartu untuk membuka bukunya, mengatur nominal bawaan dan saldo awal.' },
+      { pilih: ['[data-tur="kaslain-tab-tagihan"]'], judul: 'Tagihan & setoran', isi: 'Buat tagihan untuk banyak pegawai sekaligus (nominal boleh berbeda per orang). Catat setoran → kwitansi F4 dua rangkap & pemasukan pos tercatat otomatis.' },
+      { pilih: ['[data-tur="kaslain-tab-per-orang"]'], judul: 'Setoran per orang', isi: 'Riwayat tagihan dan setoran satu orang lintas pos. Cetak daftar setorannya atau kirim rincian yang belum lunas lewat WhatsApp.' },
+      { pilih: ['[data-tur="kaslain-tab-utang"]'], judul: 'Utang piutang', isi: 'Piutang = orang lain meminjam; Utang = kas meminjam. Pembayaran bisa dicicil, ada kwitansi dan pengingat WhatsApp.' },
+      { pilih: ['[data-tur="kaslain-tab-laporan"]'], judul: 'Laporan', isi: 'Rekap semua pos per bulan/tahun, buku kas per pos, dan rekap setoran 12 bulan per orang — cetak F4 atau Excel.' },
+    ],
+  },
+  referensiarkas: {
+    judul: 'Kode Referensi ARKAS', ikon: 'BookMarked', warna: '#1A62E8', rute: '/referensi', kelompok: 'Master',
+    ket: 'Kode kegiatan, barang & jasa, dan barang modal resmi ARKAS.',
+    langkah: [
+      { pilih: ['[data-tur="referensi-arkas"]'], judul: 'Kode resmi ARKAS 2025', isi: 'Kode Kegiatan, Barang & Jasa (±11 ribu), dan Barang Modal dari berkas Referensi ARKAS. Cari dengan beberapa kata, saring per SNP atau kode rekening, ketuk kode untuk menyalin.' },
+    ],
+  },
   laporanlain: {
     judul: 'Laporan Pemda lainnya', ikon: 'Files', warna: '#1A62E8', rute: '/laporan/pemda-lain', kelompok: 'Laporan',
     ket: 'BKU per nota, Buku Simpanan Bank, SPJ Belanja, STS, SPTJM Pemda.',

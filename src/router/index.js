@@ -55,6 +55,8 @@ const routes = [
       { path: 'informasi/:tab', component: () => import('@/views/informasi/Informasi.vue'), meta: { judul: 'Papan Informasi', ikon: 'Megaphone' } },
       { path: 'whatsapp', redirect: '/whatsapp/kirim' },
       { path: 'whatsapp/:tab', component: () => import('@/views/whatsapp/WhatsApp.vue'), meta: { judul: 'WhatsApp', ikon: 'MessageCircle', peran: ['bendahara'] } },
+      { path: 'kas-lain', redirect: '/kas-lain/ringkasan' },
+      { path: 'kas-lain/:tab', component: () => import('@/views/kaslain/KasLain.vue'), meta: { judul: 'Kas Lain & Iuran', ikon: 'Vault', peran: ['bendahara', 'kepala_sekolah'] } },
       { path: 'keuangan', redirect: '/keuangan/bulanan' },
       { path: 'keuangan/:tab', component: () => import('@/views/keuangan/Keuangan.vue'), meta: { judul: 'Keuangan Bendahara', ikon: 'PiggyBank', peran: ['bendahara', 'kepala_sekolah'] } },
       { path: 'notifikasi', component: () => import('@/views/Notifikasi.vue'), meta: { judul: 'Notifikasi', ikon: 'Bell' } },

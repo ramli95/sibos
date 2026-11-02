@@ -1,6 +1,7 @@
 <script setup>
 // Tutup buku bulanan: daftar periksa → rekonsiliasi ARKAS–SIMAKDA–bank → tutup → cetak laporan F4 → arsip PDF ke Drive.
 // Tanpa kunci periode: Bendahara tetap bisa membuka kembali; semuanya tercatat di Log Aktivitas.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, computed, watch } from 'vue'
 import { useKas } from '@/stores/kas'
 import { useBelanja } from '@/stores/belanja'
@@ -153,9 +154,9 @@ async function arsipkan() {
 
       <section class="kartu space-y-4 p-4 sm:p-5">
         <h3 class="flex items-center gap-2 font-bold"><span class="grid h-8 w-8 place-items-center rounded-lg ikon-chip-tosca"><Ikon nama="Scale" :ukuran="17" /></span> Rekonsiliasi akhir bulan</h3>
-        <div><label class="label" for="tb-arkas">Saldo ARKAS per {{ tanggalPendek(akhir) }}</label><input id="tb-arkas" v-model="isian.saldo_arkas" type="number" class="masukan angka" :disabled="!auth.isAdmin" />
+        <div><label class="label" for="tb-arkas">Saldo ARKAS per {{ tanggalPendek(akhir) }}</label><InputAngka id="tb-arkas" v-model="isian.saldo_arkas" class="masukan angka" :disabled="!auth.isAdmin" />
           <p v-if="selisih(isian.saldo_arkas) != null" :class="['mt-1 text-xs font-semibold', selisih(isian.saldo_arkas) ? 'text-rose-600' : 'text-emerald-600']">{{ selisih(isian.saldo_arkas) ? `Selisih ${rupiah(selisih(isian.saldo_arkas))}` : 'Sama dengan SIBOS' }}</p></div>
-        <div><label class="label" for="tb-sim">Saldo SIMAKDA per {{ tanggalPendek(akhir) }}</label><input id="tb-sim" v-model="isian.saldo_simakda" type="number" class="masukan angka" :disabled="!auth.isAdmin" />
+        <div><label class="label" for="tb-sim">Saldo SIMAKDA per {{ tanggalPendek(akhir) }}</label><InputAngka id="tb-sim" v-model="isian.saldo_simakda" class="masukan angka" :disabled="!auth.isAdmin" />
           <p v-if="selisih(isian.saldo_simakda) != null" :class="['mt-1 text-xs font-semibold', selisih(isian.saldo_simakda) ? 'text-rose-600' : 'text-emerald-600']">{{ selisih(isian.saldo_simakda) ? `Selisih ${rupiah(selisih(isian.saldo_simakda))}` : 'Sama dengan SIBOS' }}</p></div>
         <div class="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800/50">
           <p class="flex justify-between"><span class="text-slate-500">Saldo bank SIBOS</span><b class="angka">{{ rupiah(r.saldo_bank) }}</b></p>

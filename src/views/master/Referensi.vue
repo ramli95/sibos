@@ -10,6 +10,14 @@ import { normalJudul } from '@/config/impor'
 import { normalBool } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
+import KodeArkas from './KodeArkas.vue'
+
+// Kode referensi resmi ARKAS (berkas statis, hanya-baca)
+const RESMI = [
+  { kunci: 'arkas-kegiatan', singkat: 'Kode Kegiatan', ikon: 'ClipboardList', chip: 'ikon-chip' },
+  { kunci: 'arkas-barang-jasa', singkat: 'Barang & Jasa', ikon: 'ShoppingBasket', chip: 'ikon-chip-tosca' },
+  { kunci: 'arkas-barang-modal', singkat: 'Barang Modal', ikon: 'Package', chip: 'ikon-chip-kuning' },
+]
 
 const auth = useAuth()
 const notif = useNotifikasi()
@@ -22,7 +30,8 @@ const cari = ref('')
 const menyimpan = ref(false)
 const status = ref({})
 
-const def = computed(() => JENIS_REFERENSI.find((j) => j.kunci === aktif.value))
+const resmi = computed(() => aktif.value.startsWith('arkas-'))
+const def = computed(() => JENIS_REFERENSI.find((j) => j.kunci === aktif.value) || JENIS_REFERENSI[0])
 const adaBelum = computed(() => Object.values(status.value).some((s) => s === false))
 
 async function muat(segar = false) {
@@ -31,7 +40,7 @@ async function muat(segar = false) {
   try { data.value = await muatReferensi(aktif.value, { segar }); status.value[aktif.value] = data.value.tersimpan }
   catch (e) { notif.kabari(e.message, 'galat') } finally { memuat.value = false }
 }
-watch(aktif, () => muat())
+watch(aktif, (v) => { if (!v.startsWith('arkas-')) muat() })
 onMounted(async () => {
   await muat()
   // periksa status semua tabel untuk penanda "belum dipasang"
@@ -122,9 +131,18 @@ async function impor(e) {
         <span class="flex-1">{{ j.singkat }}</span>
         <span v-if="status[j.kunci] === false" class="hidden h-2 w-2 rounded-full bg-amber-500 lg:block" title="Belum dipasang" />
       </button>
+      <p class="hidden px-3 pb-1 pt-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 lg:block">Kode resmi ARKAS 2025</p>
+      <span class="mx-1 w-px shrink-0 self-stretch bg-slate-200 dark:bg-slate-700 lg:hidden" />
+      <button v-for="j in RESMI" :key="j.kunci" :data-tur="j.kunci === 'arkas-kegiatan' ? 'referensi-arkas' : undefined" @click="aktif = j.kunci"
+              :class="['flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition',
+                       aktif === j.kunci ? 'bg-biru/10 text-biru dark:bg-biru/20 dark:text-blue-300' : 'hover:bg-slate-100 dark:hover:bg-slate-800']">
+        <span :class="['grid h-8 w-8 shrink-0 place-items-center rounded-lg', j.chip]"><Ikon :nama="j.ikon" :ukuran="16" /></span>
+        <span class="flex-1">{{ j.singkat }}</span>
+      </button>
     </nav>
 
-    <div class="min-w-0 space-y-4">
+    <KodeArkas v-if="resmi" :jenis="aktif" class="min-w-0" />
+    <div v-else class="min-w-0 space-y-4">
       <div v-if="adaBelum && auth.isAdmin" class="flex flex-wrap items-center gap-3 rounded-2xl bg-amber-50 p-4 dark:bg-amber-950/30">
         <span class="grid h-10 w-10 place-items-center rounded-xl ikon-chip-peringatan"><Ikon nama="Sparkles" :ukuran="20" /></span>
         <p class="min-w-0 flex-1 text-sm"><b>Data awal referensi belum dipasang.</b> Pasang sekali untuk menyimpan isi bawaan (SNP, komponen Pasal 42, kategori, akun SIMAKDA, pajak, satuan, sumber dana) ke database.</p>

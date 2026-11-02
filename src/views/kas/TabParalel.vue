@@ -1,6 +1,7 @@
 <script setup>
 // Masa uji paralel: angka SIBOS dibandingkan per bulan dengan ARKAS, SIMAKDA dan rekening koran.
 // Selesai bila saldo bank Semester I sama dengan ARKAS & SIMAKDA.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, computed } from 'vue'
 import { useKas } from '@/stores/kas'
 import { useAuth } from '@/stores/auth'
@@ -94,8 +95,8 @@ async function simpan() {
     <div v-if="ubah" class="fixed inset-0 z-50 grid place-items-end bg-slate-900/40 p-0 sm:place-items-center sm:p-4" @click.self="ubah = null">
       <div class="kartu w-full max-w-sm space-y-3 rounded-b-none p-5 sm:rounded-b-2xl">
         <h3 class="flex items-center gap-2 font-bold"><Ikon nama="Pencil" :ukuran="17" class="text-biru" /> Saldo {{ NAMA_BULAN[ubah.m] }} menurut aplikasi lain</h3>
-        <div><label class="label" for="up-arkas">ARKAS</label><input id="up-arkas" v-model="ubah.arkas" type="number" class="masukan angka" /></div>
-        <div><label class="label" for="up-sim">SIMAKDA</label><input id="up-sim" v-model="ubah.simakda" type="number" class="masukan angka" /></div>
+        <div><label class="label" for="up-arkas">ARKAS</label><InputAngka id="up-arkas" v-model="ubah.arkas" class="masukan angka" /></div>
+        <div><label class="label" for="up-sim">SIMAKDA</label><InputAngka id="up-sim" v-model="ubah.simakda" class="masukan angka" /></div>
         <div class="flex gap-2"><button class="tombol-utama flex-1" @click="simpan"><Ikon nama="Save" :ukuran="16" /> Simpan</button><button class="tombol-garis" @click="ubah = null">Batal</button></div>
       </div>
     </div>

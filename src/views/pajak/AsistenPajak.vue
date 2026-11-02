@@ -1,6 +1,7 @@
 <script setup>
 // Asisten Pajak: menjelaskan pajak satu transaksi menurut tabel aturan, lalu Bendahara menetapkan
 // (ikut aturan) atau menyesuaikan nilainya secara manual.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, computed } from 'vue'
 import { useBelanja } from '@/stores/belanja'
 import { useAuth } from '@/stores/auth'
@@ -89,9 +90,9 @@ const hitungUlang = (p) => { if (p.tarif !== '' && p.tarif != null) p.nilai = Ma
         <h3 class="text-sm font-bold">Sesuaikan manual</h3>
         <div v-for="(p, i) in manual" :key="i" class="grid grid-cols-2 gap-2 rounded-xl border border-slate-200 p-2.5 sm:grid-cols-[7rem_minmax(0,1fr)_5rem_minmax(0,1fr)_auto] dark:border-slate-700">
           <select v-model="p.jenis" class="masukan py-1.5" aria-label="Jenis pajak"><option v-for="j in ['PPN', 'PPh 21', 'PPh 22', 'PPh 23', 'PPh 4(2)']" :key="j">{{ j }}</option></select>
-          <label class="text-[11px] text-slate-500">DPP<input v-model.number="p.dasar" type="number" class="masukan angka py-1.5" @input="hitungUlang(p)" /></label>
+          <label class="text-[11px] text-slate-500">DPP<InputAngka v-model="p.dasar" class="masukan angka py-1.5" @update:model-value="hitungUlang(p)" /></label>
           <label class="text-[11px] text-slate-500">Tarif %<input v-model="p.tarif" type="number" step="any" class="masukan angka py-1.5" @input="hitungUlang(p)" /></label>
-          <label class="text-[11px] text-slate-500">Nilai<input v-model.number="p.nilai" type="number" class="masukan angka py-1.5" /></label>
+          <label class="text-[11px] text-slate-500">Nilai<InputAngka v-model="p.nilai" class="masukan angka py-1.5" /></label>
           <button class="self-end rounded-lg p-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40" aria-label="Hapus baris" @click="manual.splice(i, 1)"><Ikon nama="Trash2" :ukuran="16" /></button>
         </div>
         <button class="tombol-garis" @click="tambahBaris"><Ikon nama="Plus" :ukuran="16" class="text-biru" /> Tambah pajak</button>

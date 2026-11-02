@@ -1,6 +1,7 @@
 <script setup>
 // Buku catatan sederhana (Fase 7) untuk Catatan Kas Sekolah dan Catatan Pribadi Bendahara.
 // Setiap jenis punya efek +1 / −1 / 0 terhadap saldo; daftar per tahun, cari, ubah, hapus, Excel, cetak.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
 import { muatSemua, simpanSatu, hapusSatu, muatCatatanPribadi, simpanCatatanPribadi, hapusCatatanPribadi } from '@/services/catatan'
 import { useNotifikasi } from '@/stores/notifikasi'
@@ -131,7 +132,7 @@ async function excel() {
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div><label class="label" for="c-tgl">Tanggal</label><input id="c-tgl" v-model="f.tanggal" type="date" class="masukan" required /></div>
-            <div><label class="label" for="c-nilai">Nilai (Rp)</label><input id="c-nilai" v-model.number="f.nilai" type="number" min="0" class="masukan angka" /></div>
+            <div><label class="label" for="c-nilai">Nilai (Rp)</label><InputAngka id="c-nilai" v-model="f.nilai" class="masukan angka" /></div>
           </div>
           <div><label class="label" for="c-uraian">Uraian</label><input id="c-uraian" v-model="f.uraian" class="masukan" required /></div>
           <div class="grid grid-cols-2 gap-3">

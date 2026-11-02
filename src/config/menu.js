@@ -78,6 +78,17 @@ export const MENU = [
     ],
   },
   {
+    judul: 'Kas Lain & Iuran', ikon: 'Vault', warna: 'text-kuning', fase: 9, peran: ['bendahara', 'kepala_sekolah'],
+    anak: [
+      { judul: 'Ringkasan', ikon: 'LayoutDashboard', ke: '/kas-lain/ringkasan', fase: 9 },
+      { judul: 'Tagihan & Setoran', ikon: 'ListTodo', ke: '/kas-lain/tagihan', fase: 9 },
+      { judul: 'Setoran per Orang', ikon: 'Contact', ke: '/kas-lain/per-orang', fase: 9 },
+      { judul: 'Buku Kas per Pos', ikon: 'WalletCards', ke: '/kas-lain/pos', fase: 9 },
+      { judul: 'Utang Piutang', ikon: 'HandCoins', ke: '/kas-lain/utang', fase: 9 },
+      { judul: 'Laporan', ikon: 'FileBarChart', ke: '/kas-lain/laporan', fase: 9 },
+    ],
+  },
+  {
     judul: 'Barang & Aset', ikon: 'Boxes', warna: 'text-[#5FD3C0]', fase: 5, peran: ['bendahara', 'pengurus_barang', 'kepala_sekolah', 'tim_bos'],
     anak: [
       { judul: 'Barang dari Belanja', ikon: 'PackageSearch', ke: '/barang/klasifikasi', fase: 5 },
@@ -171,6 +182,15 @@ export const TAB_WA = [
 ]
 
 // Tab Keuangan Bendahara (rute /keuangan/:tab) — Fase 7
+export const TAB_KAS_LAIN = [
+  { kunci: 'ringkasan', judul: 'Ringkasan', ikon: 'LayoutDashboard' },
+  { kunci: 'tagihan', judul: 'Tagihan & Setoran', ikon: 'ListTodo' },
+  { kunci: 'per-orang', judul: 'Setoran per Orang', ikon: 'Contact' },
+  { kunci: 'pos', judul: 'Buku Kas per Pos', ikon: 'WalletCards' },
+  { kunci: 'utang', judul: 'Utang Piutang', ikon: 'HandCoins' },
+  { kunci: 'laporan', judul: 'Laporan', ikon: 'FileBarChart' },
+]
+
 export const TAB_KEUANGAN = [
   { kunci: 'bulanan', judul: 'Dasbor Bulanan', ikon: 'ChartColumn' },
   { kunci: 'kas-sekolah', judul: 'Catatan Kas Sekolah', ikon: 'NotebookPen' },

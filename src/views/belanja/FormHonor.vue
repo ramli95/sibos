@@ -1,6 +1,7 @@
 <script setup>
 // Formulir honor, narasumber, transpor & insentif: penerima dari data pegawai atau orang luar (tersimpan otomatis),
 // besaran dari Standar Harga, PPh 21 dihitung, syarat honor Pasal 43 diperiksa untuk komponen pembayaran honor.
+import InputAngka from '@/components/InputAngka.vue'
 import { reactive, ref, shallowRef, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRkas } from '@/stores/rkas'
@@ -237,8 +238,8 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
             <input v-model="p.instansi" class="masukan py-1.5 text-xs" placeholder="Instansi" />
           </div>
           <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
-            <label class="text-[11px] text-slate-500">Besaran<input v-model.number="p.besaran" type="number" class="masukan angka py-1.5" /></label>
-            <label class="text-[11px] text-slate-500">Volume<input v-model.number="p.volume" type="number" step="any" class="masukan angka py-1.5" /></label>
+            <label class="text-[11px] text-slate-500">Besaran<InputAngka v-model="p.besaran" class="masukan angka py-1.5" /></label>
+            <label class="text-[11px] text-slate-500">Volume<InputAngka v-model="p.volume" class="masukan angka py-1.5" /></label>
             <label class="text-[11px] text-slate-500">Satuan<input v-model="p.satuan" class="masukan py-1.5" /></label>
             <label class="text-[11px] text-slate-500">PPh 21 manual (%)<input v-model="p.tarif_pph21" type="number" step="any" class="masukan angka py-1.5" :placeholder="String(penerima[i].tarif_efektif)" @input="p.pph21_manual = $event.target.value !== ''" /></label>
             <div class="col-span-2 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs sm:col-span-1 dark:bg-slate-800/50">
@@ -254,7 +255,7 @@ const DOK_HONOR = ['penerimaan_honor', 'tanda_terima_transpor', 'daftar_hadir', 
             <label v-if="['pegawai_tetap', 'tidak_tetap_bulanan'].includes(penerima[i].kategori_pph21_hasil)" class="text-[11px] text-slate-500">Status PTKP
               <select v-model="p.ptkp" class="masukan py-1.5 text-xs"><option value="">TK/0</option><option v-for="x in PTKP" :key="x">{{ x }}</option></select></label>
             <label v-if="penerima[i].kategori_pph21_hasil === 'pegawai_tetap'" class="text-[11px] text-slate-500">Gaji bruto bulan ini
-              <input v-model.number="p.gaji_bruto" type="number" class="masukan angka py-1.5" placeholder="opsional" /></label>
+              <InputAngka v-model="p.gaji_bruto" class="masukan angka py-1.5" placeholder="opsional" /></label>
             <label v-if="penerima[i].kategori_pph21_hasil === 'tidak_tetap_harian'" class="text-[11px] text-slate-500">Jumlah hari kerja
               <input v-model.number="p.hari" type="number" min="1" class="masukan angka py-1.5" placeholder="1" /></label>
             <p class="col-span-2 self-center text-[11px] text-slate-600 sm:col-span-4 dark:text-slate-300"><Ikon nama="Calculator" :ukuran="12" class="inline text-[#22A08D]" /> {{ penerima[i].alasan_pph21 }}</p>

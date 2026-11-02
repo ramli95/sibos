@@ -1,5 +1,6 @@
 <script setup>
 // Buku Kas Umum / Buku Bank / Kas Tunai: baris otomatis dari belanja, pajak, setoran + baris kas manual.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, computed, watch } from 'vue'
 import { useKas } from '@/stores/kas'
 import { useBelanja } from '@/stores/belanja'
@@ -206,7 +207,7 @@ async function excel() {
             <div><label class="label" for="uk-tgl">Tanggal</label><input id="uk-tgl" v-model="ubah.tanggal" type="date" class="masukan" :disabled="!auth.isAdmin" /></div>
             <div><label class="label" for="uk-jenis">Jenis</label><select id="uk-jenis" v-model="ubah.jenis" class="masukan" :disabled="!auth.isAdmin"><option v-for="(v, k) in JENIS_KAS" :key="k" :value="k">{{ v.label }}</option></select></div>
             <div><label class="label" for="uk-bnu">BNU</label><input id="uk-bnu" v-model="ubah.bnu" class="masukan kode" :disabled="!auth.isAdmin" /></div>
-            <div><label class="label" for="uk-nilai">Nilai</label><input id="uk-nilai" v-model.number="ubah.nilai" type="number" class="masukan angka" :disabled="!auth.isAdmin" /></div>
+            <div><label class="label" for="uk-nilai">Nilai</label><InputAngka id="uk-nilai" v-model="ubah.nilai" class="masukan angka" :disabled="!auth.isAdmin" /></div>
           </div>
           <div><label class="label" for="uk-ur">Uraian</label><input id="uk-ur" v-model="ubah.uraian" class="masukan" :disabled="!auth.isAdmin" /></div>
         </template>
@@ -228,7 +229,7 @@ async function excel() {
         </div>
         <div class="grid gap-3 sm:grid-cols-2">
           <div><label class="label" for="kb-tgl">Tanggal</label><input id="kb-tgl" v-model="formBaru.tanggal" type="date" class="masukan" /></div>
-          <div><label class="label" for="kb-nilai">Nilai (Rp)</label><input id="kb-nilai" v-model="formBaru.nilai" type="number" inputmode="numeric" class="masukan angka" /></div>
+          <div><label class="label" for="kb-nilai">Nilai (Rp)</label><InputAngka id="kb-nilai" v-model="formBaru.nilai" class="masukan angka" /></div>
           <div><label class="label" for="kb-bnu">BNU ARKAS</label><input id="kb-bnu" v-model="formBaru.bnu" class="masukan kode" /></div>
           <div v-if="!['tarik_tunai', 'setor_tunai'].includes(formBaru.jenis)"><label class="label" for="kb-src">Kas</label><select id="kb-src" v-model="formBaru.sumber" class="masukan"><option value="bank">Bank</option><option value="tunai">Tunai</option></select></div>
         </div>

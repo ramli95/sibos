@@ -1,5 +1,6 @@
 <script setup>
 // Ubah / tambah / hapus satu item SSH pemerintah (hanya Bendahara)
+import InputAngka from '@/components/InputAngka.vue'
 import { reactive, computed } from 'vue'
 import { rupiah } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
@@ -30,7 +31,7 @@ function simpan() {
         <div><label class="label" for="st">Satuan <span class="text-merah">*</span></label><input id="st" v-model="f.satuan" class="masukan" placeholder="mis. Orang/Kali" /></div>
         <div>
           <label class="label" for="sh">Harga <span class="text-merah">*</span></label>
-          <input id="sh" v-model.number="f.harga" type="number" min="0" inputmode="numeric" class="masukan angka" />
+          <InputAngka id="sh" v-model="f.harga" class="masukan angka" />
           <p class="mt-1 text-xs text-slate-500">{{ rupiah(f.harga) }}<template v-if="!baru && Number(f.harga) !== hargaAwal"> · sebelumnya {{ rupiah(hargaAwal) }}</template></p>
         </div>
       </div>

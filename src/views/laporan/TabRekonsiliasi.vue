@@ -1,6 +1,7 @@
 <script setup>
 // Rekonsiliasi ARKAS – SIMAKDA – Bank (Fase 8): saldo akhir bulan menurut SIBOS dibandingkan dengan saldo
 // yang tampil di ARKAS, SIMAKDA, dan rekening koran; centang transaksi yang sudah diinput ke ARKAS/SIMAKDA.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useKas } from '@/stores/kas'
 import { useBelanja } from '@/stores/belanja'
@@ -82,8 +83,8 @@ const NADA = { cocok: 'bg-emerald-500', selisih: 'bg-amber-500', belum: 'bg-slat
     </div>
 
     <section v-if="auth.isAdmin" class="kartu grid gap-3 p-4 sm:grid-cols-[1fr_1fr_2fr_auto] sm:items-end">
-      <div><label class="label" for="r-arkas">Saldo akhir ARKAS {{ NAMA_BULAN[bulan] }}</label><input id="r-arkas" v-model="isi.saldo_arkas" type="number" class="masukan angka" placeholder="dari BKU ARKAS" /></div>
-      <div><label class="label" for="r-simakda">Saldo akhir SIMAKDA</label><input id="r-simakda" v-model="isi.saldo_simakda" type="number" class="masukan angka" placeholder="dari SIMAKDA" /></div>
+      <div><label class="label" for="r-arkas">Saldo akhir ARKAS {{ NAMA_BULAN[bulan] }}</label><InputAngka id="r-arkas" v-model="isi.saldo_arkas" class="masukan angka" placeholder="dari BKU ARKAS" /></div>
+      <div><label class="label" for="r-simakda">Saldo akhir SIMAKDA</label><InputAngka id="r-simakda" v-model="isi.saldo_simakda" class="masukan angka" placeholder="dari SIMAKDA" /></div>
       <div><label class="label" for="r-cat">Catatan selisih</label><input id="r-cat" v-model="isi.catatan" class="masukan" placeholder="mis. bunga Oktober belum dicatat di SIMAKDA" /></div>
       <button class="tombol-utama" @click="simpan"><Ikon nama="Save" :ukuran="17" /> Simpan</button>
     </section>

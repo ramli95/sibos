@@ -1,5 +1,6 @@
 <script setup>
 // Memilih/mengubah satu item belanja: dari Standar Harga (harga sekolah, pembanding SSH) lalu dikaitkan ke uraian RKAS.
+import InputAngka from '@/components/InputAngka.vue'
 import { reactive, ref, computed } from 'vue'
 import { rupiah, NAMA_BULAN } from '@/utils/format'
 import { usulanUraian, kunciUraian, rapikanNamaItem } from '@/utils/belanja'
@@ -141,9 +142,9 @@ const NADA = { bahaya: 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-r
           <p v-if="f.jenis === 'jasa'" class="mt-1 text-xs text-slate-500">Item jasa otomatis diawali kata “Jasa”.</p></div>
         <div><label class="label" for="it-spek">Spesifikasi / ruang lingkup</label><input id="it-spek" v-model="f.spesifikasi" class="masukan" placeholder="Merek, ukuran, lingkup pekerjaan…" /></div>
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div><label class="label" for="it-vol">Volume <span class="text-merah">*</span></label><input id="it-vol" v-model="f.volume" type="number" min="0" step="any" inputmode="decimal" class="masukan angka" /></div>
+          <div><label class="label" for="it-vol">Volume <span class="text-merah">*</span></label><InputAngka id="it-vol" v-model="f.volume" class="masukan angka" /></div>
           <div><label class="label" for="it-sat">Satuan <span class="text-merah">*</span></label><input id="it-sat" v-model="f.satuan" class="masukan" /></div>
-          <div class="col-span-2"><label class="label" for="it-hrg">Harga satuan (Rp) <span class="text-merah">*</span></label><input id="it-hrg" v-model="f.harga" type="number" min="0" inputmode="numeric" class="masukan angka" /></div>
+          <div class="col-span-2"><label class="label" for="it-hrg">Harga satuan (Rp) <span class="text-merah">*</span></label><InputAngka id="it-hrg" v-model="f.harga" class="masukan angka" /></div>
         </div>
         <p class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800/50"><span class="text-slate-500">Jumlah</span><b class="angka">{{ rupiah(jumlah) }}</b></p>
       </section>

@@ -2,6 +2,7 @@
 // KGB — Kenaikan Gaji Berkala: jatuh tempo = TMT KGB terakhir + 2 tahun, pengingat H-30,
 // surat pengantar usulan ke Dinas (dengan lampiran daftar), dan pencatatan SK/Surat Pemberitahuan yang terbit
 // (TMT KGB & gaji pokok diperbarui otomatis).
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, reactive, computed } from 'vue'
 import { useGaji, namaLengkap } from '@/stores/gaji'
 import { useNotifikasi } from '@/stores/notifikasi'
@@ -175,8 +176,8 @@ const riwayat = computed(() => [...gaji.kgb].sort((a, b) => String(b.tanggal || 
           <div><label class="label" for="sk-tg">Tanggal surat</label><input id="sk-tg" v-model="s.tanggal_sk" type="date" class="masukan" /></div>
           <div><label class="label" for="sk-tmt">TMT KGB baru</label><input id="sk-tmt" v-model="s.tmt" type="date" class="masukan" /></div>
           <div class="sm:col-span-2"><label class="label" for="sk-pj">Ditandatangani oleh</label><input id="sk-pj" v-model="s.pejabat_sk" class="masukan" /></div>
-          <div><label class="label" for="sk-gl">Gaji pokok lama</label><input id="sk-gl" v-model="s.gaji_pokok_lama" type="number" class="masukan angka" /></div>
-          <div><label class="label" for="sk-gb">Gaji pokok baru</label><input id="sk-gb" v-model="s.gaji_pokok_baru" type="number" class="masukan angka" /></div>
+          <div><label class="label" for="sk-gl">Gaji pokok lama</label><InputAngka id="sk-gl" v-model="s.gaji_pokok_lama" class="masukan angka" /></div>
+          <div><label class="label" for="sk-gb">Gaji pokok baru</label><InputAngka id="sk-gb" v-model="s.gaji_pokok_baru" class="masukan angka" /></div>
           <div><label class="label" for="sk-mk">MKG baru (tahun)</label><input id="sk-mk" v-model="s.mkg_baru" type="number" class="masukan angka" /></div>
         </div>
         <p class="flex gap-2 rounded-xl bg-blue-50 p-3 text-xs text-blue-800 dark:bg-blue-950/40 dark:text-blue-200"><Ikon nama="Info" :ukuran="15" /> Setelah disimpan: TMT KGB terakhir di Data Pegawai menjadi {{ tanggalPanjang(s.tmt) }}, gaji pokok & MKG di Dasar Gaji diperbarui, dan KGB berikutnya dijadwalkan {{ tanggalPanjang(s.tmt ? String(Number(s.tmt.slice(0, 4)) + 2) + s.tmt.slice(4) : '') }}.</p>

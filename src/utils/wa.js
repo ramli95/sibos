@@ -14,7 +14,14 @@ export const JENIS_WA_TRANSAKSI = {
   nota: { judul: 'Minta Nota/Dokumen', ikon: 'ReceiptText', warna: 'ikon-chip-tosca', ket: 'Meminta nota asli, faktur, atau dokumen dari rekanan.' },
   bebas: { judul: 'Pesan Bebas', ikon: 'MessageSquareText', warna: 'ikon-chip', ket: 'Pesan singkat dengan identitas transaksi.' },
 }
-export const SEMUA_JENIS_WA = { ...JENIS_WA, ...JENIS_WA_TRANSAKSI }
+// Kas Lain & Iuran: tagihan, setoran, utang piutang (di luar Dana BOSP)
+export const JENIS_WA_KAS = {
+  tagih: { judul: 'Tagihan Belum Lunas', ikon: 'BellRing', warna: 'ikon-chip-peringatan', ket: 'Pengingat iuran/potongan yang belum dibayar atau baru sebagian.' },
+  setoran: { judul: 'Setoran Diterima', ikon: 'Receipt', warna: 'ikon-chip-kuning', ket: 'Konfirmasi setoran sebagian beserta sisa tagihan.' },
+  lunas: { judul: 'Konfirmasi Lunas', ikon: 'CheckCheck', warna: 'ikon-chip-sukses', ket: 'Ucapan terima kasih, tagihan sudah lunas.' },
+  utang: { judul: 'Utang Piutang', ikon: 'HandCoins', warna: 'ikon-chip-tosca', ket: 'Pengingat atau konfirmasi pembayaran pinjaman.' },
+}
+export const SEMUA_JENIS_WA = { ...JENIS_WA, ...JENIS_WA_TRANSAKSI, ...JENIS_WA_KAS }
 
 export const TEMPLATE_AWAL = {
   kelengkapan: 'Assalamu\'alaikum, Yth. {nama}.\n\nMohon bantuan melengkapi dokumen SPJ Dana BOSP untuk kegiatan *{pekerjaan}* (lunas {tanggal}, {nominal}).\n\nYang masih kurang:\n{kekurangan}\n\nTerima kasih atas kerja samanya.\n{bendahara}\nBendahara Dana BOSP {sekolah}',
@@ -23,6 +30,10 @@ export const TEMPLATE_AWAL = {
   progres: 'Yth. {nama},\n\nBerikut perkembangan *{pekerjaan}* ({nominal}):\n{progres}\n\n{pesan}\n\nTerima kasih.\n{bendahara}\nBendahara Dana BOSP {sekolah}',
   nota: 'Yth. {nama} ({usaha}),\n\nUntuk pesanan *{pekerjaan}* sebesar {nominal}, mohon kami dikirimi:\n{kekurangan}\n\nTerima kasih atas kerja samanya.\n{bendahara}\nBendahara Dana BOSP {sekolah}',
   bebas: 'Yth. {nama},\n\nTerkait *{pekerjaan}* ({nominal}):\n{pesan}\n\nTerima kasih.\n{bendahara}\nBendahara Dana BOSP {sekolah}',
+  tagih: 'Yth. {nama},\n\nMengingatkan dengan hormat, tagihan berikut belum lunas:\n{rincian}\n\nTotal yang belum dibayar: *{sisa}*.\n{pesan}\n\nTerima kasih atas perhatiannya.\n{bendahara}\n{sekolah}',
+  setoran: 'Yth. {nama},\n\nSetoran *{pos}* {periode} sebesar *{nominal}* telah kami terima pada {tanggal} (kwitansi {kwitansi}).\nSisa yang belum dibayar: *{sisa}*.\n\nTerima kasih.\n{bendahara}\n{sekolah}',
+  lunas: 'Yth. {nama},\n\nTerima kasih, pembayaran *{pos}* {periode} sebesar *{nominal}* telah kami terima ({tanggal}, kwitansi {kwitansi}) dan dinyatakan *LUNAS*.\n\n{bendahara}\n{sekolah}',
+  utang: 'Yth. {nama},\n\n{judul}: {uraian} tanggal {tanggal} sebesar {nominal}.\nSudah dibayar: {dibayar}\nSisa: *{sisa}*{tempo}\n{pesan}\n\nTerima kasih.\n{bendahara}\n{sekolah}',
   kgb: 'Yth. {nama},\n\nKenaikan Gaji Berkala (KGB) Bapak/Ibu jatuh tempo pada *{tmt}*. Untuk pengusulan ke Dinas Pendidikan, mohon menyerahkan:\n1. Fotokopi SK pangkat terakhir\n2. Fotokopi SK KGB terakhir\n3. Fotokopi SKP/penilaian kinerja terakhir\n\nTerima kasih.\n{bendahara}\nBendahara Gaji {sekolah}',
 }
 
@@ -32,6 +43,10 @@ export const ISIAN_WA = {
   transfer: ['nama', 'pekerjaan', 'nominal', 'tanggal', 'bank', 'rekening', 'atas_nama', 'bendahara', 'sekolah'],
   rekanan: ['nama', 'usaha', 'pesan', 'bendahara', 'sekolah'],
   kgb: ['nama', 'tmt', 'gaji_baru', 'bendahara', 'sekolah'],
+  tagih: ['nama', 'rincian', 'sisa', 'pesan', 'bendahara', 'sekolah'],
+  setoran: ['nama', 'pos', 'periode', 'nominal', 'tanggal', 'kwitansi', 'sisa', 'bendahara', 'sekolah'],
+  lunas: ['nama', 'pos', 'periode', 'nominal', 'tanggal', 'kwitansi', 'bendahara', 'sekolah'],
+  utang: ['nama', 'judul', 'uraian', 'tanggal', 'nominal', 'dibayar', 'sisa', 'tempo', 'pesan', 'bendahara', 'sekolah'],
   progres: ['nama', 'pekerjaan', 'nominal', 'progres', 'pesan', 'bendahara', 'sekolah'],
   nota: ['nama', 'usaha', 'pekerjaan', 'nominal', 'kekurangan', 'bendahara', 'sekolah'],
   bebas: ['nama', 'pekerjaan', 'nominal', 'pesan', 'bendahara', 'sekolah'],

@@ -1,6 +1,7 @@
 <script setup>
 // Buku Persediaan barang habis pakai: masuk otomatis dari belanja (kelas Persediaan), keluar dari bon,
 // penyesuaian dari stok opname (Juni & Desember), nilai harga rata-rata. Laporan persediaan per semester.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, reactive, computed } from 'vue'
 import { useAset } from '@/stores/aset'
 import { useAuth } from '@/stores/auth'
@@ -153,7 +154,7 @@ async function excel() {
           <div v-for="(u, i) in f.butir" :key="i" class="flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 p-2 dark:border-slate-700">
             <template v-if="f.jenis === 'opname'">
               <div class="min-w-0 flex-1"><p class="text-sm font-semibold">{{ u.nama }}</p><p class="text-xs text-slate-500">Menurut buku: {{ u.buku ?? saldoPada(u.kunci, f.tanggal) }} {{ u.satuan }}</p></div>
-              <input v-model.number="u.sisa_fisik" type="number" min="0" class="masukan angka w-24" :aria-label="`Sisa fisik ${u.nama}`" />
+              <InputAngka v-model="u.sisa_fisik" class="masukan angka w-24" :aria-label="`Sisa fisik ${u.nama}`" />
             </template>
             <template v-else>
               <div class="min-w-[10rem] flex-1">
@@ -163,8 +164,8 @@ async function excel() {
                 <input v-else v-model="u.nama" class="masukan" placeholder="Nama barang" :aria-label="`Nama barang baris ${i + 1}`" />
               </div>
               <input v-if="f.jenis === 'awal'" v-model="u.satuan" class="masukan w-24" placeholder="Satuan" aria-label="Satuan" />
-              <input v-model.number="u.jumlah" type="number" min="0" class="masukan angka w-20" aria-label="Jumlah" />
-              <input v-if="f.jenis === 'awal'" v-model.number="u.harga" type="number" min="0" class="masukan angka w-32" placeholder="Harga" aria-label="Harga satuan" />
+              <InputAngka v-model="u.jumlah" class="masukan angka w-20" aria-label="Jumlah" />
+              <InputAngka v-if="f.jenis === 'awal'" v-model="u.harga" class="masukan angka w-32" placeholder="Harga" aria-label="Harga satuan" />
               <button class="grid h-10 w-10 place-items-center rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40" aria-label="Hapus baris" @click="f.butir.splice(i, 1)"><Ikon nama="Trash2" :ukuran="16" /></button>
             </template>
           </div>

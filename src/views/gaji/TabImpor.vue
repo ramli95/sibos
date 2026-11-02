@@ -3,6 +3,7 @@
 // Cara baca: setiap NIP 18 digit menjadi patokan satu pegawai; angka rupiah sesudahnya (sampai NIP berikutnya)
 // dicocokkan dengan komponen hitungan SIBOS. Gaji pokok dikenali dari tabel gaji (sekaligus menebak MKG).
 // Gaji pokok & gaji bersih resmi bisa dikoreksi manual sebelum disimpan.
+import InputAngka from '@/components/InputAngka.vue'
 import { ref, computed } from 'vue'
 import { useGaji, namaLengkap } from '@/stores/gaji'
 import { useNotifikasi } from '@/stores/notifikasi'
@@ -137,7 +138,7 @@ const resmiBulanIni = computed(() => Object.keys(gaji.bulan?.resmi || {}).length
               <td class="angka p-3 text-right">{{ b.gp ? rupiah(b.gp, { tanpaRp: true }) : '—' }}<p v-if="b.mkg != null" class="text-[11px] text-slate-500">MKG {{ b.mkg }}</p></td>
               <td class="p-3"><div class="flex flex-wrap gap-1"><span v-for="k in Object.keys(b.resmi)" :key="k" class="lencana bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">{{ judulKomp[k] || k }}</span><span v-if="!Object.keys(b.resmi).length" class="text-xs text-slate-400">tidak ada</span></div></td>
               <td class="angka p-3 text-right">{{ rupiah(b.h.bersih, { tanpaRp: true }) }}</td>
-              <td class="p-3"><input v-model="b.bersih" type="number" class="masukan angka w-32 py-1.5 text-sm" :aria-label="`Gaji bersih resmi ${b.p.nama}`" /></td>
+              <td class="p-3"><InputAngka v-model="b.bersih" class="masukan angka w-32 py-1.5 text-sm" :aria-label="`Gaji bersih resmi ${b.p.nama}`" /></td>
               <td class="p-3"><label v-if="b.gp && b.gp !== b.g.gaji_pokok" class="flex items-center gap-1.5 text-xs"><input v-model="b.pakaiDasar" type="checkbox" class="h-4 w-4 accent-[#22A08D]" /> Pakai GP & MKG ini</label><span v-else-if="b.gp" class="text-xs text-emerald-600">Sudah sama</span></td>
             </tr>
           </tbody>
