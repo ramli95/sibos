@@ -3,7 +3,9 @@
 // (tegak & mendatar bercampur), Times New Roman. Cetak langsung, unduh satu PDF, atau Excel.
 // Fase 7: prop `massal` = [{ b, foto }] menggabungkan paket banyak transaksi menjadi satu berkas/PDF.
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { muatCetak, CETAK_AWAL, buatPdfPaket } from '@/services/cetak'
+import { muatCetak, CETAK_AWAL, buatPdfPaket, simpanPdfKeDrive } from '@/services/cetak'
+import { namaFolder, unggahArsip } from '@/services/belanja'
+import { useAuth } from '@/stores/auth'
 import { useNotifikasi } from '@/stores/notifikasi'
 import { konteks } from '@/utils/dokumenSpj'
 import { eksporExcel } from '@/utils/excel'
@@ -26,6 +28,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['tutup'])
 const notif = useNotifikasi()
+const auth = useAuth()
 
 const cetak = ref(structuredClone(CETAK_AWAL))
 const daftarB = computed(() => props.massal || [{ b: props.b, foto: props.foto }])
@@ -84,6 +87,25 @@ async function unduhPdf() {
   } catch (e) { notif.kabari('PDF gagal dibuat: ' + e.message, 'galat') } finally { sibuk.value = '' }
 }
 
+// Fase 8: arsipkan PDF paket ke folder Drive transaksi (satu transaksi: ikut tercatat di arsip transaksi)
+async function simpanDrive() {
+  sibuk.value = 'drive'
+  try {
+    await nextTick()
+    const el = [...wadah.value.querySelectorAll('.halaman')].map((s) => ({ el: s.querySelector('.isi-halaman'), orientasi: s.dataset.arah }))
+    const blob = await buatPdfPaket(el, cetak.value, { namaBerkas: namaBerkas.value, kembalikan: true })
+    if (!props.massal) {
+      await unggahArsip(props.b, 'arsip', 'paket_sibos', new File([blob], `${namaBerkas.value}.pdf`, { type: 'application/pdf' }))
+      notif.kabari('Paket SPJ tersimpan di folder Drive transaksi dan tercatat di arsip.')
+    } else {
+      const b0 = props.massal[0].b
+      const jalur = namaFolder(b0).slice(0, 3)
+      const h = await simpanPdfKeDrive(blob, namaBerkas.value, jalur)
+      notif.kabari(`Tersimpan di Drive: ${jalur.join(' / ')} / ${h.nama}`)
+    }
+  } catch (e) { notif.kabari('Gagal menyimpan ke Drive: ' + e.message, 'galat') } finally { sibuk.value = '' }
+}
+
 async function excel() {
   if (props.massal) {
     const kolom = [{ judul: 'Tanggal Lunas', lebar: 14, nilai: (x) => x.b.tgl_lunas || '' }, { judul: 'Pekerjaan', lebar: 44, nilai: (x) => x.b.nama_pekerjaan },
@@ -122,6 +144,9 @@ async function excel() {
           </div>
         </div>
         <button class="tombol bg-emerald-600 px-3 text-white hover:bg-emerald-700" @click="excel"><Ikon nama="FileSpreadsheet" :ukuran="17" /> <span class="hidden sm:inline">Excel</span></button>
+        <button v-if="auth.isAdmin" class="tombol bg-white/10 px-3 text-white ring-1 ring-white/25 hover:bg-white/20" :disabled="!!sibuk || !halaman.length" title="Simpan PDF ke Google Drive" @click="simpanDrive">
+          <Ikon :nama="sibuk === 'drive' ? 'RefreshCw' : 'CloudUpload'" :ukuran="17" :class="sibuk === 'drive' && 'animate-spin'" /> <span class="hidden lg:inline">Simpan ke Drive</span>
+        </button>
         <button class="tombol bg-biru px-3 text-white hover:bg-blue-700" :disabled="!!sibuk || !halaman.length" @click="unduhPdf">
           <Ikon :nama="sibuk === 'pdf' ? 'RefreshCw' : 'FileDown'" :ukuran="17" :class="sibuk === 'pdf' && 'animate-spin'" /> <span class="hidden sm:inline">{{ sibuk === 'pdf' ? 'Membuat PDF…' : 'Unduh PDF' }}</span>
         </button>

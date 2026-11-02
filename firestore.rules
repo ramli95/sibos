@@ -1,6 +1,6 @@
 rules_version = '2';
 // ================================================================
-//  Aturan akses Firestore SIBOS — Fase 7 (Papan Informasi, Serah Terima, WhatsApp, Catatan Keuangan)
+//  Aturan akses Firestore SIBOS — Fase 8 (Rekonsiliasi ARKAS–SIMAKDA–Bank, pengingat, arsip PDF ke Drive)
 //  Peran di pengguna/{uid}.peran: bendahara, tim_bos, kepala_sekolah, komite, pengurus_barang
 //  Prinsip: hanya Bendahara (Admin) yang mengubah data; data sensitif pegawai hanya untuk Bendahara.
 //  Kecuali Barang & Aset: Bendahara dan Pengurus Barang boleh mencatat inventaris, ruangan, dan persediaan.
@@ -272,6 +272,13 @@ service cloud.firestore {
       allow read, delete: if admin() && resource.data.uid == request.auth.uid;
       allow create: if admin() && request.resource.data.uid == request.auth.uid;
       allow update: if admin() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ---------- rekonsiliasi (Fase 8) ----------
+    // Saldo akhir bulan menurut ARKAS & SIMAKDA yang dicatat Bendahara untuk dicocokkan dengan BKU SIBOS
+    match /rekonsiliasi/{id} {
+      allow read: if salahSatu(['bendahara', 'kepala_sekolah', 'tim_bos']);
+      allow write: if admin();
     }
 
     // ---------- notifikasi, log, impor ----------

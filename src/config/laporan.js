@@ -14,6 +14,7 @@ export const TAB_LAPORAN = [
   { kunci: 'rekap-lain', judul: 'Rekap, Matriks & SK', ikon: 'Sheet' },
   { kunci: 'kesiapan', judul: 'Kesiapan SPJ', ikon: 'Gauge' },
   { kunci: 'simakda', judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet' },
+  { kunci: 'rekonsiliasi', judul: 'Rekonsiliasi', ikon: 'GitCompareArrows' },
 ]
 
 // Pengelompokan tabel realisasi

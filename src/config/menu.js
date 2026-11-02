@@ -58,6 +58,7 @@ export const MENU = [
       { judul: 'Rekap, Matriks & SK', ikon: 'Sheet', ke: '/laporan/rekap-lain', fase: 7 },
       { judul: 'Kesiapan SPJ', ikon: 'Gauge', ke: '/laporan/kesiapan', fase: 5 },
       { judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet', ke: '/laporan/simakda', fase: 5 },
+      { judul: 'Rekonsiliasi ARKAS–SIMAKDA', ikon: 'GitCompareArrows', ke: '/laporan/rekonsiliasi', fase: 8 },
     ],
   },
   {

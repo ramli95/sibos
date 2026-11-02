@@ -2,7 +2,9 @@
 // Jendela pratinjau cetak & unduh (gaya SIMKA): bilah gelap di atas, lembar F4 di tengah.
 // Isi dokumen diberikan lewat slot; slot menerima { cetak } (pengaturan margin & huruf).
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { muatCetak, pasangHalamanCetak, CETAK_AWAL, buatPdf } from '@/services/cetak'
+import { muatCetak, pasangHalamanCetak, CETAK_AWAL, buatPdf, simpanPdfKeDrive } from '@/services/cetak'
+import { useAuth } from '@/stores/auth'
+import { NAMA_BULAN } from '@/utils/format'
 import { useNotifikasi } from '@/stores/notifikasi'
 import Ikon from '../Ikon.vue'
 
@@ -12,9 +14,12 @@ const props = defineProps({
   orientasi: { type: String, default: '' }, // kosong = ikut pengaturan
   gantiOrientasi: { type: Boolean, default: true },
   excel: Boolean,
+  // Fase 8: folder Drive untuk "Simpan ke Drive"; kosong = SIBOS/<tahun>/<bulan>/Laporan
+  jalurDrive: { type: Array, default: null },
 })
 const emit = defineEmits(['tutup', 'excel', 'update:orientasi'])
 const notif = useNotifikasi()
+const auth = useAuth()
 
 const cetak = ref(structuredClone(CETAK_AWAL))
 const arah = ref(props.orientasi || 'portrait')
@@ -55,6 +60,17 @@ function cetakSekarang() {
   window.print()
 }
 
+async function simpanDrive() {
+  sibuk.value = 'drive'
+  try {
+    const kini = new Date()
+    const jalur = props.jalurDrive || [String(kini.getFullYear()), `${String(kini.getMonth() + 1).padStart(2, '0')} ${NAMA_BULAN[kini.getMonth()]}`, 'Laporan']
+    const blob = await buatPdf(isi.value, { orientasi: arah.value, margin: m.value, namaBerkas: props.namaBerkas || props.judul, kembalikan: true })
+    const h = await simpanPdfKeDrive(blob, props.namaBerkas || props.judul, jalur)
+    notif.kabari(`Tersimpan di Drive: ${jalur.join(' / ')} / ${h.nama}`)
+  } catch (e) { notif.kabari('Gagal menyimpan ke Drive: ' + e.message, 'galat') } finally { sibuk.value = '' }
+}
+
 async function unduhPdf() {
   sibuk.value = 'pdf'
   try {
@@ -80,6 +96,9 @@ async function unduhPdf() {
           </button>
         </div>
         <button v-if="props.excel" class="tb-bilah bg-emerald-600 text-white hover:bg-emerald-700" @click="emit('excel')"><Ikon nama="FileSpreadsheet" :ukuran="17" /> <span class="hidden sm:inline">Excel</span></button>
+        <button v-if="auth.isAdmin" class="tb-bilah bg-white/10 text-white ring-1 ring-white/25 hover:bg-white/20" :disabled="!!sibuk" title="Simpan PDF ke Google Drive sekolah" @click="simpanDrive">
+          <Ikon :nama="sibuk === 'drive' ? 'RefreshCw' : 'CloudUpload'" :ukuran="17" :class="sibuk === 'drive' && 'animate-spin'" /> <span class="hidden lg:inline">Simpan ke Drive</span>
+        </button>
         <button class="tb-bilah bg-white/10 text-white ring-1 ring-white/25 hover:bg-white/20" :disabled="!!sibuk" @click="unduhPdf">
           <Ikon :nama="sibuk === 'pdf' ? 'RefreshCw' : 'FileDown'" :ukuran="17" :class="sibuk === 'pdf' && 'animate-spin'" /> <span class="hidden sm:inline">Unduh PDF</span>
         </button>

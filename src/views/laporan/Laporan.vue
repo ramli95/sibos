@@ -19,6 +19,7 @@ import TabObjek from './TabObjek.vue'
 import TabSiplah from './TabSiplah.vue'
 import TabPemdaLain from './TabPemdaLain.vue'
 import TabRekapLain from './TabRekapLain.vue'
+import TabRekonsiliasi from './TabRekonsiliasi.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -74,6 +75,7 @@ onMounted(() => muat())
     <TabSiplah v-else-if="aktif === 'siplah'" />
     <TabPemdaLain v-else-if="aktif === 'pemda-lain'" />
     <TabRekapLain v-else-if="aktif === 'rekap-lain'" />
+    <TabRekonsiliasi v-else-if="aktif === 'rekonsiliasi'" />
     <TabRealisasi v-else />
   </div>
 </template>

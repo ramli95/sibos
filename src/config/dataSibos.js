@@ -59,6 +59,7 @@ export const KOLEKSI_DATA = [
       { id: 'template_wa', judul: 'Template pesan WhatsApp', ikon: 'MessageSquareText' },
       { id: 'pesan_wa', judul: 'Riwayat pesan WhatsApp', ikon: 'MessageCircle', label: (d) => `${d.nama} — ${d.waktu}` },
       { id: 'catatan_kas_sekolah', judul: 'Catatan kas sekolah (di luar BOSP)', ikon: 'NotebookPen', label: (d) => d.uraian },
+      { id: 'rekonsiliasi', judul: 'Rekonsiliasi ARKAS–SIMAKDA per bulan', ikon: 'GitCompareArrows', label: (d) => d.bulan },
     ],
   },
 ]

@@ -155,6 +155,7 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
           <button class="tombol-utama flex-1 sm:flex-none" @click="paket = { hanya: null }"><Ikon nama="Printer" :ukuran="17" /> Cetak Paket SPJ</button>
           <template v-if="auth.isAdmin">
             <RouterLink :to="ubahKe" class="tombol-garis"><Ikon nama="Pencil" :ukuran="17" class="text-biru" /> Ubah</RouterLink>
+            <RouterLink v-if="b.status === 'lunas'" :to="`/whatsapp/kirim?jenis=${(b.persen_lengkap ?? 100) < 100 ? 'kelengkapan' : 'transfer'}&ref=${b.id}`" class="tombol-garis"><Ikon nama="MessageCircle" :ukuran="17" class="text-emerald-600" /> <span class="hidden sm:inline">WhatsApp</span></RouterLink>
             <button class="tombol text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40" @click="hapus"><Ikon nama="Trash2" :ukuran="17" /> <span class="hidden sm:inline">Hapus</span></button>
           </template>
         </div>

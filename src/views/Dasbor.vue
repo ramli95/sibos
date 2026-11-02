@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuth } from '@/stores/auth'
 import { sapaan, tanggalPanjang, rupiah, rupiahRingkas, persen as fPersen } from '@/utils/format'
 import { useRkas } from '@/stores/rkas'
@@ -9,6 +9,8 @@ import { useGaji, namaLengkap } from '@/stores/gaji'
 import { ringkasan, proporsiJuknis } from '@/utils/rkasPohon'
 import Ikon from '@/components/Ikon.vue'
 import GridStat from '@/components/GridStat.vue'
+import { daftarPengingat } from '@/utils/pengingat'
+import { kirimPengingatHarian } from '@/services/catatan'
 
 const auth = useAuth()
 const namaDepan = computed(() => (auth.pengguna?.nama || '').split(',')[0])
@@ -18,7 +20,21 @@ const rkas = useRkas()
 const belanja = useBelanja()
 const kas = useKas()
 const gaji = useGaji()
-onMounted(() => { rkas.muat().catch(() => {}); kas.muat().catch(() => {}); if (auth.isAdmin) gaji.muat().catch(() => {}) })
+const siapPengingat = ref(false)
+onMounted(async () => {
+  if (auth.isAdmin) gaji.muat().catch(() => {})
+  await Promise.all([rkas.muat().catch(() => {}), kas.muat().catch(() => {})])
+  siapPengingat.value = true
+  if (auth.isAdmin) kirimPengingatHarian(pengingat.value).catch(() => {})
+})
+// Pusat pengingat (Fase 8): pajak, tenggat, tutup buku, input ARKAS/SIMAKDA, pagu uraian, SPJ, rencana bulan ini
+const pengingat = computed(() => (siapPengingat.value ? daftarPengingat({ belanja: belanja.daftar, kewajiban: kas.kewajiban, tutup: kas.tutup, uraian: rkas.uraian, pemakaian: belanja.pemakaian, tahun: kas.tahun }) : []))
+const semuaPengingat = ref(false)
+const NADA_P = {
+  bahaya: { chip: 'bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300', garis: 'border-l-rose-500' },
+  peringatan: { chip: 'ikon-chip-peringatan', garis: 'border-l-amber-500' },
+  info: { chip: 'ikon-chip', garis: 'border-l-biru' },
+}
 const belumLengkap = computed(() => belanja.daftar.filter((b) => (b.persen_lengkap || 0) < 100).length)
 const rk = computed(() => ringkasan(rkas.uraian))
 const proporsi = computed(() => proporsiJuknis(rkas.uraian, rkas.versi?.pagu || rk.value.jumlah))
@@ -66,6 +82,20 @@ const pintasBelanja = computed(() => [
       </div>
       <Ikon nama="ChevronRight" class="text-slate-400" />
     </RouterLink>
+
+    <!-- Perlu perhatian (Fase 8) -->
+    <section v-if="auth.isAdmin && pengingat.length" class="space-y-2" data-tur="dasbor-pengingat">
+      <h3 class="flex items-center gap-2 font-bold"><Ikon nama="BellRing" :ukuran="18" class="text-[#E3A414]" /> Perlu perhatian <span class="lencana bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{{ pengingat.length }}</span></h3>
+      <div class="grid gap-2 md:grid-cols-2">
+        <RouterLink v-for="p in (semuaPengingat ? pengingat : pengingat.slice(0, 4))" :key="p.kunci" :to="p.ke"
+                    :class="['kartu flex items-center gap-3 border-l-4 p-3 transition hover:shadow-md', NADA_P[p.nada].garis]">
+          <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl', NADA_P[p.nada].chip]"><Ikon :nama="p.ikon" :ukuran="18" /></span>
+          <div class="min-w-0 flex-1"><p class="text-sm font-bold">{{ p.judul }}</p><p class="truncate text-xs text-slate-500">{{ p.isi }}</p></div>
+          <Ikon nama="ChevronRight" class="text-slate-400" />
+        </RouterLink>
+      </div>
+      <button v-if="pengingat.length > 4" class="text-xs font-semibold text-biru hover:underline" @click="semuaPengingat = !semuaPengingat">{{ semuaPengingat ? 'Ringkas' : `Lihat semua (${pengingat.length})` }}</button>
+    </section>
 
     <!-- RKAS -->
     <section v-if="rkas.versi" class="space-y-4">

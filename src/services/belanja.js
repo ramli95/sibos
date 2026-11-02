@@ -213,7 +213,7 @@ export async function hapusBelanja(b) {
 
 /* ---------------- Foto dokumentasi ---------------- */
 
-const namaFolder = (b) => {
+export const namaFolder = (b) => {
   const d = dariIso(b.tgl_terima || b.tgl_kegiatan || b.tgl_pesanan || b.tgl_lunas) || new Date()
   return [String(d.getFullYear()), `${String(d.getMonth() + 1).padStart(2, '0')} ${NAMA_BULAN[d.getMonth()]}`, 'SPJ',
     `${String(d.getDate()).padStart(2, '0')} ${b.nama_pekerjaan || 'Belanja'}`.replace(/[\\/:*?"<>|]/g, '-').slice(0, 80)]
@@ -388,4 +388,26 @@ export async function simpanOrangLuar(daftarPenerima, semua) {
   })
   if (n) { log(bt, 'tambah', `Menyimpan ${n} penerima luar sekolah (narasumber/pengawas)`, 'orang_luar', null); await bt.commit() }
   return daftarPenerima
+}
+
+/* ---------------- Fase 8: status input ARKAS & SIMAKDA ---------------- */
+
+/**
+ * Tandai banyak transaksi sudah/belum diinput ke ARKAS atau SIMAKDA.
+ * jenis: 'arkas' | 'simakda'; tanggal: 'yyyy-mm-dd' (sudah) atau '' (belum). Hasil: daftar belanja yang diperbarui.
+ */
+export async function tandaiInput(daftar, jenis, tanggal) {
+  const kolom = jenis === 'arkas' ? 'input_arkas' : 'input_simakda'
+  const nilai = tanggal || null
+  if (modePratinjau) {
+    const c = await dataContoh()
+    return daftar.map((b) => { const x = c.daftar.find((y) => y.id === b.id); if (x) x[kolom] = nilai; return { ...b, [kolom]: nilai } })
+  }
+  for (let i = 0; i < daftar.length; i += 400) {
+    const bt = writeBatch(db)
+    daftar.slice(i, i + 400).forEach((b) => bt.update(doc(db, 'belanja', b.id), { [kolom]: nilai, diperbarui: serverTimestamp() }))
+    log(bt, 'ubah', `Menandai ${daftar.length} transaksi ${nilai ? 'sudah' : 'belum'} diinput ke ${jenis === 'arkas' ? 'ARKAS' : 'SIMAKDA'}`, 'belanja', daftar.length === 1 ? daftar[0].id : null)
+    await bt.commit()
+  }
+  return daftar.map((b) => ({ ...b, [kolom]: nilai }))
 }

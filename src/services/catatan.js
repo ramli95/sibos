@@ -1,6 +1,6 @@
 // Layanan data Fase 7: papan informasi publik, template & riwayat WhatsApp, berita acara serah terima,
 // catatan kas sekolah, dan catatan pribadi bendahara. Mode Pratinjau memakai penyimpanan di memori.
-import { collection, doc, getDoc, getDocs, query, where, writeBatch, serverTimestamp, deleteDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, query, where, writeBatch, serverTimestamp, deleteDoc, setDoc } from 'firebase/firestore'
 import { db, auth, modePratinjau } from './firebase'
 
 const memori = {} // { koleksi: Map(id → data) } untuk Mode Pratinjau
@@ -70,3 +70,22 @@ export const cabutPublik = () => hapusSatu('publik', 'bos', 'Mencabut papan info
 export const muatCatatanPribadi = () => muatSemua('catatan_pribadi', ['uid', uid()])
 export const simpanCatatanPribadi = (id, data) => simpanSatu('catatan_pribadi', id, { ...data, uid: uid() })
 export const hapusCatatanPribadi = (id) => hapusSatu('catatan_pribadi', id)
+
+/* ---------- Pengingat harian ke lonceng notifikasi (Fase 8) ---------- */
+// Sekali sehari per perangkat: pengingat "bahaya" & "peringatan" menjadi notifikasi lonceng (id tetap → tidak dobel).
+export async function kirimPengingatHarian(daftar) {
+  if (modePratinjau || !auth?.currentUser) return 0
+  const hari = new Date().toISOString().slice(0, 10)
+  const kunci = `sibos_pengingat_${auth.currentUser.uid}_${hari}`
+  try { if (localStorage.getItem(kunci)) return 0 } catch { /* abaikan */ }
+  let n = 0
+  for (const x of daftar.filter((d) => d.nada !== 'info')) {
+    const id = `pengingat_${auth.currentUser.uid}_${hari}_${x.kunci}`.replace(/[^\w-]/g, '_')
+    try {
+      await setDoc(doc(db, 'notifikasi', id), { uid: auth.currentUser.uid, jenis: x.nada === 'bahaya' ? 'galat' : 'peringatan', ikon: x.ikon, judul: x.judul, isi: x.isi, tautan: x.ke, dibaca: false, waktu: serverTimestamp() })
+      n++
+    } catch { /* sudah ada / ditolak: lewati */ }
+  }
+  try { localStorage.setItem(kunci, '1') } catch { /* abaikan */ }
+  return n
+}

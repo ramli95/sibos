@@ -89,11 +89,12 @@ async function tambahKePdf(pdf, el, { orientasi, margin, pertama }) {
 /**
  * Membuat PDF F4 dari elemen isi dokumen (huruf Times New Roman). margin dalam cm: { atas, bawah, kiri, kanan }
  */
-export async function buatPdf(el, { orientasi = 'portrait', margin, namaBerkas = 'Dokumen SIBOS' }) {
+export async function buatPdf(el, { orientasi = 'portrait', margin, namaBerkas = 'Dokumen SIBOS', kembalikan = false }) {
   const { jsPDF } = await import('jspdf')
   const pdf = new jsPDF({ unit: 'mm', format: [215, 330], orientation: orientasi, compress: true })
   await tambahKePdf(pdf, el, { orientasi, margin, pertama: true })
   pdf.setProperties({ title: namaBerkas, creator: 'SIBOS' })
+  if (kembalikan) return pdf.output('blob') // untuk disimpan ke Google Drive
   pdf.save(`${namaBerkas}.pdf`)
 }
 
@@ -112,4 +113,14 @@ export async function buatPdfPaket(halaman, cetak, { namaBerkas = 'Paket SPJ', k
   pdf.setProperties({ title: namaBerkas, creator: 'SIBOS' })
   if (kembalikan) return pdf.output('blob')
   pdf.save(`${namaBerkas}.pdf`)
+}
+
+/**
+ * Simpan PDF hasil cetak ke Google Drive sekolah (Fase 8). jalur contoh: ['2026', '10 Oktober', 'Laporan'].
+ * Hasil: { nama, tautan, id_berkas_drive }
+ */
+export async function simpanPdfKeDrive(blob, namaBerkas, jalur) {
+  const { unggahBerkas } = await import('./penghubung')
+  const nama = `${String(namaBerkas).replace(/[\\/:*?"<>|]/g, '-').slice(0, 140)}.pdf`
+  return unggahBerkas(new File([blob], nama, { type: 'application/pdf' }), jalur, nama)
 }

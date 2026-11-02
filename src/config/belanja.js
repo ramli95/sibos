@@ -113,6 +113,7 @@ export const ARSIP = [
   { kunci: 'paket_ttd', judul: 'Paket SPJ bertanda tangan', ikon: 'FileCheck' },
   { kunci: 'nota_asli', judul: 'Nota/kuitansi asli toko', ikon: 'ReceiptText' },
   { kunci: 'faktur_pajak', judul: 'Faktur pajak / bukti setor', ikon: 'Percent' },
+  { kunci: 'paket_sibos', judul: 'PDF Paket SPJ dari SIBOS (belum ttd)', ikon: 'Files' },
   { kunci: 'lainnya', judul: 'Dokumen lainnya', ikon: 'FileStack' },
 ]
 

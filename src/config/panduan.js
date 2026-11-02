@@ -17,6 +17,7 @@ export const TUR = {
       { pilih: MENU, judul: 'Menu utama', isi: 'Semua menu dikelompokkan sesuai alur kerja: RKAS → Belanja & Dokumen → Pajak → Buku Kas → Laporan → Barang & Aset. Di HP, menu lain ada di tombol "Lainnya".' },
       { pilih: [JUDUL], judul: 'Judul halaman', isi: 'Menunjukkan halaman yang sedang dibuka beserta ikonnya.' },
       { pilih: ['.kartu'], judul: 'Ringkasan dana', isi: 'Dasbor menampilkan pagu, realisasi, saldo, pajak belum disetor, dan pengingat tenggat. Kartu bisa diketuk untuk membuka menu terkait.' },
+      { pilih: ['[data-tur="dasbor-pengingat"]'], judul: 'Perlu perhatian', isi: 'Pajak lewat jatuh tempo, tenggat laporan, buku belum ditutup, transaksi belum masuk ARKAS/SIMAKDA, pagu uraian terlampaui, SPJ belum lengkap, dan rencana bulan ini. Yang mendesak juga dikirim ke lonceng sekali sehari.' },
       { pilih: [BANTUAN], judul: 'Butuh bantuan?', isi: 'Tekan tombol tanda tanya ini di halaman mana pun untuk memutar tur menu tersebut. Daftar lengkap ada di Pengaturan → Panduan Input.' },
     ],
   },
@@ -199,6 +200,15 @@ export const TUR = {
     langkah: [
       { pilih: ['[data-tur="massal-saring"]'], judul: 'Saring & pilih', isi: 'Pilih bulan dan jenis transaksi, lalu centang transaksi atau tekan Pilih semua.' },
       { judul: 'Satu berkas', isi: 'Gabungkan & cetak membuka satu pratinjau berisi semua dokumen (urut tanggal lunas lalu BNU). Unduh PDF untuk diarsipkan per bulan.' },
+    ],
+  },
+  rekonsiliasi: {
+    judul: 'Rekonsiliasi ARKAS–SIMAKDA', ikon: 'GitCompareArrows', warna: '#1A62E8', rute: '/laporan/rekonsiliasi', kelompok: 'Laporan', peran: ['bendahara', 'kepala_sekolah', 'tim_bos'],
+    ket: 'Cocokkan saldo bulanan & tandai transaksi yang sudah diinput.',
+    langkah: [
+      { pilih: ['[data-tur="rekon-bulan"]'], judul: 'Status per bulan', isi: 'Titik hijau = saldo SIBOS sama dengan ARKAS, SIMAKDA & rekening koran dan semua transaksi sudah diinput. Kuning = masih ada selisih atau belum diinput.' },
+      { pilih: ['[data-tur="rekon-saldo"]'], judul: 'Bandingkan saldo', isi: 'Isi saldo akhir bulan yang tampil di ARKAS dan SIMAKDA, lalu Simpan. Rekening koran diambil otomatis dari Buku Kas.' },
+      { pilih: ['[data-tur="rekon-input"]'], judul: 'Tandai sudah diinput', isi: 'Setelah menyalin transaksi ke ARKAS/SIMAKDA, ketuk kotak centang per transaksi atau tombol "Semua". Transaksi yang belum ditandai muncul di Dasbor → Perlu perhatian.' },
     ],
   },
   laporanlain: {

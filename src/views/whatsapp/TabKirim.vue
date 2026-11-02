@@ -2,6 +2,7 @@
 // Kirim pesan WhatsApp siap kirim (wa.me): kelengkapan SPJ, konfirmasi transfer, pesan ke rekanan, pengingat KGB.
 // "Kirim ke semua" membuka antrean: setiap ketukan membuka satu percakapan (aturan peramban: satu jendela per ketukan).
 import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { pakaiWa } from './pakaiWa'
 import { useBelanja } from '@/stores/belanja'
 import { useGaji, namaLengkap } from '@/stores/gaji'
@@ -18,9 +19,14 @@ const belanja = useBelanja()
 const gaji = useGaji()
 const auth = useAuth()
 const bahan = ref({ pegawai: [], rekanan: [], orangLuar: [] })
-const jenis = ref('kelengkapan')
+const route = useRoute()
+const router = useRouter()
+// Dibuka dari rincian transaksi: ?jenis=…&ref=<id belanja> → hanya baris transaksi itu
+const jenis = ref(route.query.jenis && JENIS_WA[route.query.jenis] ? route.query.jenis : 'kelengkapan')
+const saringRef = ref(route.query.ref || '')
+function hapusSaring() { saringRef.value = ''; router.replace({ query: {} }) }
 const memuat = ref(true)
-const hariTransfer = ref(30)
+const hariTransfer = ref(route.query.ref ? 366 : 30)
 const pesanRekanan = ref('Mohon kiriman nota/faktur asli dan foto barang untuk pesanan kami. Bila ada pertanyaan, silakan hubungi kami.')
 onMounted(async () => {
   try {
@@ -85,7 +91,8 @@ const daftar = computed(() => {
   return gaji.kgbH30.map((x) => ({ kunci: x.p.id, judul: namaLengkap(x.p), sub: `Jatuh tempo ${tanggalPanjang(x.jatuh_tempo)} · ${x.st.label}`, nama: namaLengkap(x.p), no: x.p.no_wa || cariPegawai(x.p.id)?.no_wa || '',
     pesan: wa.teks('kgb', { ...d, nama: namaLengkap(x.p), tmt: tanggalPanjang(x.jatuh_tempo), gaji_baru: x.gaji_pokok_baru ? rupiah(x.gaji_pokok_baru) : '' }) }))
 })
-const adaNomor = computed(() => daftar.value.filter((x) => nomorWa(x.no)))
+const daftarTampil = computed(() => (saringRef.value ? daftar.value.filter((x) => String(x.kunci).split('|')[0] === saringRef.value) : daftar.value))
+const adaNomor = computed(() => daftarTampil.value.filter((x) => nomorWa(x.no)))
 const jumlahPer = computed(() => Object.fromEntries(Object.keys(JENIS_WA).map((k) => [k, k === jenis.value ? daftar.value.length : null])))
 
 // Pratinjau & ubah pesan sebelum dikirim
@@ -126,10 +133,12 @@ async function kirimBerikut() {
     </div>
 
     <section class="kartu overflow-hidden" data-tur="wa-daftar">
+      <div v-if="saringRef" class="flex items-center gap-2 border-b border-slate-100 bg-emerald-50 px-4 py-2 text-xs text-emerald-800 dark:border-slate-800 dark:bg-emerald-950/30 dark:text-emerald-200">
+        <Ikon nama="Filter" :ukuran="14" /> Hanya transaksi yang dibuka <button class="ml-auto font-semibold underline" @click="hapusSaring">Tampilkan semua</button></div>
       <p v-if="memuat" class="p-8 text-center text-sm text-slate-500"><Ikon nama="RefreshCw" class="mx-auto mb-2 animate-spin text-biru" /> Memuat…</p>
-      <p v-else-if="!daftar.length" class="p-8 text-center text-sm text-slate-500"><Ikon nama="CircleCheck" class="mx-auto mb-2 text-emerald-500" /> Tidak ada yang perlu dikirimi pesan.</p>
+      <p v-else-if="!daftarTampil.length" class="p-8 text-center text-sm text-slate-500"><Ikon nama="CircleCheck" class="mx-auto mb-2 text-emerald-500" /> Tidak ada yang perlu dikirimi pesan.</p>
       <ul class="divide-y divide-slate-100 dark:divide-slate-800">
-        <li v-for="x in daftar" :key="x.kunci" class="flex flex-wrap items-center gap-3 px-4 py-3">
+        <li v-for="x in daftarTampil" :key="x.kunci" class="flex flex-wrap items-center gap-3 px-4 py-3">
           <span :class="['grid h-9 w-9 shrink-0 place-items-center rounded-full', nomorWa(x.no) ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-400 dark:bg-slate-800']"><Ikon :nama="nomorWa(x.no) ? 'MessageCircle' : 'Phone'" :ukuran="17" /></span>
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-semibold">{{ x.judul }}</p>
