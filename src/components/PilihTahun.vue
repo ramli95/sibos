@@ -8,7 +8,7 @@ const tahun = useTahun()
 
 <template>
   <label class="sr-only" :for="props.id">Tahun anggaran</label>
-  <select :id="props.id" class="masukan flex-1 py-2 sm:w-auto sm:flex-none" :value="Number(props.modelValue)" @change="emit('update:modelValue', Number($event.target.value))">
+  <select :id="props.id" class="masukan min-w-[8.5rem] flex-1 py-2 sm:w-auto sm:flex-none" :value="Number(props.modelValue)" @change="emit('update:modelValue', Number($event.target.value))">
     <option v-for="t in tahun.daftar" :key="t" :value="t">{{ tahun.label(t) }}</option>
   </select>
 </template>

@@ -7,6 +7,7 @@ import { tanggalRealisasi } from '@/utils/belanja'
 import Ikon from '@/components/Ikon.vue'
 
 const props = defineProps({ b: { type: Object, required: true } })
+const emit = defineEmits(['wa'])
 const st = computed(() => STATUS[props.b.status] || STATUS.draf)
 const honor = computed(() => props.b.jenis === 'honor')
 const ikon = computed(() => (honor.value ? JENIS_HONOR[props.b.jenis_honor]?.ikon || 'Wallet' : props.b.cara === 'siplah' ? 'ShoppingBag' : (props.b.item || []).some((i) => i.jenis === 'konsumsi') ? 'UtensilsCrossed' : (props.b.item || []).some((i) => i.jenis === 'jasa') ? 'Wrench' : 'Package'))
@@ -22,7 +23,10 @@ const lengkap = computed(() => props.b.persen_lengkap || 0)
         <p class="line-clamp-2 font-bold leading-snug">{{ props.b.nama_pekerjaan || 'Tanpa nama' }}</p>
         <p class="truncate text-xs text-slate-500">{{ sub }}</p>
       </div>
-      <span :class="['lencana shrink-0', st.lencana]"><Ikon :nama="st.ikon" :ukuran="12" /> {{ st.label }}</span>
+      <div class="flex shrink-0 flex-col items-end gap-1.5">
+        <span :class="['lencana', st.lencana]"><Ikon :nama="st.ikon" :ukuran="12" /> {{ st.label }}</span>
+        <button type="button" class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/40" :aria-label="`WhatsApp ${props.b.nama_pekerjaan}`" @click.prevent.stop="emit('wa', props.b)"><Ikon nama="MessageCircle" :ukuran="16" /></button>
+      </div>
     </div>
     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
       <span class="flex items-center gap-1"><Ikon nama="CalendarDays" :ukuran="13" class="text-biru" /> {{ tanggalPendek(tanggalRealisasi(props.b)) || '—' }}</span>

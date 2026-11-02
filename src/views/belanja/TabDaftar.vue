@@ -11,10 +11,12 @@ import { eksporExcel } from '@/utils/excel'
 import Ikon from '@/components/Ikon.vue'
 import GridStat from '@/components/GridStat.vue'
 import KartuBelanja from './KartuBelanja.vue'
+import WaTransaksi from '@/components/WaTransaksi.vue'
 import CetakDaftar from '@/components/cetak/CetakDaftar.vue'
 
 const props = defineProps({ jenis: { type: String, default: 'pengadaan' } })
 const belanja = useBelanja()
+const waB = ref(null)
 const router = useRouter()
 const auth = useAuth()
 const notif = useNotifikasi()
@@ -124,7 +126,7 @@ async function ekspor() {
       <RouterLink v-if="!sumber.length && auth.isAdmin" :to="honor ? '/belanja/honor/baru' : '/belanja/baru'" class="tombol-utama"><Ikon nama="CirclePlus" :ukuran="17" /> {{ honor ? 'Catat honor/transpor' : 'Catat belanja pertama' }}</RouterLink>
     </div>
     <div v-else-if="tampilan === 'kartu'" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      <KartuBelanja v-for="b in hasil" :key="b.id" :b="b" />
+      <KartuBelanja v-for="b in hasil" :key="b.id" :b="b" @wa="waB = $event" />
     </div>
     <div v-else class="kartu overflow-x-auto">
       <table class="w-full min-w-[760px] text-sm">
@@ -148,5 +150,6 @@ async function ekspor() {
 
     <CetakDaftar v-if="cetakTerbuka" :judul="honor ? 'Daftar Honor dan Transpor' : 'Daftar Belanja'" :subjudul="`Tahun Anggaran ${belanja.tahun}`" :kolom="kolomCetak" :baris="hasil" excel
                  @tutup="cetakTerbuka = false" @excel="ekspor" />
+    <WaTransaksi v-if="waB" :b="waB" @ubah="waB = $event" @tutup="waB = null" />
   </div>
 </template>

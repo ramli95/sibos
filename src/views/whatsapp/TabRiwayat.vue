@@ -4,7 +4,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { pakaiWa } from './pakaiWa'
 import { useNotifikasi } from '@/stores/notifikasi'
-import { JENIS_WA, tautanWa } from '@/utils/wa'
+import { SEMUA_JENIS_WA as JENIS_WA, tautanWa } from '@/utils/wa'
 import { formatWaktuRelatif } from '@/utils/format'
 import { formatWa } from '@/utils/validasi'
 import Ikon from '@/components/Ikon.vue'

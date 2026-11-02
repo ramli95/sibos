@@ -47,7 +47,7 @@ const lebar = (p) => `${Math.max(0, Math.min(100, p))}%`
           <div v-for="[l, n, w] in [['Tersedia', r.danaTersedia, 'border-biru bg-blue-50 text-biru dark:bg-blue-950/30'], ['Digunakan', r.realisasi, 'border-[#22A08D] bg-teal-50 text-[#167A6B] dark:bg-teal-950/30 dark:text-teal-300'], ['Sisa', r.sisa, 'border-[#E3A414] bg-amber-50 text-[#9A6B00] dark:bg-amber-950/30 dark:text-amber-300']]" :key="l"
                :class="['rounded-xl border-2 p-2 text-center sm:p-3', w]">
             <p class="text-[11px] font-bold uppercase tracking-wide">{{ l }}</p>
-            <p class="angka text-sm font-extrabold sm:text-base">{{ rupiahRingkas(n) }}</p>
+            <p class="angka whitespace-nowrap text-xs font-extrabold sm:text-base">{{ rupiahRingkas(n) }}</p>
           </div>
         </div>
         <ul class="space-y-2 px-4 pb-4">

@@ -97,7 +97,7 @@ function ekspor() {
 <template>
   <div class="mx-auto max-w-5xl space-y-5">
     <p class="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2.5 text-sm text-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
-      <Ikon nama="Clock" :ukuran="16" class="text-biru" /> Log yang lebih tua dari <b>6 bulan</b> dihapus otomatis setiap malam setelah cadangan harian (salinannya tetap ada di cadangan JSON).
+      <Ikon nama="Clock" :ukuran="16" class="shrink-0 text-biru" /> <span>Log yang lebih tua dari <b>6 bulan</b> dihapus otomatis setiap malam setelah cadangan harian (salinannya tetap ada di cadangan JSON).</span>
     </p>
     <div class="kartu flex flex-wrap items-center gap-2 p-3">
       <div class="relative min-w-[14rem] flex-1">

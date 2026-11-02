@@ -199,7 +199,7 @@ const adaBulanDiPratinjau = computed(() => uraianAkhir.value.some((u) => u.bulan
       </div>
       <p v-if="!rkas.daftarVersi.length" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500 dark:bg-slate-800/50">Belum ada versi. Mulai dengan mengimpor Kertas Kerja RKAS per Tahap.</p>
       <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <div v-for="v in rkas.daftarVersi" :key="v.id" :class="['rounded-2xl border p-4', v.berlaku ? 'border-emerald-300 bg-emerald-50/50 dark:border-emerald-700 dark:bg-emerald-950/20' : 'border-slate-200 dark:border-slate-700']">
+        <div v-for="v in rkas.daftarVersi" :key="v.id" :class="['min-w-0 rounded-2xl border p-4', v.berlaku ? 'border-emerald-300 bg-emerald-50/50 dark:border-emerald-700 dark:bg-emerald-950/20' : 'border-slate-200 dark:border-slate-700']">
           <div class="flex items-start gap-3">
             <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl ikon-chip']"><Ikon :nama="JENIS_VERSI[v.jenis]?.ikon" :ukuran="18" /></span>
             <div class="min-w-0 flex-1">

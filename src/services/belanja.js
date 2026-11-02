@@ -411,3 +411,14 @@ export async function tandaiInput(daftar, jenis, tanggal) {
   }
   return daftar.map((b) => ({ ...b, [kolom]: nilai }))
 }
+
+/** Pengguna anggaran / penanggung jawab kegiatan (penerima pesan WA progres & kekurangan laporan) */
+export async function simpanPenggunaAnggaran(b, p) {
+  const nilai = p ? { id: p.id || null, nama: p.nama || '', no_wa: p.no_wa || '', jabatan: p.jabatan || '' } : null
+  if (modePratinjau) { const x = (await dataContoh()).daftar.find((y) => y.id === b.id); if (x) x.pengguna_anggaran = nilai; return { ...b, pengguna_anggaran: nilai } }
+  const bt = writeBatch(db)
+  bt.update(doc(db, 'belanja', b.id), { pengguna_anggaran: nilai, diperbarui: serverTimestamp() })
+  log(bt, 'ubah', `Pengguna anggaran "${b.nama_pekerjaan}": ${nilai?.nama || '-'}`, 'belanja', b.id)
+  await bt.commit()
+  return { ...b, pengguna_anggaran: nilai }
+}

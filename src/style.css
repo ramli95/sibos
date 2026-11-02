@@ -35,7 +35,7 @@
   @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/60 dark:bg-[#161D2B];
 }
 @utility tombol {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition
     focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-biru disabled:opacity-50 disabled:cursor-not-allowed;
 }
 @utility tombol-utama {
@@ -127,4 +127,19 @@
     --viz-aman: #4ade80; --viz-waspada: #fbbf24; --viz-lewat: #f87171;
     --arkas-snp: rgb(244 63 94 / 0.16); --arkas-komponen: rgb(34 197 94 / 0.14); --arkas-kegiatan: rgb(250 204 21 / 0.10);
   }
+}
+
+/* ===== Tampilan HP (perbaikan menyeluruh) =====
+   1. Halaman tidak boleh lebih lebar dari layar (mencegah HP memperkecil seluruh halaman).
+   2. Di bilah yang boleh turun baris (flex-wrap), teks utama minimal ±14rem: tombol & pilihan
+      turun ke baris berikutnya, bukan teksnya yang menyempit lalu memanjang ke atas.
+   3. Kata/kode yang sangat panjang dipatahkan agar tidak mendorong lebar kartu. */
+@layer base {
+  html, body { overflow-x: clip; }
+  body { overflow-wrap: break-word; }
+}
+@media (max-width: 639px) {
+  .flex-wrap > .flex-1.min-w-0,
+  .flex-wrap > div.flex-1 { min-width: min(100%, 14rem); }
+  .kartu { min-width: 0; }
 }

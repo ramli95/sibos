@@ -74,7 +74,7 @@ const NADA = { cocok: 'bg-emerald-500', selisih: 'bg-amber-500', belum: 'bg-slat
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-4" data-tur="rekon-saldo">
       <div v-for="x in kartu" :key="x.k" class="kartu p-4">
         <div class="flex items-center gap-2"><span :class="['grid h-9 w-9 place-items-center rounded-xl', x.warna]"><Ikon :nama="x.ikon" :ukuran="17" /></span><b class="text-sm">{{ x.k }}</b></div>
-        <p class="angka mt-2 text-lg font-extrabold">{{ x.n == null ? '—' : rupiah(x.n) }}</p>
+        <p class="angka mt-2 whitespace-nowrap text-[15px] font-extrabold sm:text-lg">{{ x.n == null ? '—' : rupiah(x.n) }}</p>
         <p class="text-[11px] text-slate-500">{{ x.s }}</p>
         <p v-if="x.sel != null" :class="['mt-1.5 inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs font-semibold', x.sel === 0 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300']">
           <Ikon :nama="x.sel === 0 ? 'CircleCheck' : 'TriangleAlert'" :ukuran="13" /> {{ x.sel === 0 ? 'Cocok' : `Selisih ${rupiah(x.sel)}` }}</p>

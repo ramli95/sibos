@@ -88,7 +88,7 @@ const pintasBelanja = computed(() => [
       <h3 class="flex items-center gap-2 font-bold"><Ikon nama="BellRing" :ukuran="18" class="text-[#E3A414]" /> Perlu perhatian <span class="lencana bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{{ pengingat.length }}</span></h3>
       <div class="grid gap-2 md:grid-cols-2">
         <RouterLink v-for="p in (semuaPengingat ? pengingat : pengingat.slice(0, 4))" :key="p.kunci" :to="p.ke"
-                    :class="['kartu flex items-center gap-3 border-l-4 p-3 transition hover:shadow-md', NADA_P[p.nada].garis]">
+                    :class="['kartu flex min-w-0 items-center gap-3 border-l-4 p-3 transition hover:shadow-md', NADA_P[p.nada].garis]">
           <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl', NADA_P[p.nada].chip]"><Ikon :nama="p.ikon" :ukuran="18" /></span>
           <div class="min-w-0 flex-1"><p class="text-sm font-bold">{{ p.judul }}</p><p class="truncate text-xs text-slate-500">{{ p.isi }}</p></div>
           <Ikon nama="ChevronRight" class="text-slate-400" />

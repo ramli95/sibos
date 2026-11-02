@@ -38,6 +38,20 @@ const selesai = computed(() => kelompok.value.reduce((s, [, d]) => s + d.filter(
       </div>
     </div>
 
+    <!-- Pengaturan tawaran tur -->
+    <div class="kartu grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4 sm:flex" data-tur="panduan-tawaran">
+      <span :class="['grid h-10 w-10 shrink-0 place-items-center rounded-xl', p.tawaranAktif ? 'ikon-chip-sukses' : 'bg-slate-100 text-slate-400 dark:bg-slate-800']"><Ikon :nama="p.tawaranAktif ? 'BellRing' : 'Bell'" :ukuran="19" /></span>
+      <div class="min-w-0 flex-1">
+        <p class="font-bold">Tawarkan tur otomatis</p>
+        <p class="text-xs text-slate-500">{{ p.tawaranAktif ? 'Aktif — tur ditawarkan saat pertama kali membuka menu.' : 'Mati — tur hanya diputar lewat tombol ? atau daftar di bawah.' }}</p>
+      </div>
+      <button role="switch" :aria-checked="p.tawaranAktif" :aria-label="'Tawarkan tur otomatis'" @click="p.aturTawaran(!p.tawaranAktif)"
+              :class="['relative h-7 w-12 shrink-0 rounded-full transition', p.tawaranAktif ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600']">
+        <span :class="['absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all', p.tawaranAktif ? 'left-[1.4rem]' : 'left-0.5']" />
+      </button>
+      <button class="tombol-garis col-span-3 px-3 py-1.5 text-xs sm:w-auto" @click="p.ulangSemua(); p.aturTawaran(true)"><Ikon nama="Repeat" :ukuran="14" class="text-biru" /> Tawarkan lagi semua tur</button>
+    </div>
+
     <section v-for="[nama, daftar] in kelompok" :key="nama" class="space-y-2">
       <h2 class="px-1 text-xs font-bold uppercase tracking-wider text-slate-500">{{ nama }}</h2>
       <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

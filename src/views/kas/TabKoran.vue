@@ -9,7 +9,7 @@ import { simpanKoran, hapusKoran, simpanKas } from '@/services/kas'
 import { calonBank, cocokkanKoran, tebakJenisMutasi, saldoSampai } from '@/utils/bku'
 import { uraiKoran, bacaBerkasKoran, pecahPerBulan } from '@/utils/koran'
 import { JENIS_KAS } from '@/config/pajak'
-import { rupiah, tanggalPendek, NAMA_BULAN, keIso } from '@/utils/format'
+import { rupiah, rupiahRingkas, tanggalPendek, NAMA_BULAN, keIso } from '@/utils/format'
 import Ikon from '@/components/Ikon.vue'
 import GridStat from '@/components/GridStat.vue'
 import Laci from '@/components/Laci.vue'
@@ -31,8 +31,8 @@ const terpakai = computed(() => new Set(hasil.value.flatMap((m) => m.pasangan?.b
 const tidakDiKoran = computed(() => (koran.value ? calon.value.filter((c) => !c.cadangan && c.tanggal >= `${id.value}-01` && c.tanggal <= akhir.value && !c.baris.some((x) => terpakai.value.has(x))) : []))
 
 const statistik = computed(() => [
-  { judul: 'Saldo koran', nilai: koran.value ? rupiah(koran.value.saldo_akhir) : '—', ikon: 'FileSearch', nada: 'gelap', ringkas: true, sub: koran.value ? `${(koran.value.mutasi || []).length} mutasi` : 'Belum diimpor' },
-  { judul: 'Saldo buku bank', nilai: rupiah(saldoBuku.value), ikon: 'Landmark', nada: 'primer', ringkas: true, sub: `per ${tanggalPendek(akhir.value)}` },
+  { judul: 'Saldo koran', nilai: koran.value ? rupiahRingkas(koran.value.saldo_akhir) : '—', ikon: 'FileSearch', nada: 'gelap', ringkas: true, sub: koran.value ? `${rupiah(koran.value.saldo_akhir)} · ${(koran.value.mutasi || []).length} mutasi` : 'Belum diimpor' },
+  { judul: 'Saldo buku bank', nilai: rupiahRingkas(saldoBuku.value), ikon: 'Landmark', nada: 'primer', ringkas: true, sub: `${rupiah(saldoBuku.value)} · per ${tanggalPendek(akhir.value)}` },
   { judul: 'Selisih', nilai: koran.value ? rupiah(koran.value.saldo_akhir - saldoBuku.value) : '—', ikon: 'Scale', nada: !koran.value ? 'primer' : koran.value.saldo_akhir === saldoBuku.value ? 'sukses' : 'bahaya', ringkas: true },
   { judul: 'Belum berpasangan', nilai: belum.value.length, ikon: 'Unlink', nada: belum.value.length ? 'peringatan' : 'sukses', sub: `${tidakDiKoran.value.length} transaksi SIBOS tak ada di koran` },
 ])

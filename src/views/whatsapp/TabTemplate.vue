@@ -3,7 +3,7 @@
 import { ref, onMounted } from 'vue'
 import { pakaiWa } from './pakaiWa'
 import { useNotifikasi } from '@/stores/notifikasi'
-import { JENIS_WA, TEMPLATE_AWAL, ISIAN_WA } from '@/utils/wa'
+import { SEMUA_JENIS_WA as JENIS_WA, TEMPLATE_AWAL, ISIAN_WA } from '@/utils/wa'
 import Ikon from '@/components/Ikon.vue'
 
 const wa = pakaiWa()

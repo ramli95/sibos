@@ -44,7 +44,7 @@ const NADA = {
       </span>
       <Ikon v-if="props.aktif" nama="Filter" :ukuran="15" class="text-white/80" />
     </div>
-    <p :class="['angka mt-3 font-extrabold leading-none tracking-tight', props.ringkas ? 'whitespace-nowrap text-xl sm:text-2xl' : 'text-[1.75rem] sm:text-3xl']">
+    <p :class="['angka mt-3 truncate font-extrabold leading-none tracking-tight', String(props.nilai ?? '').length > 13 ? 'text-base sm:text-xl' : props.ringkas ? 'whitespace-nowrap text-xl sm:text-2xl' : 'text-[1.75rem] sm:text-3xl']" :title="String(props.nilai ?? '')">
       <span v-if="props.memuat" class="inline-block h-7 w-12 animate-pulse rounded-lg bg-white/25 align-middle" />
       <template v-else>{{ props.nilai }}</template>
     </p>

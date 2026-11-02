@@ -45,7 +45,7 @@ const JENIS_PRIBADI = {
 
     <template v-if="aktif === 'kas-sekolah'">
       <p class="flex items-start gap-2 rounded-2xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200"><Ikon nama="Info" :ukuran="17" class="mt-0.5 shrink-0" />
-        Catatan uang sekolah <b>di luar Dana BOSP</b> (mis. dana titipan, sumbangan sah, kas kegiatan). Tidak masuk BKU, laporan ARKAS, maupun SIMAKDA.</p>
+        <span>Catatan uang sekolah <b>di luar Dana BOSP</b> (mis. dana titipan, sumbangan sah, kas kegiatan). Tidak masuk BKU, laporan ARKAS, maupun SIMAKDA.</span></p>
       <BukuCatatan koleksi="catatan_kas_sekolah" judul="Catatan Kas Sekolah" :jenis="JENIS_KAS_SEKOLAH" label-saldo="Saldo kas sekolah" :bisa-ubah="auth.isAdmin" />
     </template>
     <template v-else-if="aktif === 'pribadi'">

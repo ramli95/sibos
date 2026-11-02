@@ -160,8 +160,8 @@ const muatUlang = () => location.reload()
         </div>
         <div class="kartu space-y-2 p-5 text-sm text-slate-600 dark:text-slate-300">
           <h3 class="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-100"><Ikon nama="Lightbulb" :ukuran="17" class="text-[#E3A414]" /> Aturan singkat</h3>
-          <p class="flex gap-2"><Ikon nama="Hash" :ukuran="15" class="mt-0.5 shrink-0 text-biru" /> Kolom <b>_id</b> jangan diubah. Baris baru: kosongkan _id.</p>
-          <p class="flex gap-2"><Ikon nama="Layers" :ukuran="15" class="mt-0.5 shrink-0 text-[#22A08D]" /> Lembar bertanda <b>~</b> berisi rincian (item, penerima, uraian, butir).</p>
+          <p class="flex gap-2"><Ikon nama="Hash" :ukuran="15" class="mt-0.5 shrink-0 text-biru" /> <span>Kolom <b>_id</b> jangan diubah. Baris baru: kosongkan _id.</span></p>
+          <p class="flex gap-2"><Ikon nama="Layers" :ukuran="15" class="mt-0.5 shrink-0 text-[#22A08D]" /> <span>Lembar bertanda <b>~</b> berisi rincian (item, penerima, uraian, butir).</span></p>
           <p class="flex gap-2"><Ikon nama="Eraser" :ukuran="15" class="mt-0.5 shrink-0 text-rose-500" /> Sel kosong = isian dihapus. Baris induk yang dihapus hanya ikut terhapus bila dicentang saat impor.</p>
           <p class="flex gap-2"><Ikon nama="ShieldCheck" :ukuran="15" class="mt-0.5 shrink-0 text-emerald-600" /> Ekspor cadangan dulu sebelum mengimpor perubahan besar.</p>
         </div>

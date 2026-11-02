@@ -84,13 +84,15 @@ watch(() => route.path, (path) => {
   tawaran.value = null
   if (p.aktif) return
   const k = turUntukRute(path)
-  if (!k || p.sudah(k)) return
+  if (!k || !p.bolehTawar(k)) return
   const t = TUR[k]
   if (t.peran && !auth.punyaPeran(...t.peran)) return
   setTimeout(() => { if (!p.aktif && turUntukRute(route.path) === k) tawaran.value = k }, 900)
 }, { immediate: true })
 function terimaTawaran() { const k = tawaran.value; tawaran.value = null; p.mulai(k) }
-function tolakTawaran() { p.tandai(tawaran.value); tawaran.value = null }
+function ingatkanLagi() { p.ingatkanLagi(tawaran.value); tawaran.value = null }   // tawarkan lagi besok
+function janganLagi() { p.tandai(tawaran.value); tawaran.value = null }             // tur menu ini tidak ditawarkan lagi
+function matikanSemua() { p.aturTawaran(false); tawaran.value = null }              // semua tawaran mati (aktifkan lagi di Panduan)
 </script>
 
 <template>
@@ -130,10 +132,15 @@ function tolakTawaran() { p.tandai(tawaran.value); tawaran.value = null }
             <p class="text-xs text-slate-500">{{ TUR[tawaran].langkah.length }} langkah singkat untuk menu ini.</p>
           </div>
         </div>
-        <div class="mt-2 flex justify-end gap-2">
-          <button class="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" @click="tolakTawaran">Nanti saja</button>
-          <button class="tombol-utama px-3 py-1.5 text-sm" @click="terimaTawaran"><Ikon nama="Play" :ukuran="15" /> Mulai</button>
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <button class="tombol-garis px-2 py-1.5 text-xs" @click="ingatkanLagi"><Ikon nama="Clock" :ukuran="14" class="text-[#B7820A]" /> Ingatkan lagi</button>
+          <button class="tombol-utama px-2 py-1.5 text-xs" @click="terimaTawaran"><Ikon nama="Play" :ukuran="14" /> Ikuti tur</button>
         </div>
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px]">
+          <button class="font-semibold text-slate-500 hover:underline" @click="janganLagi">Jangan tampilkan lagi</button>
+          <button class="font-semibold text-rose-600 hover:underline" @click="matikanSemua">Matikan semua tawaran</button>
+        </div>
+        <p class="mt-1.5 text-[11px] text-slate-400">Bisa diaktifkan kembali di Pengaturan → Panduan Input, atau tekan <b>?</b> di atas kapan saja.</p>
       </div>
     </Transition>
   </Teleport>

@@ -16,6 +16,7 @@ import { rupiah, tanggalPanjang, tanggalPendek } from '@/utils/format'
 import { pilihanPaket, grupKwitansiBesar } from '@/components/spj/paket'
 import Ikon from '@/components/Ikon.vue'
 import PaketSpj from '@/components/spj/PaketSpj.vue'
+import WaTransaksi from '@/components/WaTransaksi.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,6 +28,7 @@ const notif = useNotifikasi()
 const b = ref(null)
 const foto = ref([])
 const bahan = ref(null)
+const bukaWa = ref(false)
 const memuat = ref(true)
 const paket = ref(null) // null | { hanya: [kunci] | null }
 const sibuk = ref('')
@@ -152,10 +154,11 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
           <div class="flex w-full items-baseline justify-between gap-2 border-t border-slate-100 pt-2 sm:block sm:w-auto sm:border-0 sm:pt-0 sm:text-right dark:border-slate-800"><p class="text-xs text-slate-500">Jumlah</p><p class="angka text-xl font-extrabold">{{ rupiah(b.total) }}</p></div>
         </div>
         <div class="mt-4 flex flex-wrap gap-2">
-          <button class="tombol-utama flex-1 sm:flex-none" @click="paket = { hanya: null }"><Ikon nama="Printer" :ukuran="17" /> Cetak Paket SPJ</button>
+          <button class="tombol-utama w-full sm:w-auto" @click="paket = { hanya: null }"><Ikon nama="Printer" :ukuran="17" /> Cetak Paket SPJ</button>
+          <button class="tombol-garis" @click="bukaWa = true"><Ikon nama="MessageCircle" :ukuran="17" class="text-emerald-600" /> WhatsApp</button>
           <template v-if="auth.isAdmin">
             <RouterLink :to="ubahKe" class="tombol-garis"><Ikon nama="Pencil" :ukuran="17" class="text-biru" /> Ubah</RouterLink>
-            <RouterLink v-if="b.status === 'lunas'" :to="`/whatsapp/kirim?jenis=${(b.persen_lengkap ?? 100) < 100 ? 'kelengkapan' : 'transfer'}&ref=${b.id}`" class="tombol-garis"><Ikon nama="MessageCircle" :ukuran="17" class="text-emerald-600" /> <span class="hidden sm:inline">WhatsApp</span></RouterLink>
+
             <button class="tombol text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40" @click="hapus"><Ikon nama="Trash2" :ukuran="17" /> <span class="hidden sm:inline">Hapus</span></button>
           </template>
         </div>
@@ -306,6 +309,7 @@ const ubahKe = computed(() => (honor.value ? `/belanja/honor/ubah/${b.value?.id}
         </aside>
       </div>
 
+      <WaTransaksi v-if="bukaWa && b" :b="b" @ubah="b = $event" @tutup="bukaWa = false" />
       <PaketSpj v-if="paket && bahan" :b="b" :bahan="bahan" :foto="foto" :semua="belanja.daftar" :nama-keg="namaKeg" :nama-rek="namaRek" :hanya="paket.hanya" @tutup="paket = null" />
     </template>
   </div>

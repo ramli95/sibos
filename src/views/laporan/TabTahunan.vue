@@ -94,16 +94,16 @@ const dokumen = [
   <div class="space-y-5">
     <!-- Tenggat -->
     <div class="grid gap-3 md:grid-cols-2" data-tur="tahunan-tenggat">
-      <div v-for="x in tenggat" :key="x.kunci" class="kartu flex items-center gap-4 p-4">
-        <span :class="['grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-white', x.sisa < 0 ? 'bg-slate-400' : x.sisa <= 14 ? 'bg-gradient-to-br from-rose-500 to-rose-600' : 'bg-gradient-to-br from-biru to-blue-700']">
+      <div v-for="x in tenggat" :key="x.kunci" class="kartu flex items-start gap-3 p-4 sm:items-center sm:gap-4">
+        <span :class="['grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white sm:h-14 sm:w-14', x.sisa < 0 ? 'bg-slate-400' : x.sisa <= 14 ? 'bg-gradient-to-br from-rose-500 to-rose-600' : 'bg-gradient-to-br from-biru to-blue-700']">
           <Ikon nama="CalendarClock" :ukuran="26" />
         </span>
         <div class="min-w-0 flex-1">
-          <p class="font-bold">{{ x.judul }}</p>
+          <p class="font-bold">{{ x.judul }} <span :class="['lencana ml-1 align-middle sm:hidden', x.sisa < 0 ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' : x.sisa <= 14 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300']">{{ sisaHari(x) }}</span></p>
           <p class="text-sm text-slate-500">Paling lambat {{ tanggalPanjang(x.tanggal) }} melalui ARKAS</p>
           <p class="text-xs text-slate-400">{{ x.kunci === 'tahap1' ? TENGGAT.tahap1.dasar : TENGGAT.tahunan.dasar }} · terlambat dipotong {{ (x.kunci === 'tahap1' ? DENDA_TERLAMBAT.tahap1 : DENDA_TERLAMBAT.tahunan).map((d) => `${d.persen}% (${d.ket})`).join(', ') }}</p>
         </div>
-        <span :class="['lencana shrink-0', x.sisa < 0 ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' : x.sisa <= 14 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300']">{{ sisaHari(x) }}</span>
+        <span :class="['lencana hidden shrink-0 sm:inline-flex', x.sisa < 0 ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' : x.sisa <= 14 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300']">{{ sisaHari(x) }}</span>
       </div>
     </div>
 
