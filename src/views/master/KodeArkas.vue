@@ -22,7 +22,7 @@ const NAMA_SNP = {
 }
 const DEF = {
   'arkas-kegiatan': { judul: 'Kode Kegiatan ARKAS', berkas: 'kegiatan-arkas-2025.json', ikon: 'ClipboardList', chip: 'ikon-chip',
-    ket: 'Kode kegiatan (SNP.Komponen.Kegiatan) dari Referensi Kode ARKAS 2025. Dua angka pertama = Standar (SNP), dua angka tengah = komponen BOSP.' },
+    ket: 'Kode kegiatan (SNP.Komponen.Kegiatan) dari Referensi Kode ARKAS 2025 dan Kode Referensi pada ARKAS 4 (Rumah Pendidikan). Dua angka pertama = Standar (SNP), dua angka tengah = komponen BOSP.' },
   'arkas-barang-jasa': { judul: 'Barang & Jasa ARKAS', berkas: 'barang-jasa-arkas-2025.json', ikon: 'ShoppingBasket', chip: 'ikon-chip-tosca',
     ket: 'Daftar barang/jasa belanja operasional (5.1.02) beserta kode rekening, satuan, dan harga acuan ARKAS 2025.' },
   'arkas-barang-modal': { judul: 'Barang Modal ARKAS', berkas: 'barang-modal-arkas-2025.json', ikon: 'Package', chip: 'ikon-chip-kuning',
@@ -81,7 +81,7 @@ async function salin(teks) {
 
 function ekspor() {
   const kolom = props.jenis === 'arkas-kegiatan'
-    ? [{ kunci: 'kode', judul: 'Kode Kegiatan', lebar: 14 }, { kunci: 'program', judul: 'Program', lebar: 36 }, { kunci: 'sub_program', judul: 'Sub Program', lebar: 40 }, { kunci: 'uraian', judul: 'Uraian', lebar: 70 }]
+    ? [{ kunci: 'kode', judul: 'Kode Kegiatan', lebar: 14 }, { kunci: 'snp', judul: 'SNP', lebar: 12 }, { kunci: 'program', judul: 'Program', lebar: 36 }, { kunci: 'sub_program', judul: 'Sub Program', lebar: 40 }, { kunci: 'uraian', judul: 'Uraian', lebar: 70 }, { kunci: 'khusus', judul: 'Khusus', lebar: 12 }]
     : [{ kunci: 'kode_barang', judul: 'Kode Barang', lebar: 26 }, { kunci: 'kode_rekening', judul: 'Kode Rekening', lebar: 20 }, { kunci: 'nama', judul: 'Nama Barang', lebar: 60 },
        ...(props.jenis === 'arkas-barang-modal' ? [{ kunci: 'spesifikasi', judul: 'Spesifikasi', lebar: 30 }] : []),
        { kunci: 'satuan', judul: 'Satuan', lebar: 12 }, { kunci: 'harga', judul: 'Harga', lebar: 16, uang: true }]
@@ -149,7 +149,9 @@ async function pasangKeTabel() {
       <li v-for="b in tampil" :key="b.kode" class="flex items-start gap-3 px-4 py-3">
         <button class="kode shrink-0 rounded-lg bg-biru/10 px-2 py-1 text-xs font-bold text-biru hover:bg-biru/20 dark:text-blue-300" title="Salin kode" @click="salin(b.kode)">{{ b.kode }}</button>
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-semibold leading-snug">{{ b.uraian }}</p>
+          <p class="text-sm font-semibold leading-snug">{{ b.uraian }}
+            <span v-if="b.snp" class="lencana ml-1 bg-teal-100 align-middle text-[#167A6B] dark:bg-teal-900/40 dark:text-teal-300">{{ b.snp }}</span>
+            <span v-if="b.khusus" class="lencana ml-1 bg-amber-100 align-middle text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">khusus {{ b.khusus }}</span></p>
           <p class="mt-0.5 text-xs text-slate-500">{{ b.sub_program }} · <span class="text-slate-400">{{ b.program }}</span></p>
         </div>
       </li>

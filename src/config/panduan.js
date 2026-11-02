@@ -211,6 +211,14 @@ export const TUR = {
       { pilih: ['[data-tur="rekon-input"]'], judul: 'Tandai sudah diinput', isi: 'Setelah menyalin transaksi ke ARKAS/SIMAKDA, ketuk kotak centang per transaksi atau tombol "Semua". Transaksi yang belum ditandai muncul di Dasbor → Perlu perhatian.' },
     ],
   },
+  formatsimakda: {
+    judul: 'Laporan format SIMAKDA', ikon: 'FileStack', warna: '#1A62E8', rute: '/laporan/format-simakda', kelompok: 'Laporan',
+    ket: 'BKU, buku pembantu, LPJ, subrincian objek, LRPB, SPTJM, BMD — periode bebas.',
+    langkah: [
+      { pilih: ['[data-tur="simakda-periode"]'], judul: 'Pilih periode', isi: 'Rentang tanggal (tanggal mulai s.d. akhir), bulanan, semester, atau setahun — sama seperti di SIMAKDA. Tanggal tanda tangan bawaannya tanggal akhir periode.' },
+      { pilih: ['[data-tur="simakda-dokumen"]'], judul: '9 laporan', isi: 'Buku Kas Umum, Buku Pembantu Tunai, Buku Simpanan Bank, Buku Pembantu Pajak, LPJ (SPJ Belanja BOS), Buku Subrincian Objek, Laporan Realisasi, SPTJM, dan Rekap Pembelian BMD. Cetak F4 atau unduh Excel.' },
+    ],
+  },
   kaslain: {
     judul: 'Kas Lain & Iuran', ikon: 'Vault', warna: '#E3A414', rute: '/kas-lain/ringkasan', kelompok: 'Keuangan', peran: ['bendahara', 'kepala_sekolah'],
     ket: 'Arisan, dana sosial, zakat, potongan sertifikasi, komite, utang piutang.',

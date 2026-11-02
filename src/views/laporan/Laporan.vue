@@ -20,6 +20,7 @@ import TabSiplah from './TabSiplah.vue'
 import TabPemdaLain from './TabPemdaLain.vue'
 import TabRekapLain from './TabRekapLain.vue'
 import TabRekonsiliasi from './TabRekonsiliasi.vue'
+import TabFormatSimakda from './TabFormatSimakda.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -67,6 +68,7 @@ onMounted(() => muat())
     <PitaArsip :tahun="kas.tahun" />
 
     <div v-if="kas.galat || rkas.galat" class="kartu flex items-center gap-3 p-5 text-sm text-rose-600"><Ikon nama="CircleAlert" /> {{ kas.galat || rkas.galat }}</div>
+    <TabFormatSimakda v-else-if="aktif === 'format-simakda'" />
     <TabPemda v-else-if="aktif === 'pemda'" />
     <TabTahunan v-else-if="aktif === 'tahunan'" />
     <TabKesiapan v-else-if="aktif === 'kesiapan'" />

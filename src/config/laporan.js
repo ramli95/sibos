@@ -6,6 +6,7 @@
 
 export const TAB_LAPORAN = [
   { kunci: 'realisasi', judul: 'Realisasi SNP & Komponen', ikon: 'ChartPie' },
+  { kunci: 'format-simakda', judul: 'Format SIMAKDA', ikon: 'FileStack' },
   { kunci: 'pemda', judul: 'Laporan Pemda Bulanan', ikon: 'Landmark' },
   { kunci: 'tahunan', judul: 'Tahap & Tahunan', ikon: 'CalendarRange' },
   { kunci: 'objek', judul: 'Buku Subrincian Objek', ikon: 'BookCopy' },

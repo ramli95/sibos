@@ -4,6 +4,9 @@ export const SEKOLAH_AWAL = {
   nama_arkas: 'UPT SPF SMP NEGERI 19 MAKASSAR',
   nama_pemda: 'UPT SATUAN PENDIDIKAN FORMAL SMP NEGERI 19 MAKASSAR',
   kode_sekolah_pemda: '1.01.0.00.0.00.01.0047',
+  // Identitas pada laporan SIMAKDA
+  kelurahan: 'Bangkala', kecamatan: 'Manggala', kota: 'Makassar', provinsi: 'Sulawesi Selatan',
+  no_dpa: '1.01.02.2.02.0042.52', kode_kegiatan_dpa: '1.01.02.2.02.0042',
   npwp: '00.297.289.1-805.000',
   id_subunit: '',
   alamat: 'Jl. Tamangapa Raya III No. 35, Bangkala, Kec. Manggala, Kota Makassar, 90235',

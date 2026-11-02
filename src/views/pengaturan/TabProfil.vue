@@ -28,6 +28,10 @@ const kelompok = [
   { judul: 'Keuangan & Pajak', ikon: 'ReceiptText', warna: 'ikon-chip', isian: [
     ['kode_sekolah_pemda', 'Kode sekolah Pemda (SIMAKDA)', true], ['npwp', 'NPWP satuan pendidikan', true], ['id_subunit', 'ID Subunit e-Bupot', true],
   ] },
+  { judul: 'Wilayah & DPA (laporan SIMAKDA)', ikon: 'MapPin', warna: 'ikon-chip-tosca', isian: [
+    ['kelurahan', 'Kelurahan/Desa'], ['kecamatan', 'Kecamatan'], ['kota', 'Kabupaten/Kota'], ['provinsi', 'Provinsi'],
+    ['no_dpa', 'Nomor DPA-SKPD', true], ['kode_kegiatan_dpa', 'Kode kegiatan Dana BOS', true],
+  ] },
   { judul: 'Kontak', ikon: 'Mail', warna: 'ikon-chip', isian: [
     ['alamat', 'Alamat'], ['telepon', 'Telepon'], ['email', 'Email'],
   ] },

@@ -69,10 +69,10 @@ export const JENIS_REFERENSI = [
     ket: 'KAP-KJS untuk kode billing. Kolom kode SIMAKDA diisi sesuai SIMAKDA Pemkot Makassar. Tarif dan aturan rinci diatur pada Fase 4.',
     kolom: [{ k: 'kode', j: 'Jenis', lebar: 'w-24' }, { k: 'nama', j: 'Nama' }, { k: 'kap_kjs', j: 'KAP-KJS', lebar: 'w-28' }, { k: 'kode_simakda', j: 'Kode SIMAKDA', lebar: 'w-32' }],
     awal: [
-      { kode: 'PPN', nama: 'Pajak Pertambahan Nilai Dalam Negeri', kap_kjs: '411211-100', kode_simakda: '' },
-      { kode: 'PPh21', nama: 'PPh Pasal 21', kap_kjs: '411121-100', kode_simakda: '' },
+      { kode: 'PPN', nama: 'Pajak Pertambahan Nilai Dalam Negeri', kap_kjs: '411211-100', kode_simakda: '2110402' },
+      { kode: 'PPh21', nama: 'PPh Pasal 21', kap_kjs: '411121-100', kode_simakda: '2110321' },
       { kode: 'PPh22', nama: 'PPh Pasal 22', kap_kjs: '411122-100', kode_simakda: '' },
-      { kode: 'PPh23', nama: 'PPh Pasal 23', kap_kjs: '411124-100', kode_simakda: '' },
+      { kode: 'PPh23', nama: 'PPh Pasal 23', kap_kjs: '411124-100', kode_simakda: '2110314' },
       { kode: 'PPh4(2)', nama: 'PPh Pasal 4 ayat (2)', kap_kjs: '', kode_simakda: '' },
       { kode: 'Daerah', nama: 'Pajak Daerah (Pajak Barang dan Jasa Tertentu)', kap_kjs: '', kode_simakda: '' },
     ],

@@ -55,6 +55,7 @@ export const MENU = [
       { judul: 'Buku Subrincian Objek', ikon: 'BookCopy', ke: '/laporan/objek', fase: 5 },
       { judul: 'Rekap SIPLah', ikon: 'ShoppingBag', ke: '/laporan/siplah', fase: 5 },
       { judul: 'Laporan Pemda Lainnya', ikon: 'Files', ke: '/laporan/pemda-lain', fase: 7 },
+      { judul: 'Format SIMAKDA', ikon: 'FileStack', ke: '/laporan/format-simakda', fase: 9 },
       { judul: 'Rekap, Matriks & SK', ikon: 'Sheet', ke: '/laporan/rekap-lain', fase: 7 },
       { judul: 'Kesiapan SPJ', ikon: 'Gauge', ke: '/laporan/kesiapan', fase: 5 },
       { judul: 'Ekspor SIMAKDA', ikon: 'FileSpreadsheet', ke: '/laporan/simakda', fase: 5 },
